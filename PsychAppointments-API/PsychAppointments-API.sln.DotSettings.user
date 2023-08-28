@@ -1,0 +1,16 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=055fee97_002Df86a_002D41dc_002D8613_002De4268b0c9a0d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::ECB020F6-C79D-4251-99BA-E44ACB484C88::net7.0::PsychAppointmentsTests.Tests.Test1&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c0b0ef80_002D23b9_002D42de_002Dbce1_002Da677e5423011/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="SlotConstructorPrepopulateTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::ECB020F6-C79D-4251-99BA-E44ACB484C88::net7.0::PsychAppointmentsTests.Tests.Test1&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=eeb3f09f_002Ddeda_002D4027_002Db950_002D0410a1faa7d7/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SlotConstructorPrepopulateTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::53E9E4CE-2A9A-49D6-AF98-D7E8FD35A48E::net7.0::PsychAppointmentsTests.Tests.SlotConstructorPrepopulateTest&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
