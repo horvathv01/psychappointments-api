@@ -42,17 +42,18 @@ public class Slot
     private List<Session> PrepopulateSessions()
     {
         List<Session> sessions = new List<Session>();
-        TimeSpan ts = SlotEnd - SlotStart;
+        double ts = (SlotEnd - SlotStart).TotalMinutes;
+        
 
-        if (ts.Minutes < SessionLength)
+        if (ts < SessionLength)
         {
             throw new ArgumentException("Slot is too short to fit a session with the provided length.");
         }
         //how many (session + rest) fits in the slot?
-        int sessionCount = ts.Minutes % (SessionLength + Rest);
+        int sessionCount = Convert.ToInt32(Math.Floor(ts / (SessionLength + Rest)));
         //would giving up the last rest result in an extra session? 
-        int plusOneSessionTotalLength = sessionCount * (SessionLength + Rest) - Rest + SessionLength;
-        if (plusOneSessionTotalLength <= ts.Minutes)
+        int plusOneSessionTotalLength = (sessionCount + 1) * (SessionLength + Rest) - Rest;
+        if (plusOneSessionTotalLength <= ts)
         {
             //plus one session fits
             sessionCount += 1;
