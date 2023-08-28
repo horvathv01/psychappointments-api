@@ -1,10 +1,17 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=055fee97_002Df86a_002D41dc_002D8613_002De4268b0c9a0d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=055fee97_002Df86a_002D41dc_002D8613_002De4268b0c9a0d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Test1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;NUnit3x::ECB020F6-C79D-4251-99BA-E44ACB484C88::net7.0::PsychAppointmentsTests.Tests.SlotPrepopulateTest2&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::ECB020F6-C79D-4251-99BA-E44ACB484C88::net7.0::PsychAppointmentsTests.Tests.SlotPrepopulateTest3&lt;/TestId&gt;
+    &lt;TestId&gt;NUnit3x::ECB020F6-C79D-4251-99BA-E44ACB484C88::net7.0::PsychAppointmentsTests.Tests.SlotPrepopulateTest1&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c0b0ef80_002D23b9_002D42de_002Dbce1_002Da677e5423011/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="SlotConstructorPrepopulateTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;NUnit3x::ECB020F6-C79D-4251-99BA-E44ACB484C88::net7.0::PsychAppointmentsTests.Tests.Test1&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=c0b0ef80_002D23b9_002D42de_002Dbce1_002Da677e5423011/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="SlotConstructorPrepopulateTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e0fa8f21_002D0539_002D4ee7_002D9fa5_002Dd8cf28b38d00/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Test1 #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;NUnit3x::ECB020F6-C79D-4251-99BA-E44ACB484C88::net7.0::PsychAppointmentsTests.Tests.Test1&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
