@@ -9,8 +9,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.10"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0-preview.4" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="PsychAppointmentsTest\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="PsychAppointmentsTest\obj\project.packagespec.json" />
+      <_ContentIncludedByDefault Remove="PsychAppointmentsTest\obj\PsychAppointmentsTest.csproj.nuget.dgspec.json" />
     </ItemGroup>
 
 </Project>

@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PsychAppointments-API", "PsychAppointments-API.csproj", "{7950BE1D-10FF-4A0D-A5A3-FB8DB91374B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PsychAppointmentsTests", "..\PsychAppointmentsTests\PsychAppointmentsTests.csproj", "{ECB020F6-C79D-4251-99BA-E44ACB484C88}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{7950BE1D-10FF-4A0D-A5A3-FB8DB91374B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7950BE1D-10FF-4A0D-A5A3-FB8DB91374B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7950BE1D-10FF-4A0D-A5A3-FB8DB91374B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECB020F6-C79D-4251-99BA-E44ACB484C88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECB020F6-C79D-4251-99BA-E44ACB484C88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECB020F6-C79D-4251-99BA-E44ACB484C88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECB020F6-C79D-4251-99BA-E44ACB484C88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
