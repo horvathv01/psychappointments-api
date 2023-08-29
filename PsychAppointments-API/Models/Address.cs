@@ -8,7 +8,7 @@ public class Address
     public string Street { get; set; }
     public string Rest { get; set; }
 
-    public Address(string country, string zip, string city, string street, string rest)
+    public Address(string country = "", string zip = "", string city = "", string street = "", string rest = "")
     {
         Country = country;
         Zip = zip;
