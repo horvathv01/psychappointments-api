@@ -19,4 +19,11 @@ public class Location
         Psychologists = psychologists ?? new List<Psychologist>();
     }
 
+    public override bool Equals(object? obj)
+    {
+        return obj is Location
+               && ((Location)obj).Id == Id
+               && ((Location)obj).Name == Name
+               && ((Location)obj).Address.Equals(Address);
+    }
 }
