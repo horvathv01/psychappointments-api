@@ -1,3 +1,5 @@
+using PsychAppointments_API.Models.Enums;
+
 namespace PsychAppointments_API.Models;
 
 public class SessionDTO
@@ -13,7 +15,7 @@ public class SessionDTO
     public UserDTO? Client { get; set; }
     public int Price { get; set; }
     public string Frequency { get; set; }
-    public SlotDTO Slot { get; set; }
+    public SlotDTO? Slot { get; set; }
     public string Description { get; set; }
 
     public SessionDTO(
@@ -58,5 +60,21 @@ public class SessionDTO
         Frequency = session.Frequency.ToString();
         Slot = new SlotDTO(session.Slot);
         Description = session.Description;
+    }
+
+    public SessionDTO(bool blank, Location location, DateTime date, DateTime start, DateTime end, int price = 0)
+    {
+        Psychologist = new UserDTO(UserType.Psychologist.ToString());
+        PartnerPsychologist = null;
+        Blank = blank;
+        Location = new LocationDTO(location);
+        Date = date;
+        Start = start;
+        End = end;
+        Client = new UserDTO(UserType.Client.ToString());
+        Price = price;
+        Frequency = "";
+        Slot = new SlotDTO(new LocationDTO(location), date, start, end);
+        Description = "";
     }
 }

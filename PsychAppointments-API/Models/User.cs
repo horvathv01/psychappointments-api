@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using PsychAppointments_API.Models.Enums;
 
 namespace PsychAppointments_API.Models;
 
@@ -25,4 +26,5 @@ public abstract class User
         Password = password;
         RegisteredBy = registeredBy;
     }
+    
 }

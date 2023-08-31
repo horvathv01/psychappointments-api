@@ -1,3 +1,5 @@
+using PsychAppointments_API.Models.Enums;
+
 namespace PsychAppointments_API.Models;
 
 public class SlotDTO
@@ -11,7 +13,7 @@ public class SlotDTO
     public int SessionLength { get; set; }
     public int Rest { get; set; }
     public bool Weekly { get; set; }
-    public List<SessionDTO> Sessions { get; set; }
+    public List<SessionDTO>? Sessions { get; set; }
 
     public SlotDTO(
         Psychologist psychologist,
@@ -47,5 +49,18 @@ public class SlotDTO
         Rest = slot.Rest;
         Weekly = slot.Weekly;
         Sessions = slot.Sessions.Select(ses => new SessionDTO(ses)).ToList();
+    }
+
+    public SlotDTO(LocationDTO location, DateTime date, DateTime start, DateTime end, List<SessionDTO>? sessions = null)
+    {
+        Psychologist = new UserDTO(UserType.Psychologist.ToString());
+        Location = location;
+        Date = date;
+        SlotStart = start;
+        SlotEnd = end;
+        SessionLength = 0;
+        Rest = 0;
+        Weekly = false;
+        Sessions = sessions;
     }
 }

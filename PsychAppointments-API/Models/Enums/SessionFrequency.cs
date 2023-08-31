@@ -1,4 +1,4 @@
-namespace PsychAppointments_API.Models;
+namespace PsychAppointments_API.Models.Enums;
 
 public enum SessionFrequency
 {

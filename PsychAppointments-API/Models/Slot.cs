@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using PsychAppointments_API.Models.Enums;
 
 namespace PsychAppointments_API.Models;
 
@@ -79,6 +80,17 @@ public class Slot
         return sessions;
     }
 
-
-
+    public override bool Equals(object? obj)
+    {
+        return obj is Slot
+               && ((Slot)obj).Id == Id
+               && ((Slot)obj).Psychologist.Equals(Psychologist)
+               && ((Slot)obj).Location.Equals(Location)
+               && ((Slot)obj).Date == Date
+               && ((Slot)obj).SlotStart == SlotStart
+               && ((Slot)obj).SlotEnd == SlotEnd
+               && ((Slot)obj).SessionLength == SessionLength
+               && ((Slot)obj).Rest == Rest
+               && ((Slot)obj).Weekly == Weekly;
+    }
 }

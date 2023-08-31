@@ -16,4 +16,23 @@ public class Address
         Street = street;
         Rest = rest;
     }
+
+    public Address()
+    {
+        Country = "";
+        Zip = "";
+        City = "";
+        Street = "";
+        Rest = "";
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Address
+               && ((Address)obj).Country == Country
+               && ((Address)obj).Zip == Zip
+               && ((Address)obj).City == City
+               && ((Address)obj).Street == Street
+               && ((Address)obj).Rest == Rest;
+    }
 }
