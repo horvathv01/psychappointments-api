@@ -19,24 +19,25 @@ public class AccessUtilities : IAccessUtilities
         return _hasherFactory.GetHasher().HashPassword(salt, password);
     }
 
-    public async Task<bool> Authenticate(User? user, string password)
+    public PasswordVerificationResult Authenticate(User? user, string password)
     {
         if (user == null)
         {
-            return false;
+            return PasswordVerificationResult.Failed;
         }
 
         string salt = GetSalt(user.Email);
         var result = _hasherFactory.GetHasher().VerifyHashedPassword(salt, user.Password, password);
-        return result == PasswordVerificationResult.Success;
+        return result;
     }
 
     private string GetSalt(string userEmail)
     {
         string salt = "";
+        var arr = String.Concat(userEmail.OrderBy(ch => ch)).ToArray();
         for (int i = 0; i < 5; i++)
         {
-            salt += String.Concat(userEmail.OrderBy(ch => ch)).ToArray()[i];    
+            salt += arr[i];
         }
 
         return salt;

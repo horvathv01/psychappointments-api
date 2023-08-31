@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using PsychAppointments_API.Models;
 
 namespace PsychAppointments_API.Auth;
@@ -5,5 +6,5 @@ namespace PsychAppointments_API.Auth;
 public interface IAccessUtilities
 {
     string HashPassword(string password, string userEmail);
-    Task<bool> Authenticate(User? user, string password);
+    PasswordVerificationResult Authenticate(User? user, string password);
 }
