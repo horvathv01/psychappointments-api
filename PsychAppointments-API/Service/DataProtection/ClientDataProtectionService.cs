@@ -94,90 +94,82 @@ public class ClientDataProtectionService : IDataProtectionService<Client>
     private SessionDTO FilterData(Client user, Session session)
     {
         SessionDTO result = new SessionDTO(session);
+        //hide in BOTH cases:
+        //Psychologist.Slots, .Clients, .Sessions
+        result.Psychologist.Slots = null;
+        result.Psychologist.Clients = null;
+        result.Psychologist.Sessions = null;
+        //PartnerPsychologist.Slots, .Clients, .Sessions
+        result.PartnerPsychologist.Slots = null;
+        result.PartnerPsychologist.Clients = null;
+        result.PartnerPsychologist.Sessions = null;
+        //Location.Managers --> manager.Locations (null)
+        result.Location.Managers = null;
+        //Slot
+        result.Slot = null;
+        
         if (IsAssociated(user, session))
         {
-            result.Psychologist.Slots = null;
-            result.Psychologist.Sessions = null;
             return result;
         }
-
-        result.Id = 0;
-        result.PartnerPsychologist = null;
-        result.Psychologist = FilterData(user, session.Psychologist);
-        result.Client = FilterData(user, session.Client);
-        result.Price = 0;
-        result.Frequency = SessionFrequency.None.ToString();
-        result.Slot = FilterData(user, session.Slot);
+        //hide if NOT related:
+        //Client
+        result.Client = null;
+        //Description
+        result.Description = null;
+        
         return result;
     }
     
     private SlotDTO? FilterData(Client user, Slot slot)
     {
-        //slots should not be seen by clients at all
+        //hide in BOTH cases:
+        //everything. --> slots should not be seen by clients
         return null;
-        /*
-        if (IsAssociated(user, slot))
-        {
-            SlotDTO result = new SlotDTO(slot);
-            //filter sessions of slot to only include ones associated with current client
-            result.Sessions = slot.Sessions.Select(ses => FilterData(user, ses)).ToList();
-            //kill psychologist's references to other sessions and slots
-            result.Psychologist.Sessions = result.Sessions;
-            result.Psychologist.Slots = null;
-            return result;
-        }
-        return new SlotDTO(new LocationDTO(slot.Location), slot.Date, slot.SlotStart, slot.SlotEnd);
-        */
     }
     
     private UserDTO FilterData(Client user, User otherUser)
     {
         var result = new UserDTO(otherUser);
-        if (IsAssociated(user, otherUser))
-        {
-            return result;
-        }
-        switch (otherUser.Type)
+        result.Address = new Address();
+        result.DateOfBirth = DateTime.MinValue;
+        result.RegisteredBy = 0;
+        //address
+        //birthday
+        //registeredby
+        
+        switch (user.Type)
         {
             case UserType.Admin:
-                //leave nothing, only type
-                return new UserDTO(UserType.Admin.ToString());
+                 //hide everything but Type
+                 return new UserDTO(UserType.Admin.ToString());
             case UserType.Manager:
-                //leave nothing, only managed locations
-                    //even there, 
-                result.Id = 0;
-                result.DateOfBirth = DateTime.MinValue; 
-                result.Address = new Address();
-                result.Password = "";
-                result.RegisteredBy = 0;
-                result.Sessions = null; 
-                result.Psychologists = null;
-                result.Clients = null;
-                result.Slots = null;
-                result.Locations = result.Locations.Select(loc =>
+                //hide:
+                //Locations --> location.Managers --> manager.Locations (null)
+                result.Locations = ((Manager)otherUser).Locations.Select(loc =>
                 {
-                    loc.Psychologists = loc.Psychologists.Select(psy => new UserDTO(UserType.Psychologist.ToString(), psy.Name)).ToList();
-                    loc.Managers = loc.Managers.Select(man => new UserDTO(UserType.Manager.ToString(), man.Name)).ToList();
-                    return loc;
+                    var locDto = new LocationDTO(loc);
+                    locDto.Psychologists = null;
+                    locDto.Managers = null;
+                    return locDto;
                 }).ToList();
-                return result;
+                break;
             case UserType.Psychologist:
-                result.Id = 0;
-                result.DateOfBirth = DateTime.MinValue; 
-                result.Address = new Address();
-                result.Password = "";
-                result.RegisteredBy = 0;
-                result.Sessions = result.Sessions.Where(ses => ses.Blank).ToList();
-                result.Psychologists = null;
+                //hide:
+                //Clients
                 result.Clients = null;
+                //Slots
                 result.Slots = null;
-                result.Locations = result.Locations.Select(loc =>
-                {
-                    loc.Psychologists = loc.Psychologists.Select(psy => new UserDTO(UserType.Psychologist.ToString(), psy.Name)).ToList();
-                    return loc;
-                }).ToList();
-                return result;
-            default: return new UserDTO(UserType.Client.ToString()); 
+                //Sessions
+                result.Sessions = null;
+                break;
+            default:
+                //this means otherUser is client
+                //return whole if otherUser.Equals(user), else return null
+                if (IsAssociated(user, otherUser)) return new UserDTO(otherUser);
+                return null;
         }
+
+        return result;
     }
 }

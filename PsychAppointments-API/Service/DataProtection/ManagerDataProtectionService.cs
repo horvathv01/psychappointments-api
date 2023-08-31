@@ -3,6 +3,11 @@ using PsychAppointments_API.Models.Enums;
 
 namespace PsychAppointments_API.Service.DataProtection;
 
+/// <summary>
+/// assumes query depth of Psychologist, including Psychologist.Sessions, including Session.Location
+/// assumes query depth of session.psychologist, psychologist.sessions
+/// assumes query depth of slot.psychologist, psychologist.sessions
+/// </summary>
 public class ManagerDataProtectionService : IDataProtectionService<Manager>
 {
     public bool IsAssociated(Manager user, Session session)
@@ -17,6 +22,7 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
 
     public bool IsAssociated(Manager user, User otherUser)
     {
+        //this assumes query depth of Psychologist, including Psychologist.Sessions, including Session.Location
         if (otherUser.Type == UserType.Psychologist)
         {
             foreach (var userLocation in user.Locations)
@@ -31,6 +37,19 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
             }
             return false;
         }
+
+        if (otherUser.Type == UserType.Manager)
+        {
+            foreach (var userLocation in user.Locations)
+            {
+                if (((Manager)otherUser).Locations.Contains(userLocation))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
         if (otherUser.Equals(user))
         {
             return true;
@@ -38,7 +57,7 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
         return otherUser.RegisteredBy.Equals(user);
     }
 
-    private bool IsAssociated(Manager user, LocationDTO location)
+    private bool IsAssociated(Manager user, Location location)
     {
         return location.Managers.Any(man => man.Id == user.Id);
     }
@@ -107,114 +126,95 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
     }
     
         //private methods for actual filtering
-    private SessionDTO FilterData(Manager user, Session session)
+        
+    //this assumes query depth of session.psychologist --> psychologist.sessions
+    private SessionDTO? FilterData(Manager user, Session session)
     {
-        SessionDTO result = new SessionDTO(session);
-        result.Client = FilterData(user, session.Client);
-        result.Location.Psychologists = session.Location.Psychologists.Select(psy =>
-        {
-            var newPsy = new UserDTO(psy);
-            newPsy.Clients = null;
-            newPsy.Locations = null;
-            return newPsy;
-        }).ToList();
+        
         if (IsAssociated(user, session))
         {
-            result.Psychologist.Slots = null;
-            result.Psychologist.Sessions = null;
+            var result = new SessionDTO(session);
+            //hide in BOTH cases:
+            //client IF not registered by user
+            result.Client = session.Client.RegisteredBy.Equals(user) ? new UserDTO(session.Client) : new UserDTO(UserType.Client.ToString());
+            //psychologist's Sessions and Slots that are at other location
+            
+            if (result.Psychologist.Sessions != null)
+            {
+                result.Psychologist.Sessions = session.Psychologist.Sessions.Where(ses => IsAssociated(user, ses.Location))
+                    .Select(ses => new SessionDTO(ses)).ToList();    
+            }
+            //partnerPsychologist's Sessions and Slots that are at other location
+            if (result.PartnerPsychologist != null && result.PartnerPsychologist.Sessions != null)
+            {
+                result.PartnerPsychologist.Sessions = session.Psychologist.Sessions.Where(ses => IsAssociated(user, ses.Location))
+                    .Select(ses => new SessionDTO(ses)).ToList();
+            }
+
             return result;
         }
-
-        result.Id = 0;
-        result.PartnerPsychologist = FilterData(user, session.PartnerPsychologist);
-        result.Psychologist = FilterData(user, session.Psychologist);
-        result.Price = 0;
-        result.Frequency = SessionFrequency.None.ToString();
-        result.Slot = FilterData(user, session.Slot);
-        return result;
+        
+        //hide if NOT related:
+        //this means that session is not at manager's locations --> needs no info about it
+        return null;
     }
-    
+    //this assumes query depth of slot.psychologist --> psychologist.sessions
     private SlotDTO? FilterData(Manager user, Slot slot)
     {
         if (IsAssociated(user, slot))
         {
-            SlotDTO result = new SlotDTO(slot);
-            //filter sessions of slot to only include ones associated with current client 
-            result.Sessions = slot.Sessions.Select(ses => FilterData(user, ses)).ToList();
-            //kill psychologist's references to other sessions and slots
-            result.Psychologist.Sessions = result.Sessions;
-            result.Psychologist.Slots = null;
+            var result = new SlotDTO(slot);
+            //hide in BOTH cases:
+            //psychologist's Sessions and Slots that are at other location
+            
+            if (result.Psychologist.Sessions != null)
+            {
+                result.Psychologist.Sessions = slot.Psychologist.Sessions.Where(ses => IsAssociated(user, ses.Location))
+                    .Select(ses => new SessionDTO(ses)).ToList();    
+            }
+            
             return result;
         }
-
+        //hide if NOT related:
+        //this means that slot is not at manager's locations --> needs no info about it
         return null;
     }
     
     private UserDTO FilterData(Manager user, User otherUser)
     {
         var result = new UserDTO(otherUser);
-        if (IsAssociated(user, otherUser))
-        {
-            //will be the case if:
-            //otherUser is the same as user
-            //otherUser has been registered by user
-            if (otherUser.Equals(user) || otherUser.RegisteredBy.Equals(user))
-            {
-                if (otherUser.Type == UserType.Psychologist)
-                {
-                    //if psychologist: filter sessions to those where client is associated to us
-                    result.Sessions = ((Psychologist)otherUser).Sessions.Where(ses => 
-                        IsAssociated(user, ses.Client)).Select(ses => new SessionDTO(ses)).ToList();
-                }
-                return result;
-            }
-            //otherUser is psychologist, working in a location that is managed by user
-            result.Sessions = ((Psychologist)otherUser).Sessions.Select(ses => FilterData(user, ses)).ToList();
-            result.Slots = ((Psychologist)otherUser).Slots.Select(slot => FilterData(user, slot)).ToList();
-            result.Clients = ((Psychologist)otherUser).Clients.Where(cli => cli.Type == UserType.Client)
-                .Select(cli => FilterData(user, cli).Id).ToList();
-            return result;
-        }
-        switch (otherUser.Type)
+        result.Address = new Address();
+        result.DateOfBirth = DateTime.MinValue;
+        result.RegisteredBy = 0;
+        //address
+        //birthday
+        //registeredby
+        
+        switch (user.Type)
         {
             case UserType.Admin:
-                //leave nothing, only type
+                //hide everything but Type
                 return new UserDTO(UserType.Admin.ToString());
             case UserType.Manager:
-                //leave nothing, only managed locations
-                result.Id = 0;
-                result.DateOfBirth = DateTime.MinValue; 
-                result.Address = new Address();
-                result.Password = "";
-                result.RegisteredBy = 0;
-                result.Sessions = null; 
-                result.Psychologists = null;
-                result.Clients = null;
-                result.Slots = null;
-                result.Locations = result.Locations.Select(loc =>
-                {
-                    loc.Psychologists = loc.Psychologists.Select(psy => new UserDTO(UserType.Psychologist.ToString(), psy.Name)).ToList();
-                    loc.Managers = loc.Managers.Select(man => new UserDTO(UserType.Manager.ToString(), man.Name)).ToList();
-                    return loc;
-                }).ToList();
-                return result;
+                //is self:
+                if (otherUser.Id == user.Id) return new UserDTO(otherUser);
+                //direct personal details have been hidden already; nothing else to hide from colleague
+                break;
             case UserType.Psychologist:
-                result.Id = 0;
-                result.DateOfBirth = DateTime.MinValue; 
-                result.Address = new Address();
-                result.Password = "";
-                result.RegisteredBy = 0;
-                result.Sessions = result.Sessions.Where(ses => IsAssociated(user, ses.Location)).ToList();
-                result.Psychologists = null;
-                result.Clients = null;
-                result.Slots = null;
-                result.Locations = result.Locations.Select(loc =>
-                {
-                    loc.Psychologists = loc.Psychologists.Select(psy => new UserDTO(UserType.Psychologist.ToString(), psy.Name)).ToList();
-                    return loc;
-                }).ToList();
-                return result;
-            default: return new UserDTO(UserType.Client.ToString()); 
+                //is other psychologist, hide:
+                //Clients
+                result.Clients = ((Psychologist)otherUser).Clients.Where(cli => IsAssociated(user, cli)).Select(cli => cli.Id).ToList();
+                //Slots
+                result.Slots = ((Psychologist)otherUser).Slots.Select(slot => FilterData(user, slot)).ToList();
+                //Sessions
+                result.Sessions = ((Psychologist)otherUser).Sessions.Select(ses => FilterData(user, ses)).ToList();
+                break;
+            default:
+                //this means otherUser is client
+                //return all if otherUser has been registered by user, nothing if not
+                if (IsAssociated(user, otherUser)) return new UserDTO(otherUser);
+                return null;
         }
+        return result;
     }
 }
