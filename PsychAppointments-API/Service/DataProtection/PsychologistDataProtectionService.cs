@@ -125,7 +125,7 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
         return FilterData(user, queryResult);
     }
     
-    private SessionDTO FilterData(Psychologist user, Session session)
+    public SessionDTO FilterData(Psychologist user, Session session)
     {
         if (IsAssociated(user, session))
         {
@@ -163,7 +163,7 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
         return new SessionDTO(session.Blank, session.Location, session.Date, session.Start, session.End);
     }
     
-    private SlotDTO? FilterData(Psychologist user, Slot slot)
+    public SlotDTO? FilterData(Psychologist user, Slot slot)
     {
         //hide in BOTH cases:
         if (IsAssociated(user, slot))
@@ -174,7 +174,7 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
         return null;
     }
 
-    private UserDTO FilterData(Psychologist user, User otherUser)
+    public UserDTO FilterData(Psychologist user, User otherUser)
     {
         var result = new UserDTO(otherUser);
         result.Address = new Address();

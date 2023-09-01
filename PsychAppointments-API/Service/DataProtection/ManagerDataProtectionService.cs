@@ -128,7 +128,7 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
         //private methods for actual filtering
         
     //this assumes query depth of session.psychologist --> psychologist.sessions
-    private SessionDTO? FilterData(Manager user, Session session)
+    public SessionDTO? FilterData(Manager user, Session session)
     {
         
         if (IsAssociated(user, session))
@@ -159,7 +159,7 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
         return null;
     }
     //this assumes query depth of slot.psychologist --> psychologist.sessions
-    private SlotDTO? FilterData(Manager user, Slot slot)
+    public SlotDTO? FilterData(Manager user, Slot slot)
     {
         if (IsAssociated(user, slot))
         {
@@ -180,7 +180,7 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
         return null;
     }
     
-    private UserDTO FilterData(Manager user, User otherUser)
+    public UserDTO FilterData(Manager user, User otherUser)
     {
         var result = new UserDTO(otherUser);
         result.Address = new Address();

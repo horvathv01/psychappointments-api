@@ -66,4 +66,19 @@ public class AdminDataProtectionService : IDataProtectionService<Admin>
         var result = await query();
         return new UserDTO(result);
     }
+
+    public SessionDTO FilterData(Admin user, Session session)
+    {
+        return new SessionDTO(session);
+    }
+
+    public SlotDTO FilterData(Admin user, Slot slot)
+    {
+        return new SlotDTO(slot);
+    }
+
+    public UserDTO FilterData(Admin user, User otherUser)
+    {
+        return new UserDTO(otherUser);
+    }
 }

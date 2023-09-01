@@ -83,4 +83,28 @@ public interface IDataProtectionService<T>
     /// <param name="query">Function call of service class that returns query results with data from DB (async).</param>
     /// <returns>UserDTO, containing filtered information.</returns>
     Task<UserDTO> Filter(T user, Func<Task<User>> query);
+
+    /// <summary>
+    /// Helper method to filter out data from provided session based on user's type and identity.
+    /// </summary>
+    /// <param name="user">User whose type and identity provides basis for filtering.</param>
+    /// <param name="session">Session whose details are filtered.</param>
+    /// <returns></returns>
+    SessionDTO FilterData(T user, Session session);
+    
+    /// <summary>
+    /// Helper method to filter out data from provided slot based on user's type and identity.
+    /// </summary>
+    /// <param name="user">User whose type and identity provides basis for filtering.</param>
+    /// <param name="slot">Slot whose details are filtered.</param>
+    /// <returns></returns>
+    SlotDTO FilterData(T user, Slot slot);
+    
+    /// <summary>
+    /// Helper method to filter out data from provided user (otherUser) based on user's type and identity.
+    /// </summary>
+    /// <param name="user">User whose type and identity provides basis for filtering.</param>
+    /// <param name="otherUser">User whose details are filtered.</param>
+    /// <returns></returns>
+    UserDTO FilterData(T user, User otherUser);
 }

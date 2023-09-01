@@ -91,7 +91,7 @@ public class ClientDataProtectionService : IDataProtectionService<Client>
     }
     
     //private methods for actual filtering
-    private SessionDTO FilterData(Client user, Session session)
+    public SessionDTO FilterData(Client user, Session session)
     {
         SessionDTO result = new SessionDTO(session);
         //hide in BOTH cases:
@@ -121,14 +121,14 @@ public class ClientDataProtectionService : IDataProtectionService<Client>
         return result;
     }
     
-    private SlotDTO? FilterData(Client user, Slot slot)
+    public SlotDTO? FilterData(Client user, Slot slot)
     {
         //hide in BOTH cases:
         //everything. --> slots should not be seen by clients
         return null;
     }
     
-    private UserDTO FilterData(Client user, User otherUser)
+    public UserDTO FilterData(Client user, User otherUser)
     {
         var result = new UserDTO(otherUser);
         result.Address = new Address();
