@@ -12,19 +12,19 @@ public class UserDTO
     public DateTime DateOfBirth { get; set; }
     public Address Address { get; set; }
     public string Password { get; set; }
-    public long RegisteredBy { get; set; }
+    public long? RegisteredBy { get; set; }
     
     //admin: currently same as user but specific
     //client:
-    public List<SessionDTO>? Sessions { get; set; } = null; //also: psychologist
-    public List<long>? Psychologists { get; set; } = null;
+    public List<long>? SessionIds { get; set; } = null; //also: psychologist
+    public List<long>? PsychologistIds { get; set; } = null;
     
     //psychologist:
-    public List<long>? Clients { get; set; } = null;
-    public List<SlotDTO>? Slots { get; set; } = null;
+    public List<long>? ClientIds { get; set; } = null;
+    public List<long>? SlotIds { get; set; } = null;
     
     //manager:
-    public List<LocationDTO>? Locations { get; set; } = null;
+    public List<long>? LocationIds { get; set; } = null;
 
     public UserDTO(
         long id, 
@@ -36,11 +36,11 @@ public class UserDTO
         Address address, 
         string password, 
         long registeredBy = 0,
-        List<SessionDTO>? sessions = null,
+        List<long>? sessions = null,
         List<long>? psychologists = null,
         List<long>? clients = null,
-        List<SlotDTO>? slots = null,
-        List<LocationDTO>? locations = null
+        List<long>? slots = null,
+        List<long>? locations = null
             )
     {
         DateTime birthDay = new DateTime(1994, 07, 24);
@@ -54,12 +54,12 @@ public class UserDTO
         DateOfBirth = birthDay; 
         Address = address;
         Password = password;
-        RegisteredBy = RegisteredBy;
-        Sessions = sessions; 
-        Psychologists = psychologists;
-        Clients = clients;
-        Slots = slots;
-        Locations = locations;
+        RegisteredBy = registeredBy;
+        SessionIds = sessions; 
+        PsychologistIds = psychologists;
+        ClientIds = clients;
+        SlotIds = slots;
+        LocationIds = locations;
     }
 
     public UserDTO(User user)
@@ -71,17 +71,18 @@ public class UserDTO
                 break;
             case UserType.Client:
                 Client client = (Client)user;
-                Sessions = client.Sessions.Select(ses => new SessionDTO(ses)).ToList();
+                SessionIds = client.Sessions.Select(ses => ses.Id).ToList();
+                PsychologistIds = client.Psychologists.Select(psy => psy.Id).ToList();
                 break;
             case UserType.Manager:
                 Manager manager = (Manager)user;
-                Locations = manager.Locations.Select(loc => new LocationDTO(loc)).ToList();
+                LocationIds = manager.Locations.Select(loc => loc.Id).ToList();
                 break;
             case UserType.Psychologist:
                 Psychologist psychologist = (Psychologist)user;
-                Sessions = psychologist.Sessions.Select(ses => new SessionDTO(ses)).ToList();
-                Clients = psychologist.Clients.Select(cli => cli.Id).ToList();
-                Slots = psychologist.Slots.Select(slot => new SlotDTO(slot)).ToList();
+                SessionIds = psychologist.Sessions.Select(ses => ses.Id).ToList();
+                ClientIds = psychologist.Clients.Select(cli => cli.Id).ToList();
+                SlotIds = psychologist.Slots.Select(slot => slot.Id).ToList();
                 break;
         }
 
@@ -93,7 +94,7 @@ public class UserDTO
         DateOfBirth = user.DateOfBirth;
         Address = user.Address;
         Password = user.Password;
-        RegisteredBy = user.RegisteredBy.Id;
+        RegisteredBy = user.RegisteredBy != null ? user.RegisteredBy.Id : null;
     }
 
     public UserDTO(string type, string name = "")
@@ -108,9 +109,13 @@ public class UserDTO
     Password = "";
     RegisteredBy = 0;
     }
-    
-    
 
-
+    public override string ToString()
+    {
+        return $"UserDTO Id: {Id}, Name: {Name}, Type: {Type}, Email: {Email}, " +
+               $"Phone: {Phone}, DateOfBirth: {DateOfBirth}, Address: {Address}, Password: {Password}, RegisteredBy: {RegisteredBy}, " +
+               $"Sessions: {SessionIds.Count}, Clients: {ClientIds.Count}, Slots: {SlotIds.Count}, " +
+               $"Locations: {LocationIds.Count}, Psychologists: {PsychologistIds.Count}.";
+    }
 
 }

@@ -96,25 +96,19 @@ public class ClientDataProtectionService : IDataProtectionService<Client>
         SessionDTO result = new SessionDTO(session);
         //hide in BOTH cases:
         //Psychologist.Slots, .Clients, .Sessions
-        result.Psychologist.Slots = null;
-        result.Psychologist.Clients = null;
-        result.Psychologist.Sessions = null;
         //PartnerPsychologist.Slots, .Clients, .Sessions
-        result.PartnerPsychologist.Slots = null;
-        result.PartnerPsychologist.Clients = null;
-        result.PartnerPsychologist.Sessions = null;
         //Location.Managers --> manager.Locations (null)
-        result.Location.Managers = null;
         //Slot
-        result.Slot = null;
+        result.SlotId = null;
         
         if (IsAssociated(user, session))
         {
+            
             return result;
         }
         //hide if NOT related:
         //Client
-        result.Client = null;
+        result.ClientId = null;
         //Description
         result.Description = null;
         
@@ -138,7 +132,7 @@ public class ClientDataProtectionService : IDataProtectionService<Client>
         //birthday
         //registeredby
         
-        switch (user.Type)
+        switch (otherUser.Type)
         {
             case UserType.Admin:
                  //hide everything but Type
@@ -146,22 +140,16 @@ public class ClientDataProtectionService : IDataProtectionService<Client>
             case UserType.Manager:
                 //hide:
                 //Locations --> location.Managers --> manager.Locations (null)
-                result.Locations = ((Manager)otherUser).Locations.Select(loc =>
-                {
-                    var locDto = new LocationDTO(loc);
-                    locDto.Psychologists = null;
-                    locDto.Managers = null;
-                    return locDto;
-                }).ToList();
+                result.LocationIds = ((Manager)otherUser).Locations.Select(loc => loc.Id).ToList();
                 break;
             case UserType.Psychologist:
                 //hide:
                 //Clients
-                result.Clients = null;
+                result.ClientIds = null;
                 //Slots
-                result.Slots = null;
+                result.SlotIds = null;
                 //Sessions
-                result.Sessions = null;
+                result.SessionIds = null;
                 break;
             default:
                 //this means otherUser is client

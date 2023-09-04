@@ -24,7 +24,7 @@ public abstract class User
         DateOfBirth = dateOfBirth;
         Address = address;
         Password = password;
-        RegisteredBy = registeredBy;
+        RegisteredBy = this;
     }
 
     public User()
