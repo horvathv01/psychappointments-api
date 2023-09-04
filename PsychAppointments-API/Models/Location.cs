@@ -26,4 +26,9 @@ public class Location
                && ((Location)obj).Name == Name
                && ((Location)obj).Address.Equals(Address);
     }
+
+    public override string ToString()
+    {
+        return $"LocationId: {Id}, Name: {Name}, Address: {Address}, Managers: {Managers.Count}, Psychologists: {Psychologists.Count}";
+    }
 }

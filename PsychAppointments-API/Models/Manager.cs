@@ -19,6 +19,20 @@ public class Manager : User
         Locations = locations ?? new List<Location>();
     }
     
+    public Manager(User user) : base()
+    {
+        Id = user.Id;
+        Name = user.Name;
+        Type = UserType.Manager;
+        Email = user.Email;
+        Phone = user.Phone;
+        DateOfBirth = user.DateOfBirth;
+        Address = user.Address;
+        Password = user.Password;
+        RegisteredBy = user.RegisteredBy;
+        Locations = ((Manager)user).Locations;
+    }
+    
     public override bool Equals(object? obj)
     {
         return obj is Manager
@@ -31,5 +45,14 @@ public class Manager : User
                && ((Manager)obj).Password == Password
                && ((Manager)obj).Type == Type
                && ((Manager)obj).RegisteredBy.Id == RegisteredBy.Id;
+    }
+    
+    public override string ToString()
+    {
+        string locationDetails = $"{Locations.Select(loc => $"Loc. Id: {loc.Id}, Loc. Name: {loc.Name}")}";
+        string registeredById = RegisteredBy == null ? "none" : RegisteredBy.Id.ToString();
+        return $"Admin Id: {Id}, Name: {Name}, Type: {Enum.GetName(typeof(UserType), Type)}, Email: {Email}, " +
+               $"Phone: {Phone}, DateOfBirth: {DateOfBirth}, Address: {Address}, Password: {Password}, RegisteredBy: {registeredById}, " +
+               $"Locations: {Locations.Count}, LocationDetails: {locationDetails}";
     }
 }

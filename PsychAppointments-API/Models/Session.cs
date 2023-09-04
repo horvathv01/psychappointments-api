@@ -41,7 +41,7 @@ public class Session
         Location = location;
         Date = date;
         Start = start;
-        end = end;
+        End = end;
         Client = client;
         Price = price;
         Frequency = frequency;
@@ -63,5 +63,12 @@ public class Session
                && ((Session)obj).Price == Price
                && ((Session)obj).Frequency == Frequency
                && ((Session)obj).Slot.Equals(Slot);
+    }
+    
+    public override string ToString()
+    {
+        string clientId = Client == null ? "none" : Client.Id.ToString();
+        return $"SessionId: {Id}, Slot: {Slot.Id} Psychologist: {Psychologist.Id}, Blank: {Blank}, Location: {Location.Id + " " + Location.Name}, " +
+               $"Date: {Date}, Start: {Start}, End: {End}, Client: {clientId}, Price: {Price}, Frequency: {Enum.GetName(typeof(SessionFrequency), Frequency)}";
     }
 }

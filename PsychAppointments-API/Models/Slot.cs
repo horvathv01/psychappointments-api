@@ -93,4 +93,10 @@ public class Slot
                && ((Slot)obj).Rest == Rest
                && ((Slot)obj).Weekly == Weekly;
     }
+    
+    public override string ToString()
+    {
+        return $"SlotId: {Id}, Psychologist: {Psychologist.Id}, Sessions: {Sessions.Count}, Location: {Location.Id + " " + Location.Name}, " +
+               $"Date: {Date}, Start: {SlotStart}, End: {SlotEnd}, SessionLength: {SessionLength}, Rest: {Rest}, Weekly {Weekly}";
+    }
 }
