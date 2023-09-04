@@ -127,40 +127,27 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
     
     public SessionDTO FilterData(Psychologist user, Session session)
     {
+        SessionDTO result = new SessionDTO(session);
         if (IsAssociated(user, session))
         {
-            SessionDTO result = new SessionDTO(session);
             //hide in BOTH cases:
             //.Location.Manager.Locations
             //.Client.Sessions
             //.Client.Psychologists
-            if (result.Location.Managers != null)
-            {
-                result.Location.Managers = session.Location.Managers == null ? null : session.Location.Managers.Select(man =>
-                {
-                    var newMan = new UserDTO(man);
-                    newMan.Locations = null;
-                    return newMan;
-                }).ToList();    
-            }
-            if (result.Client.Sessions != null)
-            {
-                result.Client.Sessions = session.Client.Sessions.Where(ses => ses.Psychologist.Equals(user))
-                    .Select(ses => new SessionDTO(ses)).ToList();    
-            }
-
-            if (result.Client.Psychologists != null)
-            {
-                result.Client.Psychologists = new List<long>();
-                result.Client.Psychologists.Add(user.Id);
-            }
-
             return result;
         }
         
         //hide if not related:
         //return bare minimum
-        return new SessionDTO(session.Blank, session.Location, session.Date, session.Start, session.End);
+        result.PsychologistId = null;
+        result.PartnerPsychologistId = null;
+        result.ClientId = null;
+        result.Price = null;
+        result.Frequency = "";
+        result.SlotId = null;
+        result.Description = "";
+        
+        return result;
     }
     
     public SlotDTO? FilterData(Psychologist user, Slot slot)
@@ -184,7 +171,7 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
         //birthday
         //registeredby
         
-        switch (user.Type)
+        switch (otherUser.Type)
         {
             case UserType.Admin:
                 //hide everything but Type
@@ -192,14 +179,6 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
             case UserType.Manager:
                 //if not associated, hide:
                 //Locations --> location.Managers --> manager.Locations (null)
-                result.Locations = ((Manager)otherUser).Locations.Select(loc =>
-                {
-                    var locDto = new LocationDTO(loc);
-                    locDto.Psychologists = IsAssociated(user, loc) ? null : loc.Psychologists.Select(psy => new UserDTO(psy)).ToList();
-                    locDto.Managers = null;
-                    return locDto;
-                }).ToList();    
-                
                 break;
             case UserType.Psychologist:
                 //is self:
@@ -209,12 +188,12 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
                 }
                 //is other psychologist, hide:
                 //Clients
-                result.Clients = null;
+                result.ClientIds = null;
                 //Slots
-                result.Slots = null;
+                result.SlotIds = null;
                 //Sessions
-                result.Sessions = ((Psychologist)otherUser).Sessions.Where(ses => ses.Blank)
-                    .Select(ses => new SessionDTO(ses.Blank, ses.Location, ses.Date, ses.Start, ses.End)).ToList();
+                result.SessionIds = ((Psychologist)otherUser).Sessions.Where(ses => ses.Blank)
+                    .Select(ses => ses.Id).ToList();
                 break;
             default:
                 //this means otherUser is client

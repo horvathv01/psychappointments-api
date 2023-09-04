@@ -136,21 +136,9 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
             var result = new SessionDTO(session);
             //hide in BOTH cases:
             //client IF not registered by user
-            result.Client = session.Client.RegisteredBy.Equals(user) ? new UserDTO(session.Client) : new UserDTO(UserType.Client.ToString());
+            result.ClientId = session.Client.RegisteredBy.Equals(user) ? session.Client.Id : null;
             //psychologist's Sessions and Slots that are at other location
             
-            if (result.Psychologist.Sessions != null)
-            {
-                result.Psychologist.Sessions = session.Psychologist.Sessions.Where(ses => IsAssociated(user, ses.Location))
-                    .Select(ses => new SessionDTO(ses)).ToList();    
-            }
-            //partnerPsychologist's Sessions and Slots that are at other location
-            if (result.PartnerPsychologist != null && result.PartnerPsychologist.Sessions != null)
-            {
-                result.PartnerPsychologist.Sessions = session.Psychologist.Sessions.Where(ses => IsAssociated(user, ses.Location))
-                    .Select(ses => new SessionDTO(ses)).ToList();
-            }
-
             return result;
         }
         
@@ -166,12 +154,6 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
             var result = new SlotDTO(slot);
             //hide in BOTH cases:
             //psychologist's Sessions and Slots that are at other location
-            
-            if (result.Psychologist.Sessions != null)
-            {
-                result.Psychologist.Sessions = slot.Psychologist.Sessions.Where(ses => IsAssociated(user, ses.Location))
-                    .Select(ses => new SessionDTO(ses)).ToList();    
-            }
             
             return result;
         }
@@ -190,7 +172,7 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
         //birthday
         //registeredby
         
-        switch (user.Type)
+        switch (otherUser.Type)
         {
             case UserType.Admin:
                 //hide everything but Type
@@ -203,11 +185,11 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
             case UserType.Psychologist:
                 //is other psychologist, hide:
                 //Clients
-                result.Clients = ((Psychologist)otherUser).Clients.Where(cli => IsAssociated(user, cli)).Select(cli => cli.Id).ToList();
+                result.ClientIds = ((Psychologist)otherUser).Clients.Where(cli => IsAssociated(user, cli)).Select(cli => cli.Id).ToList();
                 //Slots
-                result.Slots = ((Psychologist)otherUser).Slots.Select(slot => FilterData(user, slot)).ToList();
+                result.SlotIds = ((Psychologist)otherUser).Slots.Where(slot => IsAssociated(user, slot)).Select(slot => slot.Id).ToList();
                 //Sessions
-                result.Sessions = ((Psychologist)otherUser).Sessions.Select(ses => FilterData(user, ses)).ToList();
+                result.SessionIds = ((Psychologist)otherUser).Sessions.Where(ses => IsAssociated(user, ses)).Select(ses => ses.Id).ToList();
                 break;
             default:
                 //this means otherUser is client

@@ -5,15 +5,15 @@ namespace PsychAppointments_API.Models;
 public class SlotDTO
 {
     public long Id { get; set; }
-    public UserDTO Psychologist { get; set; }
-    public LocationDTO Location { get; set; }
+    public long PsychologistId { get; set; }
+    public long LocationId { get; set; }
     public DateTime Date { get; set; }
     public DateTime SlotStart { get; set; }
     public DateTime SlotEnd { get; set; }
     public int SessionLength { get; set; }
     public int Rest { get; set; }
     public bool Weekly { get; set; }
-    public List<SessionDTO>? Sessions { get; set; }
+    public List<long>? SessionIds { get; set; }
 
     public SlotDTO(
         Psychologist psychologist,
@@ -27,40 +27,33 @@ public class SlotDTO
         List<Session> sessions = null
     )
     {
-        Psychologist = new UserDTO(psychologist);
-        Location = new LocationDTO(location);
+        PsychologistId = psychologist.Id;
+        LocationId = location.Id;
         Date = date;
         SlotStart = slotStart;
         SlotEnd = slotEnd;
         SessionLength = sessionLength;
         Rest = rest;
         Weekly = weekly;
-        Sessions = sessions.Select(ses => new SessionDTO(ses)).ToList();
+        SessionIds = sessions.Select(ses => ses.Id).ToList();
     }
 
     public SlotDTO(Slot slot)
     {
-        Psychologist = new UserDTO(slot.Psychologist);
-        Location = new LocationDTO(slot.Location);
+        PsychologistId = slot.Psychologist.Id;
+        LocationId = slot.Location.Id;
         Date = slot.Date;
         SlotStart = slot.SlotStart;
         SlotEnd = slot.SlotEnd;
         SessionLength = slot.SessionLength;
         Rest = slot.Rest;
         Weekly = slot.Weekly;
-        Sessions = slot.Sessions.Select(ses => new SessionDTO(ses)).ToList();
+        SessionIds = slot.Sessions.Select(ses => ses.Id).ToList();
     }
-
-    public SlotDTO(LocationDTO location, DateTime date, DateTime start, DateTime end, List<SessionDTO>? sessions = null)
+    
+    public override string ToString()
     {
-        Psychologist = new UserDTO(UserType.Psychologist.ToString());
-        Location = location;
-        Date = date;
-        SlotStart = start;
-        SlotEnd = end;
-        SessionLength = 0;
-        Rest = 0;
-        Weekly = false;
-        Sessions = sessions;
+        return $"SlotId: {Id}, Psychologist: {PsychologistId}, Sessions: {SessionIds.Count}, Location: {LocationId}, " +
+               $"Date: {Date}, Start: {SlotStart}, End: {SlotEnd}, SessionLength: {SessionLength}, Rest: {Rest}, Weekly {Weekly}";
     }
 }

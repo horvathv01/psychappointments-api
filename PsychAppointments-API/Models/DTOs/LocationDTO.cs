@@ -5,15 +5,15 @@ public class LocationDTO
     public long Id { get; set; }
     public string Name { get; set; }
     public Address Address { get; set; }
-    public List<UserDTO> Managers { get; set; }
-    public List<UserDTO> Psychologists { get; set; }
+    public List<long> ManagerIds { get; set; }
+    public List<long> PsychologistIds { get; set; }
 
     public LocationDTO(string name, Address address, List<Manager>? managers = null, List<Psychologist>? psychologists = null)
     {
         Name = name;
         Address = address;
-        Managers = managers != null ? managers.Select(man => new UserDTO(man)).ToList() : new List<UserDTO>();
-        Psychologists = psychologists != null ? psychologists.Select(psy => new UserDTO(psy)).ToList() : new List<UserDTO>();
+        ManagerIds = managers != null ? managers.Select(man => man.Id).ToList() : new List<long>();
+        PsychologistIds = psychologists != null ? psychologists.Select(psy => psy.Id).ToList() : new List<long>();
     }
 
     public LocationDTO(Location location)
@@ -21,7 +21,12 @@ public class LocationDTO
         Id = location.Id;
         Name = location.Name;
         Address = location.Address;
-        Managers = location.Managers.Select(man => new UserDTO(man)).ToList();
-        Psychologists = location.Psychologists.Select(psy => new UserDTO(psy)).ToList();
+        ManagerIds = location.Managers.Select(man => man.Id).ToList();
+        PsychologistIds = location.Psychologists.Select(psy => psy.Id).ToList();
+    }
+    
+    public override string ToString()
+    {
+        return $"LocationId: {Id}, Name: {Name}, Address: {Address}, Managers: {ManagerIds.Count}, Psychologists: {PsychologistIds.Count}";
     }
 }

@@ -5,17 +5,17 @@ namespace PsychAppointments_API.Models;
 public class SessionDTO
 {
     public long Id { get; set; }
-    public UserDTO Psychologist { get; set; }
-    public UserDTO? PartnerPsychologist { get; set; }
+    public long? PsychologistId { get; set; }
+    public long? PartnerPsychologistId { get; set; }
     public bool Blank { get; set; }
-    public LocationDTO Location { get; set; }
+    public long LocationId { get; set; }
     public DateTime Date { get; set; }
     public DateTime Start { get; set; }
     public DateTime End { get; set; }
-    public UserDTO? Client { get; set; }
-    public int Price { get; set; }
+    public long? ClientId { get; set; }
+    public int? Price { get; set; }
     public string Frequency { get; set; }
-    public SlotDTO? Slot { get; set; }
+    public long? SlotId { get; set; }
     public string Description { get; set; }
 
     public SessionDTO(
@@ -32,49 +32,40 @@ public class SessionDTO
         Client? client = null,
         Psychologist? partnerPsychologist = null)
     {
-        Psychologist = new UserDTO(psychologist);
-        PartnerPsychologist = PartnerPsychologist != null ? new UserDTO(partnerPsychologist) : null;
+        PsychologistId = psychologist.Id;
+        PartnerPsychologistId = partnerPsychologist != null ? partnerPsychologist.Id : null;
         Blank = blank;
-        Location = new LocationDTO(location);
+        LocationId = location.Id;
         Date = date;
         Start = start;
         End = end;
-        Client = new UserDTO(client);
+        ClientId = client.Id;
         Price = price;
         Frequency = frequency.ToString();
-        Slot = new SlotDTO(slot);
+        SlotId = slot.Id;
         Description = description;
     }
 
     public SessionDTO(Session session)
     {
-        Psychologist = new UserDTO(session.Psychologist);
-        PartnerPsychologist = PartnerPsychologist != null ? new UserDTO(session.PartnerPsychologist) : null;
+        PsychologistId = session.Psychologist.Id;
+        PartnerPsychologistId = session.PartnerPsychologist != null ? session.PartnerPsychologist.Id : null;
         Blank = session.Blank;
-        Location = new LocationDTO(session.Location);
+        LocationId = session.Location.Id;
         Date = session.Date;
         Start = session.Start;
         End = session.End;
-        Client = new UserDTO(session.Client);
+        ClientId = session.Client.Id;
         Price = session.Price;
         Frequency = session.Frequency.ToString();
-        Slot = new SlotDTO(session.Slot);
+        SlotId = session.Slot.Id;
         Description = session.Description;
     }
-
-    public SessionDTO(bool blank, Location location, DateTime date, DateTime start, DateTime end, int price = 0)
+    
+    public override string ToString()
     {
-        Psychologist = new UserDTO(UserType.Psychologist.ToString());
-        PartnerPsychologist = null;
-        Blank = blank;
-        Location = new LocationDTO(location);
-        Date = date;
-        Start = start;
-        End = end;
-        Client = new UserDTO(UserType.Client.ToString());
-        Price = price;
-        Frequency = "";
-        Slot = new SlotDTO(new LocationDTO(location), date, start, end);
-        Description = "";
+        return $"SessionId: {Id}, Slot: {SlotId} Psychologist: {PsychologistId}, Blank: {Blank}, Location: {LocationId}, " +
+               $"Date: {Date}, Start: {Start}, End: {End}, Client: {ClientId}, Price: {Price}, Frequency: {Frequency}";
+        
     }
 }

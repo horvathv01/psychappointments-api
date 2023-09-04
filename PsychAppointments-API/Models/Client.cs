@@ -54,10 +54,9 @@ public class Client : User
     
     public override string ToString()
     {
-        string sessionDetails = $"{Sessions.Count} + {Sessions.Select(ses => $"Sess. Id: {ses.Id}, Psy. Id: {ses.Psychologist.Id}")}";
         string registeredById = RegisteredBy == null ? "none" : RegisteredBy.Id.ToString();
         return $"Admin Id: {Id}, Name: {Name}, Type: {Enum.GetName(typeof(UserType), Type)}, Email: {Email}, " +
                $"Phone: {Phone}, DateOfBirth: {DateOfBirth}, Address: {Address}, Password: {Password}, RegisteredBy: {registeredById}, " +
-               $"Sessions: {Sessions.Count}, Psychologists: {Psychologists.Count}, SessionDetails: {sessionDetails}";
+               $"Sessions: {Sessions.Count}, Psychologists: {Psychologists.Count}";
     }
 }
