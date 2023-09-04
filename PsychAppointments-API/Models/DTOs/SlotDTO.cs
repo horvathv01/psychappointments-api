@@ -40,6 +40,7 @@ public class SlotDTO
 
     public SlotDTO(Slot slot)
     {
+        Id = slot.Id;
         PsychologistId = slot.Psychologist.Id;
         LocationId = slot.Location.Id;
         Date = slot.Date;

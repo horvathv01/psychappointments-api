@@ -30,8 +30,10 @@ public class SessionDTO
         string description = "",
         SessionFrequency frequency = SessionFrequency.Weekly,
         Client? client = null,
-        Psychologist? partnerPsychologist = null)
+        Psychologist? partnerPsychologist = null, 
+        long id = 0)
     {
+        Id = id;
         PsychologistId = psychologist.Id;
         PartnerPsychologistId = partnerPsychologist != null ? partnerPsychologist.Id : null;
         Blank = blank;
@@ -48,6 +50,7 @@ public class SessionDTO
 
     public SessionDTO(Session session)
     {
+        Id = session.Id;
         PsychologistId = session.Psychologist.Id;
         PartnerPsychologistId = session.PartnerPsychologist != null ? session.PartnerPsychologist.Id : null;
         Blank = session.Blank;

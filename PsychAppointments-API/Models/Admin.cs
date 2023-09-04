@@ -10,7 +10,8 @@ public class Admin : User
         DateTime dateOfBirth, 
         Address address, 
         string password,
-        User? registeredBy = null) : base(name, email, phone, dateOfBirth, address, password, registeredBy)
+        User? registeredBy = null, 
+        long id = 0) : base(name, email, phone, dateOfBirth, address, password, registeredBy, id)
     {
         Type = UserType.Admin;
     }

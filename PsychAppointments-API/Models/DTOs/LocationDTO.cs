@@ -24,6 +24,16 @@ public class LocationDTO
         ManagerIds = location.Managers.Select(man => man.Id).ToList();
         PsychologistIds = location.Psychologists.Select(psy => psy.Id).ToList();
     }
+
+    public override bool Equals(Object obj)
+    {
+        return obj is LocationDTO &&
+               ((LocationDTO)obj).Address.Equals(Address) &&
+               ((LocationDTO)obj).Id == Id &&
+               ((LocationDTO)obj).Name == Name &&
+               ManagerIds.SequenceEqual(((LocationDTO)obj).ManagerIds) &&
+               PsychologistIds.SequenceEqual(((LocationDTO)obj).PsychologistIds);
+    }
     
     public override string ToString()
     {

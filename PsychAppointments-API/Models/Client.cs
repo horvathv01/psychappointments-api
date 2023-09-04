@@ -16,7 +16,8 @@ public class Client : User
         string password, 
         List<Session>? sessions = null,
         List<Psychologist>? psychologists = null,
-        User? registeredBy = null) : base(name, email, phone, dateOfBirth, address, password, registeredBy)
+        User? registeredBy = null,
+        long id = 0) : base(name, email, phone, dateOfBirth, address, password, registeredBy, id)
     {
         Type = UserType.Client;
         Sessions = sessions ?? new List<Session>();
@@ -55,7 +56,7 @@ public class Client : User
     public override string ToString()
     {
         string registeredById = RegisteredBy == null ? "none" : RegisteredBy.Id.ToString();
-        return $"Admin Id: {Id}, Name: {Name}, Type: {Enum.GetName(typeof(UserType), Type)}, Email: {Email}, " +
+        return $"Client Id: {Id}, Name: {Name}, Type: {Enum.GetName(typeof(UserType), Type)}, Email: {Email}, " +
                $"Phone: {Phone}, DateOfBirth: {DateOfBirth}, Address: {Address}, Password: {Password}, RegisteredBy: {registeredById}, " +
                $"Sessions: {Sessions.Count}, Psychologists: {Psychologists.Count}";
     }

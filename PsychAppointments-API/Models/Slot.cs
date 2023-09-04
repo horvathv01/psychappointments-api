@@ -26,7 +26,8 @@ public class Slot
         int sessionLength = 50,
         int rest = 10,
         bool weekly = false,
-        List<Session> sessions = null
+        List<Session> sessions = null,
+        long id = 0
         )
     {
         Psychologist = psychologist;
@@ -38,6 +39,7 @@ public class Slot
         Rest = rest;
         Weekly = weekly;
         Sessions = sessions == null ? PrepopulateSessions() : sessions;
+        Id = id;
     }
 
     private List<Session> PrepopulateSessions()

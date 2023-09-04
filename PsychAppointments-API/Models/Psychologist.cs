@@ -18,8 +18,9 @@ public class Psychologist : User
         List<Session>? sessions = null,
         List<Slot>? slots = null,
         List<Client>? clients = null,
-        User? registeredBy = null
-        ) : base(name, email, phone, dateOfBirth, address, password, registeredBy)
+        User? registeredBy = null,
+        long id = 0
+        ) : base(name, email, phone, dateOfBirth, address, password, registeredBy, id)
     {
         Type = UserType.Psychologist;
         Clients = clients ?? new List<Client>();
@@ -61,7 +62,7 @@ public class Psychologist : User
     {
         string sessionDetails = $"{Sessions.Count} + {Sessions.Select(ses => $"Sess. Id: {ses.Id}, Client Id: {ses.Client.Id}, Slot. Id: {ses.Slot.Id}")}";
         string registeredById = RegisteredBy == null ? "none" : RegisteredBy.Id.ToString();
-        return $"Admin Id: {Id}, Name: {Name}, Type: {Enum.GetName(typeof(UserType), Type)}, Email: {Email}, " +
+        return $"Psychologist Id: {Id}, Name: {Name}, Type: {Enum.GetName(typeof(UserType), Type)}, Email: {Email}, " +
                $"Phone: {Phone}, DateOfBirth: {DateOfBirth}, Address: {Address}, Password: {Password}, RegisteredBy: {registeredById}, " +
                $"Sessions: {Sessions.Count}, Clients: {Clients.Count}, Slots: {Slots.Count}, SessionDetails: {sessionDetails}";
     }

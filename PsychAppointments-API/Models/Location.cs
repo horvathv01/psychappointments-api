@@ -11,12 +11,13 @@ public class Location
     public List<Manager> Managers { get; set; }
     public List<Psychologist> Psychologists { get; set; }
 
-    public Location(string name, Address address, List<Manager>? managers = null, List<Psychologist>? psychologists = null)
+    public Location(string name, Address address, List<Manager>? managers = null, List<Psychologist>? psychologists = null, long id = 0)
     {
         Name = name;
         Address = address;
         Managers = managers ?? new List<Manager>();
         Psychologists = psychologists ?? new List<Psychologist>();
+        Id = id;
     }
 
     public override bool Equals(object? obj)
