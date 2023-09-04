@@ -35,4 +35,9 @@ public class Address
                && ((Address)obj).Street == Street
                && ((Address)obj).Rest == Rest;
     }
+
+    public override string ToString()
+    {
+        return $"Country: {Country}, Zip: {Zip}, City: {City}, Street: {Street}, Rest: {Rest}";
+    }
 }

@@ -14,6 +14,19 @@ public class Admin : User
     {
         Type = UserType.Admin;
     }
+
+    public Admin(User user) : base()
+    {
+        Id = user.Id;
+        Name = user.Name;
+        Type = UserType.Admin;
+        Email = user.Email;
+        Phone = user.Phone;
+        DateOfBirth = user.DateOfBirth;
+        Address = user.Address;
+        Password = user.Password;
+        RegisteredBy = user.RegisteredBy;
+    }
     
     public override bool Equals(object? obj)
     {
@@ -27,5 +40,12 @@ public class Admin : User
                && ((Admin)obj).Password == Password
                && ((Admin)obj).Type == Type
                && ((Admin)obj).RegisteredBy.Id == RegisteredBy.Id;
+    }
+
+    public override string ToString()
+    {
+        string registeredById = RegisteredBy == null ? "none" : RegisteredBy.Id.ToString();
+        return $"Admin Id: {Id}, Name: {Name}, Type: {Enum.GetName(typeof(UserType), Type)}, Email: {Email}, " +
+               $"Phone: {Phone}, DateOfBirth: {DateOfBirth}, Address: {Address}, Password: {Password}, RegisteredBy: {registeredById}";
     }
 }

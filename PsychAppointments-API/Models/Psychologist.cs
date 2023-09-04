@@ -27,6 +27,22 @@ public class Psychologist : User
         Sessions = sessions ?? new List<Session>();
     }
     
+    public Psychologist(User user) : base()
+    {
+        Id = user.Id;
+        Name = user.Name;
+        Type = UserType.Psychologist;
+        Email = user.Email;
+        Phone = user.Phone;
+        DateOfBirth = user.DateOfBirth;
+        Address = user.Address;
+        Password = user.Password;
+        RegisteredBy = user.RegisteredBy;
+        Sessions = ((Psychologist)user).Sessions;
+        Slots = ((Psychologist)user).Slots;
+        Clients = ((Psychologist)user).Clients;
+    }
+    
     public override bool Equals(object? obj)
     {
         return obj is Psychologist
@@ -39,5 +55,14 @@ public class Psychologist : User
                && ((Psychologist)obj).Password == Password
                && ((Psychologist)obj).Type == Type
                && ((Psychologist)obj).RegisteredBy.Id == RegisteredBy.Id;
+    }
+    
+    public override string ToString()
+    {
+        string sessionDetails = $"{Sessions.Count} + {Sessions.Select(ses => $"Sess. Id: {ses.Id}, Client Id: {ses.Client.Id}, Slot. Id: {ses.Slot.Id}")}";
+        string registeredById = RegisteredBy == null ? "none" : RegisteredBy.Id.ToString();
+        return $"Admin Id: {Id}, Name: {Name}, Type: {Enum.GetName(typeof(UserType), Type)}, Email: {Email}, " +
+               $"Phone: {Phone}, DateOfBirth: {DateOfBirth}, Address: {Address}, Password: {Password}, RegisteredBy: {registeredById}, " +
+               $"Sessions: {Sessions.Count}, Clients: {Clients.Count}, Slots: {Slots.Count}, SessionDetails: {sessionDetails}";
     }
 }

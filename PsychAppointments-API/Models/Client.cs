@@ -22,6 +22,21 @@ public class Client : User
         Sessions = sessions ?? new List<Session>();
         Psychologists = psychologists ?? new List<Psychologist>();
     }
+    
+    public Client(User user) : base()
+    {
+        Id = user.Id;
+        Name = user.Name;
+        Type = UserType.Client;
+        Email = user.Email;
+        Phone = user.Phone;
+        DateOfBirth = user.DateOfBirth;
+        Address = user.Address;
+        Password = user.Password;
+        RegisteredBy = user.RegisteredBy;
+        Sessions = ((Client)user).Sessions;
+        Psychologists = ((Client)user).Psychologists;
+    }
 
     public override bool Equals(object? obj)
     {
@@ -35,5 +50,14 @@ public class Client : User
                && ((Client)obj).Password == Password
                && ((Client)obj).Type == Type
                && ((Client)obj).RegisteredBy.Id == RegisteredBy.Id;
+    }
+    
+    public override string ToString()
+    {
+        string sessionDetails = $"{Sessions.Count} + {Sessions.Select(ses => $"Sess. Id: {ses.Id}, Psy. Id: {ses.Psychologist.Id}")}";
+        string registeredById = RegisteredBy == null ? "none" : RegisteredBy.Id.ToString();
+        return $"Admin Id: {Id}, Name: {Name}, Type: {Enum.GetName(typeof(UserType), Type)}, Email: {Email}, " +
+               $"Phone: {Phone}, DateOfBirth: {DateOfBirth}, Address: {Address}, Password: {Password}, RegisteredBy: {registeredById}, " +
+               $"Sessions: {Sessions.Count}, Psychologists: {Psychologists.Count}, SessionDetails: {sessionDetails}";
     }
 }
