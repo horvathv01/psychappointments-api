@@ -128,6 +128,8 @@ public class ClientDataProtectionService : IDataProtectionService<Client>
         result.Address = new Address();
         result.DateOfBirth = DateTime.MinValue;
         result.RegisteredBy = 0;
+        result.Id = 0;
+        result.Password = "";
         //address
         //birthday
         //registeredby

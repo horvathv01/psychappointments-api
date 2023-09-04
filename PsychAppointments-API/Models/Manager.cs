@@ -13,7 +13,8 @@ public class Manager : User
         Address address, 
         string password,
         List<Location>? locations = null,
-        User? registeredBy = null) : base(name, email, phone, dateOfBirth, address, password, registeredBy)
+        User? registeredBy = null,
+        long id = 0) : base(name, email, phone, dateOfBirth, address, password, registeredBy, id)
     {
         Type = UserType.Manager;
         Locations = locations ?? new List<Location>();
@@ -51,7 +52,7 @@ public class Manager : User
     {
         string locationDetails = $"{Locations.Select(loc => $"Loc. Id: {loc.Id}, Loc. Name: {loc.Name}")}";
         string registeredById = RegisteredBy == null ? "none" : RegisteredBy.Id.ToString();
-        return $"Admin Id: {Id}, Name: {Name}, Type: {Enum.GetName(typeof(UserType), Type)}, Email: {Email}, " +
+        return $"Manager Id: {Id}, Name: {Name}, Type: {Enum.GetName(typeof(UserType), Type)}, Email: {Email}, " +
                $"Phone: {Phone}, DateOfBirth: {DateOfBirth}, Address: {Address}, Password: {Password}, RegisteredBy: {registeredById}, " +
                $"Locations: {Locations.Count}, LocationDetails: {locationDetails}";
     }

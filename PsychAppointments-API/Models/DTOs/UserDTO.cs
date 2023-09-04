@@ -107,15 +107,21 @@ public class UserDTO
     DateOfBirth = DateTime.MinValue;
     Address = new Address();
     Password = "";
-    RegisteredBy = 0;
+    RegisteredBy = null;
     }
 
     public override string ToString()
     {
+        string sessions = SessionIds != null ? SessionIds.Count.ToString() : "null";
+        string clients = ClientIds != null ? ClientIds.Count.ToString() : "null";
+        string slots = SlotIds != null ? SlotIds.Count.ToString() : "null";
+        string locations = LocationIds != null ? LocationIds.Count.ToString() : "null";
+        string psychologists = PsychologistIds != null ? PsychologistIds.Count.ToString() : "null";
+        
         return $"UserDTO Id: {Id}, Name: {Name}, Type: {Type}, Email: {Email}, " +
                $"Phone: {Phone}, DateOfBirth: {DateOfBirth}, Address: {Address}, Password: {Password}, RegisteredBy: {RegisteredBy}, " +
-               $"Sessions: {SessionIds.Count}, Clients: {ClientIds.Count}, Slots: {SlotIds.Count}, " +
-               $"Locations: {LocationIds.Count}, Psychologists: {PsychologistIds.Count}.";
+               $"Sessions: {sessions}, Clients: {clients}, Slots: {slots}, " +
+               $"Locations: {locations}, Psychologists: {psychologists}.";
     }
 
 }

@@ -7,7 +7,7 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
 {
     public bool IsAssociated(Psychologist user, Session session)
     {
-        return session.Psychologist.Equals(user) || session.PartnerPsychologist.Equals(user);
+        return session.Psychologist.Equals(user) || (session.PartnerPsychologist != null && session.PartnerPsychologist.Equals(user));
     }
 
     public bool IsAssociated(Psychologist user, Slot slot)
@@ -40,6 +40,26 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
             foreach (var session in user.Sessions)
             {
                 if (((Manager)otherUser).Locations.Contains(session.Location))
+                {
+                    return true;
+                }
+            }
+        }
+        
+        //is partnerPsychologist, or am I his/hers?
+        if (otherUser.Type == UserType.Psychologist)
+        {
+            foreach (var session in user.Sessions)
+            {
+                if (session.PartnerPsychologist != null && session.PartnerPsychologist.Id == otherUser.Id)
+                {
+                    return true;
+                }
+            }
+
+            foreach (var session in ((Psychologist)otherUser).Sessions)
+            {
+                if (session.PartnerPsychologist != null && session.PartnerPsychologist.Id == user.Id)
                 {
                     return true;
                 }
@@ -139,7 +159,6 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
         
         //hide if not related:
         //return bare minimum
-        result.PsychologistId = null;
         result.PartnerPsychologistId = null;
         result.ClientId = null;
         result.Price = null;
@@ -167,9 +186,12 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
         result.Address = new Address();
         result.DateOfBirth = DateTime.MinValue;
         result.RegisteredBy = 0;
+        result.Id = 0;
+        result.Password = "";
         //address
         //birthday
         //registeredby
+        //password
         
         switch (otherUser.Type)
         {
@@ -191,15 +213,43 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
                 result.ClientIds = null;
                 //Slots
                 result.SlotIds = null;
-                //Sessions
+                //Sessions --> only blanks
                 result.SessionIds = ((Psychologist)otherUser).Sessions.Where(ses => ses.Blank)
                     .Select(ses => ses.Id).ToList();
+                
+                if (IsAssociated(user, otherUser))
+                {
+                    result.Id = otherUser.Id; //--> show ID to partner
+                    //add sessions in which they collaborate
+                    result.SessionIds.AddRange(user.Sessions.Where(ses => 
+                        ses.PartnerPsychologist != null && ses.PartnerPsychologist.Id == otherUser.Id).Select(ses => ses.Id));
+                    result.SessionIds.AddRange(((Psychologist)otherUser).Sessions.Where(ses => 
+                        ses.PartnerPsychologist != null && ses.PartnerPsychologist.Id == otherUser.Id).Select(ses => ses.Id));
+                    result.SessionIds = result.SessionIds.Distinct().ToList();    
+                }
                 break;
             default:
                 //this means otherUser is client
-                //return all if this is user's client, return null if not
-                if (IsAssociated(user, otherUser)) return new UserDTO(otherUser);
-                return null;
+                //return all but password if this is user's client, kill every detail if not
+                if (IsAssociated(user, otherUser))
+                {
+                    var associatedClient = new UserDTO(otherUser);
+                    associatedClient.Password = "";
+                    return associatedClient;
+                }
+
+
+                result.Name = "";
+                result.Type = Enum.GetName(typeof(UserType), UserType.Client);
+                result.Email = "";
+                result.Phone = "";
+                result.SessionIds = null;
+                result.PsychologistIds = null;
+                result.ClientIds = null;
+                result.SlotIds = null;
+                result.LocationIds = null;
+                
+                return result;
         }
         return result;
     }

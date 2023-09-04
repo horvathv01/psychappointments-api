@@ -11,17 +11,19 @@ public class ClientDPSTest
     private InMemorySessionRepository? _sessions;
     private InMemorySlotRepository? _slots;
     private InMemoryUserRepository? _users;
+    
+    private ClientDataProtectionService? _clientDPS;
 
-    private ClientDataProtectionService? _adminDps;
+    private Client _client;
     
     [SetUp]
-    public async void Setup()
+    public async Task Setup()
     { 
         _locations = new InMemoryLocationRepository();
         _sessions = new InMemorySessionRepository();
         _slots = new InMemorySlotRepository();
         _users = new InMemoryUserRepository();
-        _adminDps = new ClientDataProtectionService();
+        _clientDPS = new ClientDataProtectionService();
         
         string emailEnd = "@psychappointments.com";
         string phone = "+361/123-4567";
@@ -89,6 +91,8 @@ public class ClientDPSTest
         await _locations.Add(location);
         await _slots.Add(slot);
         await _sessions.Add(session);
+
+        _client = (Client) await _users.GetByEmail("client1" + emailEnd);
     }
 
     [TearDown]
@@ -101,84 +105,125 @@ public class ClientDPSTest
     }
 
     [Test]
-    public void TestSessionAccess1()
+    public async Task TestSessionAccess1()
     {
         //user is associated with session
     }
 
     [Test]
-    public void TestSessionAccess2()
+    public async Task TestSessionAccess2()
     {
         //user is not associated with session
     }
 
     [Test]
-    public void TestSlotAccess1()
+    public async Task TestSlotAccess1()
     {
         //user is associated with slot    
     }
 
     [Test]
-    public void TestSlotAccess2()
+    public async Task TestSlotAccess2()
     {
         //user is not associated with slot
     }
 
     [Test]
-    public void TestLocationAccess1()
+    public async Task TestLocationAccess1()
     {
         //user is associated with location
     }
     
     [Test]
-    public void TestLocationAccess2()
+    public async Task TestLocationAccess2()
     {
         //user is not associated with location
     }
 
     [Test]
 
-    public void TestClientAccess1()
+    public async Task TestClientAccess1()
     {
         //user is associated with client
+        var query = async () => await _users.GetByEmail("client1" + "@psychappointments.com");
+        var queryResult = await _clientDPS.Filter(_client, query);
+        
+        
     }
     
     [Test]
-    public void TestClientAccess2()
+    public async Task TestClientAccess2()
     {
         //user is not associated with client
+        var query = async () => await _users.GetByEmail("client2" + "@psychappointments.com");
+        //var queryResult = await _clientDPS.Filter(_client, query);
+
+        var unFiltered = await query();
+        Console.WriteLine("this is unfiltered: " + unFiltered);
+        Assert.That(false);
     }
     
     [Test]
 
-    public void TestManagerAccess1()
+    public async Task TestManagerAccess1()
     {
         //user is associated with manager
+        var query = async () => await _users.GetByEmail("manager1" + "@psychappointments.com");
+        var queryResult = await _clientDPS.Filter(_client, query);
+        
     }
     
     [Test]
-    public void TestManagerAccess2()
+    public async Task TestManagerAccess2()
     {
         //user is not associated with manager
+        var query = async () => await _users.GetByEmail("manager2" + "@psychappointments.com");
+        var queryResult = await _clientDPS.Filter(_client, query);
+        
     }
     
     [Test]
 
-    public void TestPsychologistAccess1()
+    public async Task TestPsychologistAccess1()
     {
         //user is associated with psychologist
+        var query = async () => await _users.GetByEmail("psychologist1" + "@psychappointments.com");
+        var queryResult = await _clientDPS.Filter(_client, query);
+        
     }
     
     [Test]
-    public void TestPsychologistAccess2()
+    public async Task TestPsychologistAccess2()
     {
         //user is not associated with psychologist
+        var query = async () => await _users.GetByEmail("psychologist2" + "@psychappointments.com");
+        var queryResult = await _clientDPS.Filter(_client, query);
     }
     
     [Test]
 
-    public void TestAdminAccess1()
+    public async Task TestAdminAccess1()
     {
-        //admins should be able to see other admins
+        //only admins should be able to see other admins
+        var query = async () => await _users.GetByEmail("admin1" + "@psychappointments.com");
+        var queryResult = await _clientDPS.Filter(_client, query);
+
+        bool result =
+            queryResult.Id == 0 &&
+            queryResult.Name == "" &&
+            queryResult.Type == Enum.GetName(typeof(UserType), UserType.Admin) &&
+            queryResult.Email == "" &&
+            queryResult.Phone == "" &&
+            queryResult.DateOfBirth == DateTime.MinValue &&
+            queryResult.Address.Equals(new Address()) &&
+            queryResult.Password == "" &&
+            queryResult.RegisteredBy == null &&
+            queryResult.SessionIds == null &&
+            queryResult.PsychologistIds == null &&
+            queryResult.ClientIds == null &&
+            queryResult.SlotIds == null &&
+            queryResult.LocationIds == null;
+        
+        Assert.That(result);
     }
 }

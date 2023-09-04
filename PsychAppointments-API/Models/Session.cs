@@ -33,7 +33,9 @@ public class Session
         string description = "",
         SessionFrequency frequency = SessionFrequency.Weekly,
         Client? client = null,
-        Psychologist? partnerPsychologist = null)
+        Psychologist? partnerPsychologist = null, 
+        long id = 0
+        )
     {
         Psychologist = psychologist;
         PartnerPsychologist = partnerPsychologist;
@@ -47,6 +49,7 @@ public class Session
         Frequency = frequency;
         Slot = slot;
         Description = description;
+        Id = id;
     }
 
     public override bool Equals(object? obj)

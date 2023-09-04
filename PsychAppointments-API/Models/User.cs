@@ -16,7 +16,7 @@ public abstract class User
     public string Password { get; set; }
     public User RegisteredBy { get; set; }
 
-    public User(string name, string email, string phone, DateTime dateOfBirth, Address address, string password, User? registeredBy = null)
+    public User(string name, string email, string phone, DateTime dateOfBirth, Address address, string password, User? registeredBy = null, long id = 0)
     {
         Name = name;
         Email = email;
@@ -25,6 +25,7 @@ public abstract class User
         Address = address;
         Password = password;
         RegisteredBy = this;
+        Id = id;
     }
 
     public User()
