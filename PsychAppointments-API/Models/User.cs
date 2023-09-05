@@ -32,5 +32,19 @@ public abstract class User
     {
         
     }
+
+    public override bool Equals(Object obj)
+    {
+        return obj is User &&
+               ((User)obj).Name == Name &&
+               ((User)obj).Email == Email &&
+               ((User)obj).Phone == Phone &&
+               ((User)obj).DateOfBirth == DateOfBirth &&
+               ((User)obj).Address.Equals(Address) &&
+               ((User)obj).Password == Password &&
+               ((User)obj).RegisteredBy.Equals(RegisteredBy) &&
+               ((User)obj).Id == Id &&
+               ((User)obj).Type == Type;
+    }
     
 }

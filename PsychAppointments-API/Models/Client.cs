@@ -19,9 +19,11 @@ public class Client : User
         User? registeredBy = null,
         long id = 0) : base(name, email, phone, dateOfBirth, address, password, registeredBy, id)
     {
+        Id = id;
         Type = UserType.Client;
         Sessions = sessions ?? new List<Session>();
         Psychologists = psychologists ?? new List<Psychologist>();
+        RegisteredBy = registeredBy == null ? null : registeredBy;
     }
     
     public Client(User user) : base()
