@@ -10,7 +10,7 @@ namespace PsychAppointments_API.Service.DataProtection;
 /// </summary>
 /// <typeparam name="T">Type of User</typeparam>
 
-public interface IDataProtectionService<T>
+public interface IDataProtectionService<T> : IDataProtectionBase where T : User
 {
     bool IsAssociated(T user, Session session);
     bool IsAssociated(T user, Slot slot);
