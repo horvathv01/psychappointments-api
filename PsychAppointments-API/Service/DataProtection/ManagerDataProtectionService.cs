@@ -23,6 +23,7 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
     public bool IsAssociated(Manager user, User otherUser)
     {
         //this assumes query depth of Psychologist, including Psychologist.Sessions, including Session.Location
+        //does psychologist work in one of my managed locations?
         if (otherUser.Type == UserType.Psychologist)
         {
             foreach (var userLocation in user.Locations)
@@ -37,7 +38,8 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
             }
             return false;
         }
-
+        
+        //are we managers of the same place(s)?
         if (otherUser.Type == UserType.Manager)
         {
             foreach (var userLocation in user.Locations)
@@ -50,11 +52,13 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
 
             return false;
         }
+        //is self?
         if (otherUser.Equals(user))
         {
             return true;
         }
-        return otherUser.RegisteredBy.Equals(user);
+        //did I register this account (client)?
+        return ((Client)otherUser).RegisteredBy.Equals(user);
     }
 
     private bool IsAssociated(Manager user, Location location)
@@ -136,7 +140,7 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
             var result = new SessionDTO(session);
             //hide in BOTH cases:
             //client IF not registered by user
-            result.ClientId = session.Client.RegisteredBy.Equals(user) ? session.Client.Id : null;
+            result.ClientId = session.Client.RegisteredBy.Equals(user) ? session.Client.Id : 0;
             //psychologist's Sessions and Slots that are at other location
             
             return result;
@@ -181,12 +185,24 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
                 return new UserDTO(UserType.Admin.ToString());
             case UserType.Manager:
                 //is self:
-                if (otherUser.Id == user.Id) return new UserDTO(otherUser);
+                if (otherUser.Id == user.Id)
+                {
+                    var self = new UserDTO(otherUser);
+                    self.Password = "";
+                    return self;
+                }
+
+                if (IsAssociated(user, otherUser))
+                {
+                    //this means they manage the same locations
+                    result.Id = otherUser.Id;
+                }
                 //direct personal details have been hidden already; nothing else to hide from colleague
-                break;
+                return result;
             case UserType.Psychologist:
                 //is other psychologist, hide:
                 //Clients
+                result.Id = otherUser.Id;
                 result.ClientIds = ((Psychologist)otherUser).Clients.Where(cli => IsAssociated(user, cli)).Select(cli => cli.Id).ToList();
                 //Slots
                 result.SlotIds = ((Psychologist)otherUser).Slots.Where(slot => IsAssociated(user, slot)).Select(slot => slot.Id).ToList();
@@ -195,9 +211,25 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
                 break;
             default:
                 //this means otherUser is client
-                //return all if otherUser has been registered by user, nothing if not
-                if (IsAssociated(user, otherUser)) return new UserDTO(otherUser);
-                return null;
+                //return all if otherUser has been registered by user, bare minimum if not
+                if (IsAssociated(user, otherUser))
+                {
+                    var associatedClient = new UserDTO(otherUser);
+                    associatedClient.Password = "";
+                    return associatedClient;
+                }
+                
+                result.Name = "";
+                result.Type = Enum.GetName(typeof(UserType), UserType.Client);
+                result.Email = "";
+                result.Phone = "";
+                result.SessionIds = null;
+                result.PsychologistIds = null;
+                result.ClientIds = null;
+                result.SlotIds = null;
+                result.LocationIds = null;
+                
+                return result;
         }
         return result;
     }

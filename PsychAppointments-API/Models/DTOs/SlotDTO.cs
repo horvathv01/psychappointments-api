@@ -24,9 +24,11 @@ public class SlotDTO
         int sessionLength = 50,
         int rest = 10,
         bool weekly = false,
-        List<Session> sessions = null
+        List<Session>? sessions = null,
+        long id = 0
     )
     {
+        Id = id;
         PsychologistId = psychologist.Id;
         LocationId = location.Id;
         Date = date;

@@ -103,14 +103,17 @@ public class ClientDataProtectionService : IDataProtectionService<Client>
         
         if (IsAssociated(user, session))
         {
-            
             return result;
         }
         //hide if NOT related:
         //Client
         result.ClientId = null;
         //Description
-        result.Description = null;
+        result.Description = "";
+        //Price
+        result.Price = 0;
+        //Frequency
+        result.Frequency = Enum.GetName(typeof(SessionFrequency), SessionFrequency.None);
         
         return result;
     }
@@ -147,17 +150,33 @@ public class ClientDataProtectionService : IDataProtectionService<Client>
             case UserType.Psychologist:
                 //hide:
                 //Clients
+                result.Id = otherUser.Id;
                 result.ClientIds = null;
                 //Slots
                 result.SlotIds = null;
-                //Sessions
-                result.SessionIds = null;
+                //Sessions --> session IDs should be seen, content should not
                 break;
             default:
                 //this means otherUser is client
-                //return whole if otherUser.Equals(user), else return null
-                if (IsAssociated(user, otherUser)) return new UserDTO(otherUser);
-                return null;
+                //return whole if otherUser.Equals(user), else return bare minimum
+                if (IsAssociated(user, otherUser))
+                {
+                    var associatedClient = new UserDTO(otherUser);
+                    associatedClient.Password = "";
+                    return associatedClient;
+                }
+                
+                result.Name = "";
+                result.Type = Enum.GetName(typeof(UserType), UserType.Client);
+                result.Email = "";
+                result.Phone = "";
+                result.SessionIds = null;
+                result.PsychologistIds = null;
+                result.ClientIds = null;
+                result.SlotIds = null;
+                result.LocationIds = null;
+                
+                return result;
         }
 
         return result;
