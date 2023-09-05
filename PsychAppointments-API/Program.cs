@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using PsychAppointments_API.Auth;
 using PsychAppointments_API.Models;
 using PsychAppointments_API.Service;
+using PsychAppointments_API.Service.DataProtection;
 using PsychAppointments_API.Service.Factories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,12 @@ builder.Services.AddTransient<IPsychologistService, PsychologistService>();
 builder.Services.AddTransient<ISessionService, SessionService>();
 builder.Services.AddTransient<ISlotService, SlotService>();
 builder.Services.AddTransient<IUserService, UserService>();
+
+builder.Services.AddSingleton<IDataProtectionService<Admin>, AdminDataProtectionService>();
+builder.Services.AddSingleton<IDataProtectionService<Client>, ClientDataProtectionService>();
+builder.Services.AddSingleton<IDataProtectionService<Manager>, ManagerDataProtectionService>();
+builder.Services.AddSingleton<IDataProtectionService<Psychologist>, PsychologistDataProtectionService>();
+builder.Services.AddSingleton<IDataProtectionService<User>, DataProtectionService>();
 
 builder.Services.AddControllers();
 
