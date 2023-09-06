@@ -8,6 +8,8 @@ public interface IUserService
      Task<User> GetUserById(long id);
      Task<User> GetUserByEmail(string email);
      Task<List<User>> GetAllUsers();
-     Task<bool> UpdateUser(long id, User user);
+
+     Task<List<User>> GetListOfUsers(List<long> ids);
+     Task<bool> UpdateUser(long id, UserDTO newUser);
      Task<bool> DeleteUser(long id);
 }

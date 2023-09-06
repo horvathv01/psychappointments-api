@@ -96,21 +96,16 @@ public class AccessController : ControllerBase
     public async Task<IActionResult> UpdateUser([FromBody] UserDTO newUser)
     {
         //email is used for password hashing!!!! we need to rehash password with new email and save it!
-        string originalEmail = HttpContext.User.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
         long userId = long.Parse(HttpContext.User.Claims.First(claim => claim.Type == ClaimTypes.Authentication).Value);
         var user = await _userService.GetUserById(userId);
-        if (originalEmail != newUser.Email || _hasher.HashPassword(newUser.Password, newUser.Email) != user.Email)
-        {
-            string newPassword = _hasher.HashPassword(newUser.Password, user.Email);
-            user.Password = newPassword;
-        }
-        var result = await _userService.UpdateUser(userId, user);
+        
+        var result = await _userService.UpdateUser(userId, newUser);
         if (result)
         {
             return Ok($"{Enum.GetName(typeof(UserType), user.Type)} {user.Name} has been updated successfully");    
         }
 
-        return Conflict("Something went wrong");
+        return BadRequest("Something went wrong");
     }
 
 

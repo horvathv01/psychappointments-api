@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using PsychAppointments_API.Auth;
+using PsychAppointments_API.DAL;
 using PsychAppointments_API.Models;
 using PsychAppointments_API.Service;
 using PsychAppointments_API.Service.DataProtection;
@@ -34,6 +35,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // Add services to the container.
 builder.Services.AddScoped<IAccessUtilities, AccessUtilities>();
 builder.Services.AddScoped<IHasherFactory, HasherFactory>();
+
+builder.Services.AddSingleton<IRepository<User>, InMemoryUserRepository>();
+builder.Services.AddSingleton<IRepository<Location>, InMemoryLocationRepository>();
+builder.Services.AddSingleton<IRepository<Session>, InMemorySessionRepository>();
+builder.Services.AddSingleton<IRepository<Slot>, InMemorySlotRepository>();
+
 builder.Services.AddTransient<IClientService, ClientService>();
 builder.Services.AddTransient<IPsychologistService, PsychologistService>();
 builder.Services.AddTransient<ISessionService, SessionService>();

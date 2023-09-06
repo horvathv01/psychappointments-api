@@ -33,6 +33,11 @@ public class InMemorySessionRepository : IRepository<Session>
     {
         return await Task.FromResult<IEnumerable<Session>>(_sessions);
     }
+    
+    public async Task<IEnumerable<Session>> GetList(List<long> ids)
+    {
+        return await Task.FromResult<IEnumerable<Session>>(_sessions.Where(us => ids.Contains(us.Id)));
+    }
 
     public async Task<bool> Add(Session entity)
     {

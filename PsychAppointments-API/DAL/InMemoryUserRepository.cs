@@ -37,6 +37,11 @@ public class InMemoryUserRepository : IRepository<User>
         return await Task.FromResult<IEnumerable<User>>(_users);
     }
 
+    public async Task<IEnumerable<User>> GetList(List<long> ids)
+    {
+        return await Task.FromResult<IEnumerable<User>>(_users.Where(us => ids.Contains(us.Id)));
+    }
+
     public async Task<bool> Add(User entity)
     {
         try
