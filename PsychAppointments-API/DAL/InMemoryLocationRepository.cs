@@ -33,6 +33,11 @@ public class InMemoryLocationRepository : IRepository<Location>
     {
         return await Task.FromResult<IEnumerable<Location>>(_locations);
     }
+    
+    public async Task<IEnumerable<Location>> GetList(List<long> ids)
+    {
+        return await Task.FromResult<IEnumerable<Location>>(_locations.Where(us => ids.Contains(us.Id)));
+    }
 
     public async Task<bool> Add(Location entity)
     {

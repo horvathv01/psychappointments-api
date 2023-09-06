@@ -26,7 +26,7 @@ public class Client : User
         RegisteredBy = registeredBy == null ? null : registeredBy;
     }
     
-    public Client(User user) : base()
+    public Client(User user)
     {
         Id = user.Id;
         Name = user.Name;

@@ -4,11 +4,12 @@ using PsychAppointments_API.Models.Enums;
 
 namespace PsychAppointments_API.Service;
 
-public class PsychologistService : IPsychologistService
+public class ManagerService : IManagerService
 {
+    //private readonly DbContext _context;
     private readonly IRepository<User> _userRepository;
     
-    public PsychologistService(
+    public ManagerService(
         //DbContext context
         IRepository<User> userRepository
     )
@@ -16,17 +17,18 @@ public class PsychologistService : IPsychologistService
         //_context = context;
         _userRepository = userRepository;
     }
-    public async Task<bool> AddPsychologist(Psychologist psychologist)
+    
+    public async Task<bool> AddManager(Manager manager)
     {
-        return await _userRepository.Add(psychologist);
+        return await _userRepository.Add(manager);
     }
 
-    public async Task<Psychologist?> GetPsychologistById(long id)
+    public async Task<Manager?> GetManagerById(long id)
     {
         try
         {
             var user = await _userRepository.GetById(id);
-            return (Psychologist)user;
+            return (Manager)user;
         }
         catch (Exception e)
         {
@@ -35,12 +37,12 @@ public class PsychologistService : IPsychologistService
         }
     }
 
-    public async Task<Psychologist?> GetPsychologistByEmail(string email)
+    public async Task<Manager?> GetManagerByEmail(string email)
     {
         try
         {
             var user = await _userRepository.GetByEmail(email);
-            return (Psychologist)user;
+            return (Manager)user;
         }
         catch (Exception e)
         {
@@ -49,20 +51,20 @@ public class PsychologistService : IPsychologistService
         }
     }
 
-    public async Task<List<Psychologist>> GetAllPsychologists()
+    public async Task<List<Manager>> GetAllManagers()
     {
         var allUsers = await _userRepository.GetAll();
-        return allUsers.Where(us => us.Type == UserType.Psychologist).Select(us => (Psychologist)us).ToList();
+        return allUsers.Where(us => us.Type == UserType.Manager).Select(us => (Manager)us).ToList();
     }
 
-    public async Task<List<Psychologist>> GetListOfPsychologists(List<long> ids)
+    public async Task<List<Manager>> GetListOfManagers(List<long> ids)
     {
         var allUsers = await _userRepository.GetList(ids);
-        return allUsers.Select(us => (Psychologist)us).ToList();
+        return allUsers.Select(us => (Manager)us).ToList();
     }
 
-    public async Task<bool> UpdatePsychologist(long id, Psychologist psychologist)
+    public async Task<bool> UpdateManager(long id, Manager manager)
     {
-        return await _userRepository.Update(id, psychologist);
+        return await _userRepository.Update(id, manager);
     }
 }

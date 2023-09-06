@@ -33,6 +33,11 @@ public class InMemorySlotRepository : IRepository<Slot>
     {
         return await Task.FromResult<IEnumerable<Slot>>(_slots);
     }
+    
+    public async Task<IEnumerable<Slot>> GetList(List<long> ids)
+    {
+        return await Task.FromResult<IEnumerable<Slot>>(_slots.Where(us => ids.Contains(us.Id)));
+    }
 
     public async Task<bool> Add(Slot entity)
     {

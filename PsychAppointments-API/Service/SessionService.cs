@@ -1,64 +1,128 @@
 using Microsoft.EntityFrameworkCore;
+using PsychAppointments_API.DAL;
 using PsychAppointments_API.Models;
 
 namespace PsychAppointments_API.Service;
 
 public class SessionService : ISessionService
 {
-    private readonly DbContext _context;
+//private readonly DbContext _context;
+    private readonly IRepository<Session> _sessionRepository;
     
-    public SessionService(DbContext context)
+    public SessionService(
+        //DbContext context, 
+        IRepository<Session> sessionRepository
+    )
     {
-        _context = context;
+        //_context = context;
+        _sessionRepository = sessionRepository;
     }
     
-    public Task<bool> AddSession(Session session)
+    public async Task<bool> AddSession(Session session)
     {
-        throw new NotImplementedException();
+        return await _sessionRepository.Add(session);
     }
 
-    public Task<Session> GetSessionById(long id)
+    public async Task<Session?> GetSessionById(long id)
     {
-        throw new NotImplementedException();
+        return await _sessionRepository.GetById(id);
     }
 
-    public Task<List<Session>> GetAllSessions()
+    public async Task<List<Session>> GetAllSessions()
     {
-        throw new NotImplementedException();
+        var allSessions = await _sessionRepository.GetAll();
+        return allSessions.ToList();
     }
 
-    public Task<List<Session>> GetSessionsByLocation(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    public async Task<List<Session>> GetListOfSessions(List<long> ids)
     {
-        throw new NotImplementedException();
+        var sessions = await _sessionRepository.GetList(ids);
+        return sessions.ToList();
     }
 
-    public Task<List<Session>> GetSessionsByPsychologist(Psychologist psychologist, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    public async Task<List<Session>> GetSessionsByLocation(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
-        throw new NotImplementedException();
+        var allSessions = await _sessionRepository.GetAll();
+        var locationSessions = allSessions.Where(ses => ses.Location.Equals(location)).ToList();
+        if (startOfRange == null || endOfRange == null)
+        {
+            return locationSessions;
+        }
+
+        return locationSessions.Where(ses =>
+            ses.Start >= startOfRange
+            && ses.End <= endOfRange
+            ).ToList();
     }
 
-    public Task<List<Session>> GetSessionsByClient(Client client, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    public List<Session> GetSessionsByPsychologist(Psychologist psychologist, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
-        throw new NotImplementedException();
+        return psychologist.Sessions.Where(ses =>
+        ses.Start >= startOfRange
+        && ses.End <= endOfRange
+        ).ToList();
     }
 
-    public Task<List<Session>> GetSessionsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    public List<Session> GetSessionsByClient(Client client, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
-        throw new NotImplementedException();
+        return client.Sessions.Where(ses =>
+            ses.Start >= startOfRange
+            && ses.End <= endOfRange
+        ).ToList();
     }
 
-    public Task<List<Session>> GetSessionsByDate(DateTime startOfRange, DateTime endOfRange)
+    public async Task<List<Session>> GetSessionsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
-        throw new NotImplementedException();
+        var allSessions = await _sessionRepository.GetAll();
+        var managersSessions = allSessions.Where(ses => manager.Locations.Contains(ses.Location)).ToList();
+        if (startOfRange == null || endOfRange == null)
+        {
+            return managersSessions;
+        }
+        return managersSessions.Where(ses => 
+            ses.Start >= startOfRange
+            && ses.End <= endOfRange
+        ).ToList();
     }
 
-    public Task<bool> UpdateSession(long id, Session session)
+    public async Task<List<Session>> GetSessionsByDate(DateTime startOfRange, DateTime endOfRange)
     {
-        throw new NotImplementedException();
+        var allSessions = await _sessionRepository.GetAll();
+        return allSessions.Where(ses =>
+            ses.Start >= startOfRange
+            && ses.End <= endOfRange
+        ).ToList();
     }
 
-    public Task<bool> DeleteSession(long id)
+    public async Task<bool> UpdateSession(long id, Session session)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var oldSes = await _sessionRepository.GetById(id);
+            oldSes.Psychologist = session.Psychologist;
+            oldSes.PartnerPsychologist = session.PartnerPsychologist;
+            oldSes.Blank = session.Blank;
+            oldSes.Location = session.Location;
+            oldSes.Date = session.Date;
+            oldSes.Start = session.Start;
+            oldSes.End = session.End;
+            oldSes.Client = session.Client;
+            oldSes.Price = session.Price;
+            oldSes.Frequency = session.Frequency;
+            oldSes.Slot = session.Slot;
+            oldSes.Description = session.Description;
+
+            return await _sessionRepository.Update(id, session);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteSession(long id)
+    {
+        return await _sessionRepository.Delete(id);
     }
 }

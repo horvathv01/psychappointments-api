@@ -1,60 +1,118 @@
-using Microsoft.EntityFrameworkCore;
+using PsychAppointments_API.DAL;
 using PsychAppointments_API.Models;
 
 namespace PsychAppointments_API.Service;
 
 public class SlotService : ISlotService
 {
-    private readonly DbContext _context;
+    //private readonly DbContext _context;
+    private readonly IRepository<Slot> _slotRepository;
     
-    public SlotService(DbContext context)
+    public SlotService(
+        //DbContext context, 
+        IRepository<Slot> slotRepository
+        )
     {
-        _context = context;
+        //_context = context;
+        _slotRepository = slotRepository;
     }
     
     
-    public Task<bool> AddSlot(Slot slot)
+    public async Task<bool> AddSlot(Slot slot)
     {
-        throw new NotImplementedException();
+        return await _slotRepository.Add(slot);
     }
 
-    public Task<Slot> GetSlotById(long id)
+    public async Task<Slot?> GetSlotById(long id)
     {
-        throw new NotImplementedException();
+        return await _slotRepository.GetById(id);
     }
 
-    public Task<List<Slot>> GetAllSessions()
+    public async Task<List<Slot>> GetAllSlots()
     {
-        throw new NotImplementedException();
+        var allSlots = await _slotRepository.GetAll();
+        return allSlots.ToList();
     }
 
-    public Task<List<Slot>> GetSlotsByLocation(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    public async Task<List<Slot>> GetListOfSlots(List<long> ids)
     {
-        throw new NotImplementedException();
+        var slots = await _slotRepository.GetList(ids);
+        return slots.ToList();
     }
 
-    public Task<List<Slot>> GetSlotsByPsychologist(Psychologist psychologist, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    public List<Slot> GetSlotsByPsychologistAndDates(Psychologist psychologist, DateTime? startOfRange = null,
+        DateTime? endOfRange = null)
     {
-        throw new NotImplementedException();
+        return psychologist.Slots.Where(slot =>
+                slot.SlotStart >= startOfRange
+                && slot.SlotEnd <= endOfRange
+                )
+            .ToList();
     }
 
-    public Task<List<Slot>> GetSlotsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    public async Task<List<Slot>> GetSlotsByLocationAndDates(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
-        throw new NotImplementedException();
+        var allSlots = await _slotRepository.GetAll();
+        var locationSlots = allSlots.Where(slot => slot.Location.Equals(location)).ToList(); 
+        if (startOfRange == null || endOfRange == null)
+        {
+            return locationSlots;
+        }
+        return locationSlots.Where(slot => 
+                slot.SlotStart >= startOfRange
+                && slot.SlotEnd <= endOfRange
+            ).ToList();
     }
 
-    public Task<List<Slot>> GetSlotsByDate(DateTime startOfRange, DateTime endOfRange)
+    public async Task<List<Slot>> GetSlotsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
-        throw new NotImplementedException();
+        var allSlots = await _slotRepository.GetAll();
+        var managersSlots = allSlots.Where(slot => manager.Locations.Contains(slot.Location)).ToList();
+        if (startOfRange == null || endOfRange == null)
+        {
+            return managersSlots;
+        }
+        return managersSlots.Where(slot => 
+                slot.SlotStart >= startOfRange
+                && slot.SlotEnd <= endOfRange
+            ).ToList();
     }
 
-    public Task<bool> UpdateSlot(long id, Slot session)
+    public async Task<List<Slot>> GetSlotsByDate(DateTime startOfRange, DateTime endOfRange)
     {
-        throw new NotImplementedException();
+        var allSlots = await _slotRepository.GetAll();
+        return allSlots.Where(slot =>
+                slot.SlotStart >= startOfRange
+                && slot.SlotEnd <= endOfRange
+            ).ToList();
     }
 
-    public Task<bool> DeleteSlot(long id)
+    public async Task<bool> UpdateSlot(long id, Slot slot)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var oldSlot = await _slotRepository.GetById(id);
+            oldSlot.Psychologist = slot.Psychologist;
+            oldSlot.Location = slot.Location;
+            oldSlot.Date = slot.Date;
+            oldSlot.SlotStart = slot.SlotStart;
+            oldSlot.SlotEnd = slot.SlotEnd;
+            oldSlot.SessionLength = slot.SessionLength;
+            oldSlot.Rest = slot.Rest;
+            oldSlot.Weekly = slot.Weekly;
+            oldSlot.Sessions = slot.Sessions;
+            
+            return await Task.FromResult(true);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteSlot(long id)
+    {
+        return await _slotRepository.Delete(id);
     }
 }

@@ -1,60 +1,85 @@
-using Microsoft.EntityFrameworkCore;
+using PsychAppointments_API.DAL;
 using PsychAppointments_API.Models;
+using PsychAppointments_API.Models.Enums;
 
 namespace PsychAppointments_API.Service;
 
 public class ClientService : IClientService
 {
-    private readonly DbContext _context;
+    private readonly IRepository<User> _userRepository;
     
-    public ClientService(DbContext context)
+    public ClientService(
+        //DbContext context
+        IRepository<User> userRepository
+    )
     {
-        _context = context;
+        //_context = context;
+        _userRepository = userRepository;
     }
     
     
-    public Task<bool> AddClient(Client client)
+    public async Task<bool> AddClient(Client client)
     {
-        throw new NotImplementedException();
+        return await _userRepository.Add(client);
     }
 
-    public Task<Client> GetClientById(long id)
+    public async Task<Client?> GetClientById(long id)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var user = await _userRepository.GetById(id);
+            return (Client)user;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return null;
+        }
     }
 
-    public Task<Client> GetClientByEmail(string email)
+    public async Task<Client?> GetClientByEmail(string email)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var user = await _userRepository.GetByEmail(email);
+            return (Client)user;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return null;
+        }
     }
 
-    public Task<List<Client>> GetAllClients()
+    public async Task<List<Client>> GetAllClients()
     {
-        throw new NotImplementedException();
+        var allUsers = await _userRepository.GetAll();
+        return allUsers.Where(us => us.Type == UserType.Client).Select(us => (Client)us).ToList();
     }
 
-    public Task<List<Client>> GetClientsByLocation(Location location)
+    public async Task<List<Client>> GetListOfClients(List<long> ids)
     {
-        throw new NotImplementedException();
+        var allUsers = await _userRepository.GetList(ids);
+        return allUsers.Select(us => (Client)us).ToList();
     }
 
-    public Task<List<Client>> GetClientsByPsychologist(Psychologist psychologist)
+    public List<Client?> GetClientsByLocation(Location location)
     {
-        throw new NotImplementedException();
+        var result = location.Psychologists.SelectMany(psy => psy.Sessions)
+            .Where(ses => ses.Location.Equals(location))
+            .Select(ses => ses.Client)
+            .ToList();
+
+        return result;
     }
 
-    public Task<List<Client>> GetClientsBySlot(Slot slot)
+    public List<Client?> GetClientsBySlot(Slot slot)
     {
-        throw new NotImplementedException();
+        return slot.Sessions.Select(ses => ses.Client).ToList();
     }
 
-    public Task<bool> UpdateClient(long id, Client client)
+    public async Task<bool> UpdateClient(long id, Client client)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> DeleteClient(long id)
-    {
-        throw new NotImplementedException();
+        return await _userRepository.Update(id, client);
     }
 }
