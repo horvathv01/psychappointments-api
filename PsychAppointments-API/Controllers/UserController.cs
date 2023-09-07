@@ -21,11 +21,12 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
-    [HttpGet("user/{id}")]
+    [HttpGet("{id}")]
     [Authorize]
     public async Task<UserDTO?> GetUser(long id)
     {
-        var userId = long.Parse(HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Authentication).Value);
+        long userId;
+        long.TryParse(HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Authentication).Value, out userId);
         var user = await _userService.GetUserById(userId);
         if (user != null)
         {
@@ -33,6 +34,13 @@ public class UserController : ControllerBase
             return await _userDPS.Filter(user, query);    
         }
         return null;
+    }
+
+    [HttpGet("test/{id}")]
+    public async Task<UserDTO> GetUserTest(long id)
+    {
+        var user = await _userService.GetUserById(id);
+        return new UserDTO(user);
     }
 
 }

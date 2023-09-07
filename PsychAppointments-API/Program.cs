@@ -46,6 +46,11 @@ builder.Services.AddTransient<IPsychologistService, PsychologistService>();
 builder.Services.AddTransient<ISessionService, SessionService>();
 builder.Services.AddTransient<ISlotService, SlotService>();
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IManagerService, ManagerService>();
+builder.Services.AddTransient<ILocationService, LocationService>();
+
+//prepopulate DB and/or in memory repositories via interface for testing purposes
+builder.Services.AddScoped<IPrepopulate, Prepopulate>();
 
 builder.Services.AddSingleton<IDataProtectionService<Admin>, AdminDataProtectionService>();
 builder.Services.AddSingleton<IDataProtectionService<Client>, ClientDataProtectionService>();
