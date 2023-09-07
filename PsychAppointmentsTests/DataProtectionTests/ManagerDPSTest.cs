@@ -44,7 +44,7 @@ public class ManagerDPSTest
         //add one manager
         List<Location> managerLocations = new List<Location>(); 
         Address managerAddress = new Address("Hungary", "1996", "Petőfi utca", "134/m");
-        Manager manager = new Manager("Manager1", "manager1" + emailEnd, phone, birthday, managerAddress, "1234", managerLocations, admin, 99);
+        Manager manager = new Manager("Manager1", "manager1" + emailEnd, phone, birthday, managerAddress, "1234", managerLocations, admin, 10);
         
         //add one client
         List<Session> clientSessions = new List<Session>();
@@ -162,7 +162,7 @@ public class ManagerDPSTest
         //add associated manager
         List<Location> managerLocations = new List<Location>(); 
         Address managerAddress = new Address("Hungary", "1996", "Petőfi utca", "134/m3");
-        Manager manager3 = new Manager("Manager3", "manager3" + emailEnd, phone, birthday, managerAddress, "1234", managerLocations, admin, 88);
+        Manager manager3 = new Manager("Manager3", "manager3" + emailEnd, phone, birthday, managerAddress, "1234", managerLocations, admin, 11);
         
         _psychologist.Sessions.Add(session3);
         _psychologist.Slots.Add(slot3);
@@ -232,7 +232,7 @@ public class ManagerDPSTest
         List<Session> client2Sessions = new List<Session>();
         List<Psychologist> client2Psychologists = new List<Psychologist>();
         Client client2 = new Client("Client2", "client2" + emailEnd, phone, birthday, 
-            clientAddress, "1234", client2Sessions, client2Psychologists, manager2);
+            clientAddress, "1234", client2Sessions, client2Psychologists, manager2, 9);
         
         //add not associated psychologist
         List<Session> psychologist2Sessions = new List<Session>();
