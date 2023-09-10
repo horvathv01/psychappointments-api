@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PsychAppointments_API.Auth;
 using PsychAppointments_API.DAL;
 using PsychAppointments_API.Models;
 using PsychAppointments_API.Models.Enums;
@@ -11,6 +12,7 @@ public class Prepopulate : IPrepopulate
     private readonly IRepository<Session> _sessionRepository;
     private readonly IRepository<Slot> _slotRepository;
     private readonly IRepository<Location> _locationRepository;
+    private readonly IAccessUtilities _hasher;
     //private readonly DbContext _context;
     
     public Prepopulate(
@@ -18,13 +20,15 @@ public class Prepopulate : IPrepopulate
         IRepository<User> userRepository,
         IRepository<Session> sessionRepository,
         IRepository<Slot> slotRepository,
-        IRepository<Location> locationRepository 
+        IRepository<Location> locationRepository,
+        IAccessUtilities hasher
         )
     {
         _userRepository = userRepository;
         _sessionRepository = sessionRepository;
         _slotRepository = slotRepository;
         _locationRepository = locationRepository;
+        _hasher = hasher;
     }
     
         public async Task PrepopulateInMemory()
@@ -33,28 +37,36 @@ public class Prepopulate : IPrepopulate
         string phone = "+361/123-4567";
         DateTime birthday = DateTime.MinValue;
         Address adminAddress = new Address("Hungary", "1196", "Budapest", "Petőfi utca", "134/a");
+        string adminEmail = "admin1" + emailEnd;
+        string adminPassword = _hasher.HashPassword("1234", adminEmail);
         //add one admin
-        Admin admin = new Admin("Admin1", "admin1" + emailEnd, phone, birthday, adminAddress, "1234", null, 1);
+        Admin admin = new Admin("Admin1", adminEmail, phone, birthday, adminAddress, adminPassword, null, 1);
         
         //add one psychologist
         List<Session> psychologistSessions = new List<Session>();
         List<Slot> slots = new List<Slot>();
         List<Client> clients = new List<Client>();
         Address psychologistAddress = new Address("Hungary", "1996", "Petőfi utca", "134/p");
-        Psychologist psychologist = new Psychologist("Psychologist1", "psychologist1" + emailEnd, phone, 
-            birthday, psychologistAddress, "1234", psychologistSessions, slots, clients, admin, 2);
+        string psychologistEmail = "psychologist1" + emailEnd;
+        string psychologistPassword = _hasher.HashPassword("1234", psychologistEmail);
+        Psychologist psychologist = new Psychologist("Psychologist1", psychologistEmail, phone, 
+            birthday, psychologistAddress, psychologistPassword, psychologistSessions, slots, clients, admin, 2);
         
         //add one manager
         List<Location> managerLocations = new List<Location>(); 
         Address managerAddress = new Address("Hungary", "1996", "Petőfi utca", "134/m");
-        Manager manager = new Manager("Manager1", "manager1" + emailEnd, phone, birthday, managerAddress, "1234", managerLocations, admin, 10);
+        string managerEmail = "manager1" + emailEnd;
+        string managerPassword = _hasher.HashPassword("1234", managerEmail);
+        Manager manager = new Manager("Manager1", managerEmail, phone, birthday, managerAddress, managerPassword, managerLocations, admin, 10);
         
         //add one client
         List<Session> clientSessions = new List<Session>();
         List<Psychologist> clientPsychologists = new List<Psychologist>();
         Address clientAddress = new Address("Hungary", "1996", "Petőfi utca", "134/c");
-        Client client = new Client("Client1", "client1" + emailEnd, phone, birthday, clientAddress, 
-            "1234", clientSessions, clientPsychologists, manager, 3);
+        string clientEmail = "client1" + emailEnd;
+        string clientPassword = _hasher.HashPassword("1234", clientEmail);
+        Client client = new Client("Client1", clientEmail, phone, birthday, clientAddress, 
+            clientPassword, clientSessions, clientPsychologists, manager, 3);
         
         //add one location
         List<Manager> locationManagers = new List<Manager>();
@@ -122,8 +134,10 @@ public class Prepopulate : IPrepopulate
         List<Slot> slots3 = new List<Slot>();
         List<Client> clients3 = new List<Client>();
         Address psychologist3Address = new Address("Hungary", "1996", "Petőfi utca", "134/p3");
-        Psychologist psychologist3 = new Psychologist("Psychologist3", "psychologist3" + emailEnd, phone, 
-            birthday, psychologist3Address, "1234", psychologist3Sessions, slots3, clients3, admin, 6);
+        string psychologist3Email = "psychologist3" + emailEnd;
+        string psychologist3Password = _hasher.HashPassword("1234", psychologist3Email);
+        Psychologist psychologist3 = new Psychologist("Psychologist3", psychologist3Email, phone, 
+            birthday, psychologist3Address, psychologist3Password, psychologist3Sessions, slots3, clients3, admin, 6);
         
         //add associated slot (association by partnership - psych3 is psych1's partner)
         DateTime day3 = new DateTime(2023,09,04);
@@ -141,14 +155,18 @@ public class Prepopulate : IPrepopulate
         //add client3 for session3
         List<Session> client3Sessions = new List<Session>();
         List<Psychologist> client3Psychologists = new List<Psychologist>();
-        Client client3 = new Client("Client3", "client3" + emailEnd, phone, birthday, 
-            clientAddress, "1234", client3Sessions, client3Psychologists, manager, 7);
+        string client3Email = "client3" + emailEnd;
+        string client3Password = _hasher.HashPassword("1234", client3Email);
+        Client client3 = new Client("Client3", client3Email, phone, birthday, 
+            clientAddress, client3Password, client3Sessions, client3Psychologists, manager, 7);
         
         //add client4 for session4
         List<Session> client4Sessions = new List<Session>();
         List<Psychologist> client4Psychologists = new List<Psychologist>();
-        Client client4 = new Client("Client4", "client4" + emailEnd, phone, birthday, 
-            clientAddress, "1234", client4Sessions, client4Psychologists, manager, 8);
+        string client4Email = "client4" + emailEnd;
+        string client4Password = _hasher.HashPassword("1234", client4Email);
+        Client client4 = new Client("Client4", client4Email, phone, birthday, 
+            clientAddress, client4Password, client4Sessions, client4Psychologists, manager, 8);
         
         //add associated session (association by partnership - psych3 is psych1's partner)
         DateTime session3Start = new DateTime(2023,09, 04, 15, 00, 00);
@@ -164,7 +182,9 @@ public class Prepopulate : IPrepopulate
         //add associated manager
         List<Location> managerLocations = new List<Location>(); 
         Address managerAddress = new Address("Hungary", "1996", "Petőfi utca", "134/m3");
-        Manager manager3 = new Manager("Manager3", "manager3" + emailEnd, phone, birthday, managerAddress, "1234", managerLocations, admin, 11);
+        string manager3Email = "manager3" + emailEnd;
+        string manager3Password = _hasher.HashPassword("1234", manager3Email);
+        Manager manager3 = new Manager("Manager3", manager3Email, phone, birthday, managerAddress, manager3Password, managerLocations, admin, 11);
         
         ((Psychologist)psychologist).Sessions.Add(session3);
         ((Psychologist)psychologist).Slots.Add(slot3);
@@ -228,22 +248,28 @@ public class Prepopulate : IPrepopulate
         
         //add not associated manager
         List<Location> manager2Locations = new List<Location>();
-        Manager manager2 = new Manager("Manager2", "manager2" + emailEnd, phone, birthday, managerAddress, 
-            "1234", manager2Locations, (Psychologist)psychologist, 4);
+        string manager2Email = "manager2" + emailEnd;
+        string manager2Password = _hasher.HashPassword("1234", manager2Email);
+        Manager manager2 = new Manager("Manager2", manager2Email, phone, birthday, managerAddress, 
+            manager2Password, manager2Locations, (Psychologist)psychologist, 4);
         
         //add not associated client
         List<Session> client2Sessions = new List<Session>();
         List<Psychologist> client2Psychologists = new List<Psychologist>();
-        Client client2 = new Client("Client2", "client2" + emailEnd, phone, birthday, 
-            clientAddress, "1234", client2Sessions, client2Psychologists, manager2, 9);
+        string client2Email = "client2" + emailEnd;
+        string client2Password = _hasher.HashPassword("1234", client2Email);
+        Client client2 = new Client("Client2", client2Email, phone, birthday, 
+            clientAddress, client2Password, client2Sessions, client2Psychologists, manager2, 9);
         
         //add not associated psychologist
         List<Session> psychologist2Sessions = new List<Session>();
         List<Slot> slots2 = new List<Slot>();
         List<Client> clients2 = new List<Client>();
         Address psychologist2Address = new Address("Hungary", "1996", "Petőfi utca", "134/p2");
-        Psychologist psychologist2 = new Psychologist("Psychologist2", "psychologist2" + emailEnd, phone, 
-            birthday, psychologist2Address, "1234", psychologist2Sessions, slots2, clients2, manager2, 5);
+        string psychologist2Email = "psychologist2" + emailEnd;
+        string psychologist2Password = _hasher.HashPassword("1234", psychologist2Email);
+        Psychologist psychologist2 = new Psychologist("Psychologist2", psychologist2Email, phone, 
+            birthday, psychologist2Address, psychologist2Password, psychologist2Sessions, slots2, clients2, manager2, 5);
         
         //add psychologist2 slot (not associated)
         DateTime day2 = new DateTime(2023,09,04);

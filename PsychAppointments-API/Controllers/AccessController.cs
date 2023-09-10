@@ -42,7 +42,7 @@ public class AccessController : ControllerBase
         return Ok($"{user.Type} {user.Name} has been successfully registered.");
     }
 
-    [HttpPost("/login")]
+    [HttpPost("login")]
     public async Task<IActionResult> LoginUser()
     {
         string authorizationHeader = HttpContext.Request.Headers["Authorization"];
@@ -56,6 +56,7 @@ public class AccessController : ControllerBase
 
         if (user == null)
         {
+            Console.WriteLine("Authorization failed: user == null");
             return Unauthorized();
         }
 
@@ -84,11 +85,31 @@ public class AccessController : ControllerBase
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal,
                 authProperties);
             
+            Console.WriteLine($"Authorization successful, {user.Name} logged in successfully.");
+            UserDTO loggedInUser = new UserDTO(user);
+            loggedInUser.Password = "";
             
-            return Ok($"{roleName} {user.Name} logged in successfully.");    
+            return Ok(loggedInUser);    
         }
-
+        Console.WriteLine("Authorization failed: password mismatch");
         return Unauthorized();
+    }
+    
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> LogoutUser()
+    {
+        try
+        {
+            string userName = HttpContext.User.Identity.Name;
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            Console.WriteLine($"{userName} logged out successfully.");
+            return Ok($"{userName} logged out successfully");
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, $"Logout failed: {e.Message}");
+        }
     }
 
     [HttpPut("update")]
