@@ -43,4 +43,24 @@ public class UserController : ControllerBase
         return new UserDTO(user);
     }
 
+    [HttpGet("allpsychologists")]
+    [Authorize]
+    public async Task<List<UserDTO>?> GetAllPsychologists()
+    {
+        long userId;
+        long.TryParse(HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Authentication).Value,
+            out userId);
+
+        var user = await _userService.GetUserById(userId);
+        
+        if (user != null)
+        {
+            Console.WriteLine($"{user.Type} {user.Name} accessed GetAllPsychologists.");
+            var query = async () => await _userService.GetAllPsychologists();
+            var allPsychologists = await _userDPS.Filter(user, query);
+            return allPsychologists.ToList();
+        }
+        return null;
+    }
+
 }

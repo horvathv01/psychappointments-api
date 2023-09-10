@@ -88,16 +88,32 @@ public class UserService : IUserService
         return await _userRepository.GetByEmail(email);
     }
 
-    public async Task<List<User>> GetAllUsers()
+    public async Task<IEnumerable<User>> GetAllUsers()
     {
-        var allUsers = await _userRepository.GetAll();
-        return allUsers.ToList();
+        return await _userRepository.GetAll();
     }
 
-    public async Task<List<User>> GetListOfUsers(List<long> ids)
+    public async Task<IEnumerable<User>> GetAllPsychologists()
     {
-        var list = await _userRepository.GetList(ids);
-        return list.ToList();
+        var allPsychologists = await _psychologistService.GetAllPsychologists();
+        return allPsychologists.Cast<User>();
+    }
+
+    public async Task<IEnumerable<User>> GetAllClients()
+    {
+        var allClients = await _clientService.GetAllClients();
+        return allClients.Cast<User>().ToList();
+    }
+
+    public async Task<IEnumerable<User>> GetAllManagers()
+    {
+        var allManagers = await _managerService.GetAllManagers();
+        return allManagers.Cast<User>().ToList();
+    }
+
+    public async Task<IEnumerable<User>> GetListOfUsers(List<long> ids)
+    {
+        return await _userRepository.GetList(ids);
     }
 
     public async Task<bool> UpdateUser(long id, UserDTO newUser)

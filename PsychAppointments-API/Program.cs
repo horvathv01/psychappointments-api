@@ -12,7 +12,7 @@ builder.Services.AddCors(option =>
 {
     option.AddPolicy("default", policy =>
     {
-        policy.WithOrigins("192.168.1.248", "192.168.1.242")
+        policy.WithOrigins("http://192.168.1.248:3000", "http://192.168.1.242:3000", "http://localhost:3000")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -65,6 +65,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.UseCors("default");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -72,6 +73,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
 
 //app.UseHttpsRedirection();
 app.UseAuthentication();
