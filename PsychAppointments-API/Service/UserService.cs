@@ -46,34 +46,36 @@ public class UserService : IUserService
     public async Task<bool> AddUser(UserDTO user)
     {
         var allUsers = await _userRepository.GetAll();
-        long id = allUsers.Max(us => us.Id) + 1;
+        long id = allUsers.ToList().Count + 1;
         string password = _hasher.HashPassword(user.Password, user.Email);
         long registeredById = user.RegisteredBy ?? 0;
         User? registeredBy = null;
-        if (user.RegisteredBy != 0)
+        if (user.RegisteredBy != null)
         {
             registeredBy = await _userRepository.GetById(registeredById);    
         }
+        DateTime birthDate = DateTime.MinValue;
+        DateTime.TryParse(user.DateOfBirth, out birthDate);
         
         if (user.Type == Enum.GetName(typeof(UserType), UserType.Admin))
         {
-            var newAdmin = new Admin(user.Name, user.Email, user.Phone, user.DateOfBirth, user.Address, password,
+            var newAdmin = new Admin(user.Name, user.Email, user.Phone, birthDate, user.Address, password,
                 registeredBy, id);
             return await _userRepository.Add(newAdmin);
         } else if (user.Type == Enum.GetName(typeof(UserType), UserType.Psychologist))
         {
-            var newPsychologist = new Psychologist(user.Name, user.Email, user.Phone, user.DateOfBirth, user.Address,
+            var newPsychologist = new Psychologist(user.Name, user.Email, user.Phone, birthDate, user.Address,
                 password, null, null, null, registeredBy, id);
             return await _psychologistService.AddPsychologist(newPsychologist);
         } else if (user.Type == Enum.GetName(typeof(UserType), UserType.Manager))
         {
-            var newManager = new Manager(user.Name, user.Email, user.Phone, user.DateOfBirth, user.Address, password, null, registeredBy, id);
+            var newManager = new Manager(user.Name, user.Email, user.Phone, birthDate, user.Address, password, null, registeredBy, id);
             return await _managerService.AddManager(newManager);
         }
         else
         {
             //meaning: client
-            var newClient = new Client(user.Name, user.Email, user.Phone, user.DateOfBirth, user.Address, password, null, null, registeredBy, id);
+            var newClient = new Client(user.Name, user.Email, user.Phone, birthDate, user.Address, password, null, null, registeredBy, id);
             return await _clientService.AddClient(newClient);
         }
     }

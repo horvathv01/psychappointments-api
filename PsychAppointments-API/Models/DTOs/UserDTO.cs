@@ -9,7 +9,7 @@ public class UserDTO
     public string Type { get; set; }
     public string Email { get; set; }
     public string Phone { get; set; }
-    public DateTime DateOfBirth { get; set; }
+    public string DateOfBirth { get; set; }
     public Address Address { get; set; }
     public string Password { get; set; }
     public long? RegisteredBy { get; set; }
@@ -26,6 +26,7 @@ public class UserDTO
     //manager:
     public List<long>? LocationIds { get; set; } = null;
 
+    [Newtonsoft.Json.JsonConstructor]
     public UserDTO(
         long id, 
         string name, 
@@ -43,15 +44,12 @@ public class UserDTO
         List<long>? locations = null
             )
     {
-        DateTime birthDay = new DateTime(1994, 07, 24);
-        DateTime.TryParse(dateOfBirth, out birthDay);
-        
         Id = id;
         Name = name;
         Type = type;
         Email = email;
         Phone = phone;
-        DateOfBirth = birthDay; 
+        DateOfBirth = dateOfBirth; 
         Address = address;
         Password = password;
         RegisteredBy = registeredBy;
@@ -91,7 +89,7 @@ public class UserDTO
         Type =  user.Type.ToString();
         Email = user.Email;
         Phone = user.Phone;
-        DateOfBirth = user.DateOfBirth;
+        DateOfBirth = user.DateOfBirth.ToString();
         Address = user.Address;
         Password = user.Password;
         RegisteredBy = user.RegisteredBy != null ? user.RegisteredBy.Id : null;
@@ -104,7 +102,7 @@ public class UserDTO
     Type = type;
     Email = "";
     Phone = "";
-    DateOfBirth = DateTime.MinValue;
+    DateOfBirth = DateTime.MinValue.ToString();
     Address = new Address();
     Password = "";
     RegisteredBy = null;

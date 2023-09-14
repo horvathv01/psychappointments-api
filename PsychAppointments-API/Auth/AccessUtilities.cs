@@ -1,4 +1,3 @@
-using PsychAppointments_API.Models;
 using Microsoft.AspNetCore.Identity;
 using PsychAppointments_API.Service.Factories;
 
@@ -15,23 +14,21 @@ public class AccessUtilities : IAccessUtilities
     
     public string HashPassword(string password, string userEmail)
     {
-        string salt = GetSalt(userEmail);   
-        return _hasherFactory.GetHasher().HashPassword(salt, password);
+        string salt = GetSalt(userEmail);
+        var hasher = _hasherFactory.GetHasher();
+        return hasher.HashPassword(salt, password);
+
     }
 
-    public PasswordVerificationResult Authenticate(User? user, string password)
+    public PasswordVerificationResult Authenticate(string email, string hashedPassword, string password)
     {
-        if (user == null)
-        {
-            return PasswordVerificationResult.Failed;
-        }
-
-        string salt = GetSalt(user.Email);
-        var result = _hasherFactory.GetHasher().VerifyHashedPassword(salt, user.Password, password);
+        string salt = GetSalt(email);
+        var hasher = _hasherFactory.GetHasher();
+        var result = hasher.VerifyHashedPassword(salt, hashedPassword, password);
         return result;
     }
 
-    private string GetSalt(string userEmail)
+    public string GetSalt(string userEmail)
     {
         string salt = "";
         var arr = String.Concat(userEmail.OrderBy(ch => ch)).ToArray();

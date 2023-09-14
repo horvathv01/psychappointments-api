@@ -122,3 +122,6 @@
 /home/hvz/Dokumentumok/Codecool/Projektek/5-JobHunt-Projects/psychappointments/psychappointments-api/PsychAppointmentsTests/bin/Debug/net7.0/Swashbuckle.AspNetCore.SwaggerUI.dll
 /home/hvz/Dokumentumok/Codecool/Projektek/5-JobHunt-Projects/psychappointments/psychappointments-api/PsychAppointmentsTests/bin/Debug/net7.0/PsychAppointments-API.dll
 /home/hvz/Dokumentumok/Codecool/Projektek/5-JobHunt-Projects/psychappointments/psychappointments-api/PsychAppointmentsTests/bin/Debug/net7.0/PsychAppointments-API.pdb
+/home/hvz/Dokumentumok/Codecool/Projektek/5-JobHunt-Projects/psychappointments/psychappointments-api/PsychAppointmentsTests/bin/Debug/net7.0/Microsoft.AspNetCore.JsonPatch.dll
+/home/hvz/Dokumentumok/Codecool/Projektek/5-JobHunt-Projects/psychappointments/psychappointments-api/PsychAppointmentsTests/bin/Debug/net7.0/Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll
+/home/hvz/Dokumentumok/Codecool/Projektek/5-JobHunt-Projects/psychappointments/psychappointments-api/PsychAppointmentsTests/bin/Debug/net7.0/Newtonsoft.Json.Bson.dll

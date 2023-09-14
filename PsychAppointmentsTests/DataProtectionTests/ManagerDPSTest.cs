@@ -402,7 +402,7 @@ public class ManagerDPSTest
             queryResult.Type == Enum.GetName(typeof(UserType), UserType.Client) &&
             queryResult.Email == unFiltered.Email &&
             queryResult.Phone == unFiltered.Phone &&
-            queryResult.DateOfBirth == unFiltered.DateOfBirth &&
+            queryResult.DateOfBirth == unFiltered.DateOfBirth.ToString() &&
             queryResult.Address.Equals(unFiltered.Address) &&
             queryResult.Password == "" &&
             queryResult.SessionIds != null &&
@@ -429,7 +429,7 @@ public class ManagerDPSTest
             queryResult.Type == Enum.GetName(typeof(UserType), UserType.Client) &&
             queryResult.Email == "" &&
             queryResult.Phone == "" &&
-            queryResult.DateOfBirth == DateTime.MinValue &&
+            queryResult.DateOfBirth == DateTime.MinValue.ToString() &&
             queryResult.Address.Equals(new Address()) &&
             queryResult.Password == "" &&
             queryResult.SessionIds == null &&
@@ -457,7 +457,7 @@ public class ManagerDPSTest
             queryResult.Type == Enum.GetName(typeof(UserType), UserType.Manager) &&
             queryResult.Email == unFiltered.Email &&
             queryResult.Phone == unFiltered.Phone &&
-            queryResult.DateOfBirth == DateTime.MinValue &&
+            queryResult.DateOfBirth == DateTime.MinValue.ToString() &&
             queryResult.Address.Equals(new Address()) &&
             queryResult.Password == "" &&
             queryResult.SessionIds == null &&
@@ -516,7 +516,7 @@ public class ManagerDPSTest
             queryResult.Type == Enum.GetName(typeof(UserType), UserType.Manager) &&
             queryResult.Email == unFiltered.Email &&
             queryResult.Phone == unFiltered.Phone &&
-            queryResult.DateOfBirth == DateTime.MinValue &&
+            queryResult.DateOfBirth == DateTime.MinValue.ToString() &&
             queryResult.Address.Equals(new Address()) &&
             queryResult.Password == "" &&
             queryResult.SessionIds == null &&
@@ -555,7 +555,7 @@ public class ManagerDPSTest
             queryResult.Type == Enum.GetName(typeof(UserType), UserType.Psychologist) &&
             queryResult.Email == unFiltered.Email &&
             queryResult.Phone == unFiltered.Phone &&
-            queryResult.DateOfBirth == DateTime.MinValue &&
+            queryResult.DateOfBirth == DateTime.MinValue.ToString() &&
             queryResult.Address.Equals(new Address()) &&
             queryResult.Password == "" &&
             queryResult.SessionIds.SequenceEqual(sessionIds) && queryResult.SessionIds.Count > 0 &&
@@ -596,7 +596,7 @@ public class ManagerDPSTest
             queryResult.Type == Enum.GetName(typeof(UserType), UserType.Psychologist) &&
             queryResult.Email == unFiltered.Email &&
             queryResult.Phone == unFiltered.Phone &&
-            queryResult.DateOfBirth == DateTime.MinValue &&
+            queryResult.DateOfBirth == DateTime.MinValue.ToString() &&
             queryResult.Address.Equals(new Address()) &&
             queryResult.Password == "" &&
             queryResult.SessionIds.SequenceEqual(sessionIds) && queryResult.SessionIds.Count == 0 &&
@@ -625,7 +625,7 @@ public class ManagerDPSTest
             queryResult.Type == Enum.GetName(typeof(UserType), UserType.Admin) &&
             queryResult.Email == "" &&
             queryResult.Phone == "" &&
-            queryResult.DateOfBirth == DateTime.MinValue &&
+            queryResult.DateOfBirth == DateTime.MinValue.ToString() &&
             queryResult.Address.Equals(new Address()) &&
             queryResult.Password == "" &&
             queryResult.RegisteredBy == null &&

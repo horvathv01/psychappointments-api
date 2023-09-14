@@ -28,16 +28,16 @@ public class AccessController : ControllerBase
     public async Task<IActionResult> RegisterUser([FromBody] UserDTO user)
     {
         //check if user has already registered with this email
-        var registeredUser = _userService.GetUserByEmail(user.Email);
+        var registeredUser = await _userService.GetUserByEmail(user.Email);
 
         if (registeredUser != null)
         {
+            Console.WriteLine(registeredUser);
             return Conflict("This email has already been registered.");
         }
 
-        string newPassword = _hasher.HashPassword(user.Password, user.Email);
-        user.Password = newPassword;
-        _userService.AddUser(user);
+        user.Type = Enum.GetName(typeof(UserType), UserType.Client);
+        await _userService.AddUser(user);
         
         return Ok($"{user.Type} {user.Name} has been successfully registered.");
     }
@@ -53,14 +53,14 @@ public class AccessController : ControllerBase
         var email = parts[0];
         var pass = parts[1];
         var user = await _userService.GetUserByEmail(email);
-
+        
         if (user == null)
         {
             Console.WriteLine("Authorization failed: user == null");
             return Unauthorized();
         }
 
-        var authenticated = _hasher.Authenticate(user, pass);
+        var authenticated = _hasher.Authenticate(email, user.Password, pass);
 
         if (authenticated == PasswordVerificationResult.Success)
         {
