@@ -129,7 +129,7 @@ public class ClientDataProtectionService : IDataProtectionService<Client>
     {
         var result = new UserDTO(otherUser);
         result.Address = new Address();
-        result.DateOfBirth = DateTime.MinValue;
+        result.DateOfBirth = DateTime.MinValue.ToString();
         result.RegisteredBy = 0;
         result.Id = 0;
         result.Password = "";

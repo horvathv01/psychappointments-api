@@ -32,6 +32,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SameSite = SameSiteMode.None;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     });
+
+builder.Services.AddControllers().AddNewtonsoftJson();
+
+
 // Add services to the container.
 builder.Services.AddScoped<IAccessUtilities, AccessUtilities>();
 builder.Services.AddScoped<IHasherFactory, HasherFactory>();

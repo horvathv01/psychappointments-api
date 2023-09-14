@@ -6,5 +6,5 @@ namespace PsychAppointments_API.Auth;
 public interface IAccessUtilities
 {
     string HashPassword(string password, string userEmail);
-    PasswordVerificationResult Authenticate(User? user, string password);
+    PasswordVerificationResult Authenticate(string email, string hashedPassword, string password);
 }
