@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 using PsychAppointments_API.Auth;
 using PsychAppointments_API.DAL;
 using PsychAppointments_API.Models;
@@ -39,6 +40,9 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 
 
 // Add services to the container.
+builder.Services.AddDbContext<PsychAppointmentContext>(options => 
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PsychAppointmentsConnection")));
+
 builder.Services.AddScoped<IAccessUtilities, AccessUtilities>();
 builder.Services.AddScoped<IHasherFactory, HasherFactory>();
 

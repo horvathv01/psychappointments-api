@@ -26,7 +26,7 @@ public class PasswordHasherTest
         string hashed = _hasher.HashPassword(password, email);
         string hashed2 = _hasher.HashPassword(password2, email2);
 
-        Assert.That(hashed == hashed2);
+        Assert.That(hashed != hashed2);
     }
 
     [Test]
