@@ -25,9 +25,7 @@ public class UserController : ControllerBase
     [Authorize]
     public async Task<UserDTO?> GetUser(long id)
     {
-        long userId;
-        long.TryParse(HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Authentication).Value, out userId);
-        var user = await _userService.GetUserById(userId);
+        var user = await GetLoggedInUser();
         if (user != null)
         {
             var query = async () => await _userService.GetUserById(id);
@@ -41,6 +39,28 @@ public class UserController : ControllerBase
     {
         var user = await _userService.GetUserById(id);
         return new UserDTO(user);
+    }
+
+    [HttpGet("allmanagers")]
+    [Authorize]
+    public async Task<List<UserDTO>> GetAllManagers()
+    {
+        
+        long userId;
+        long.TryParse(HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Authentication).Value, out userId);
+        var user = await _userService.GetUserById(userId);
+        
+        //var user = await GetLoggedInUser();
+        
+        if (user != null)
+        {
+            var query = async () => await _userService.GetAllManagers();
+            var allManagers = await _userDPS.Filter(user, query);
+            return allManagers.ToList();
+        }
+        return null;
+        
+        
     }
 
     [HttpGet("allpsychologists")]
@@ -61,6 +81,13 @@ public class UserController : ControllerBase
             return allPsychologists.ToList();
         }
         return null;
+    }
+
+    private async Task<User?> GetLoggedInUser()
+    {
+        long userId;
+        long.TryParse(HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Authentication).Value, out userId);
+        return await _userService.GetUserById(userId);
     }
 
 }

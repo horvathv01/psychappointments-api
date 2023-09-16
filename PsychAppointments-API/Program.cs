@@ -8,15 +8,16 @@ using PsychAppointments_API.Service.Factories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(option =>
+builder.Services.AddCors(options =>
 {
-    option.AddPolicy("default", policy =>
-    {
-        policy.WithOrigins("http://192.168.1.248:3000", "http://192.168.1.242:3000", "http://localhost:3000")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000", "http://192.168.1.248:3000")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
 });
 
 
@@ -30,7 +31,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         };
         options.Cookie.Name = "PsychAppointmentsCookie";
         options.Cookie.SameSite = SameSiteMode.None;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        //works in https only:
+        //options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     });
 
 builder.Services.AddControllers().AddNewtonsoftJson();
@@ -69,7 +71,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-app.UseCors("default");
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -78,7 +80,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
+app.UseCors();
 
 //app.UseHttpsRedirection();
 app.UseAuthentication();
