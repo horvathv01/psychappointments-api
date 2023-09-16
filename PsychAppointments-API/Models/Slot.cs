@@ -7,7 +7,13 @@ public class Slot
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
+    
+    [ForeignKey("PsychologistId")]
+    public long PsychologistId { get; set; }
     public Psychologist Psychologist { get; set; }
+    
+    [ForeignKey("LocationId")]
+    public long LocationId { get; set; }
     public Location Location { get; set; }
     public DateTime Date { get; set; }
     public DateTime SlotStart { get; set; }

@@ -8,16 +8,31 @@ public class Session
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
+    
+    [ForeignKey("PsychologistId")]
+    public long PsychologistId { get; set; }
     public Psychologist Psychologist { get; set; }
+    
+    [ForeignKey("PartnerPsychologistId")]
+    public long PartnerPsychologistId { get; set; }
     public Psychologist? PartnerPsychologist { get; set; }
     public bool Blank { get; set; }
+    
+    [ForeignKey("LocationId")]
+    public long LocationId { get; set; }
     public Location Location { get; set; }
     public DateTime Date { get; set; }
     public DateTime Start { get; set; }
     public DateTime End { get; set; }
+    
+    [ForeignKey("ClientId")]
+    public long ClientId { get; set; }
     public Client? Client { get; set; }
     public int Price { get; set; }
     public SessionFrequency Frequency { get; set; }
+    
+    [ForeignKey("SlotId")]
+    public long SlotId { get; set; }
     public Slot Slot { get; set; }
     public string Description { get; set; }
 

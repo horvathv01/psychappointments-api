@@ -13,7 +13,7 @@ public class PsychAppointmentContext : DbContext
     public DbSet<Session> Sessions { get; set; }
     public DbSet<Slot> Slots { get; set; }
 
-    protected PsychAppointmentContext(DbContextOptions<PsychAppointmentContext> contextOptions) : base(contextOptions)
+    public PsychAppointmentContext(DbContextOptions<PsychAppointmentContext> contextOptions) : base(contextOptions)
     {
     }
 
@@ -62,17 +62,18 @@ public class PsychAppointmentContext : DbContext
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.Location)
             .WithMany()
-            .HasForeignKey(ses => ses.Location.Id);
-
+            .HasForeignKey(ses => ses.LocationId);
+        
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.Psychologist)
             .WithMany(psy => psy.Sessions)
-            .HasForeignKey(ses => ses.Psychologist.Id);
+            .HasForeignKey(ses => ses.PsychologistId);
+        
 
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.PartnerPsychologist)
             .WithMany(psy => psy.Sessions)
-            .HasForeignKey(ses => ses.PartnerPsychologist.Id);
+            .HasForeignKey(ses => ses.PartnerPsychologistId);
 
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.Location)
@@ -82,27 +83,28 @@ public class PsychAppointmentContext : DbContext
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.Client)
             .WithMany(cli => cli.Sessions)
-            .HasForeignKey(ses => ses.Client.Id);
+            .HasForeignKey(ses => ses.ClientId);
 
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.Slot)
             .WithMany(slot => slot.Sessions)
-            .HasForeignKey(ses => ses.Slot.Id);
+            .HasForeignKey(ses => ses.SlotId);
         
         modelBuilder.Entity<Slot>()
             .HasOne(slot => slot.Psychologist)
             .WithMany(psy => psy.Slots)
-            .HasForeignKey(slot => slot.Psychologist.Id);
+            .HasForeignKey(slot => slot.PsychologistId);
+        
 
         modelBuilder.Entity<Slot>()
             .HasOne(slot => slot.Location)
             .WithMany()
-            .HasForeignKey(slot => slot.Location.Id);
+            .HasForeignKey(slot => slot.LocationId);
         
         modelBuilder.Entity<Slot>()
             .HasMany(slot => slot.Sessions)
             .WithOne(ses => ses.Slot)
-            .HasForeignKey(slot => slot.Location.Id);
+            .HasForeignKey(slot => slot.SlotId);
 
     }
 }
