@@ -5,8 +5,8 @@ namespace PsychAppointments_API.Service;
 public interface IUserService
 {
      Task<bool> AddUser(UserDTO user);
-     Task<User> GetUserById(long id);
-     Task<User> GetUserByEmail(string email);
+     Task<User?> GetUserById(long id);
+     Task<User?> GetUserByEmail(string email);
      Task<IEnumerable<User>> GetAllUsers();
 
      Task<IEnumerable<User>> GetAllPsychologists();
