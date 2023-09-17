@@ -19,6 +19,11 @@ public class Manager : User
         Type = UserType.Manager;
         Locations = locations ?? new List<Location>();
     }
+
+    public Manager()
+    {
+        
+    }
     
     public Manager(User user) : base()
     {

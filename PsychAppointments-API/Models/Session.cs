@@ -67,6 +67,11 @@ public class Session
         Id = id;
     }
 
+    public Session()
+    {
+        
+    }
+
     public override bool Equals(object? obj)
     {
         return obj is Session

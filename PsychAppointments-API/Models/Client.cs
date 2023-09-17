@@ -25,6 +25,11 @@ public class Client : User
         Psychologists = psychologists ?? new List<Psychologist>();
         RegisteredBy = registeredBy == null ? null : registeredBy;
     }
+
+    public Client()
+    {
+        
+    }
     
     public Client(User user)
     {

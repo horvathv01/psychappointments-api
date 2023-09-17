@@ -72,13 +72,13 @@ public class PsychAppointmentContext : DbContext
 
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.PartnerPsychologist)
-            .WithMany(psy => psy.Sessions)
+            .WithMany()
             .HasForeignKey(ses => ses.PartnerPsychologistId);
 
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.Location)
             .WithMany()
-            .HasForeignKey(ses => ses.Location.Id);
+            .HasForeignKey(ses => ses.LocationId);
 
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.Client)
@@ -105,6 +105,28 @@ public class PsychAppointmentContext : DbContext
             .HasMany(slot => slot.Sessions)
             .WithOne(ses => ses.Slot)
             .HasForeignKey(slot => slot.SlotId);
+
+        modelBuilder.Entity<Address>()
+            .HasNoKey();
+
+        modelBuilder.Entity<Admin>()
+            .Ignore(admin => admin.Address);
+        
+        modelBuilder.Entity<Client>()
+            .Ignore(cli => cli.Address);
+        
+        modelBuilder.Entity<Manager>()
+            .Ignore(man => man.Address);
+        
+        modelBuilder.Entity<Psychologist>()
+            .Ignore(psy => psy.Address);
+        
+        modelBuilder.Entity<Location>()
+            .Ignore(loc => loc.Address);
+        
+        modelBuilder.Entity<User>()
+            .Ignore(us => us.Address);
+
 
     }
 }

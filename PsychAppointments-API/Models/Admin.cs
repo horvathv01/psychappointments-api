@@ -16,6 +16,11 @@ public class Admin : User
         Type = UserType.Admin;
     }
 
+    public Admin()
+    {
+        
+    }
+
     public Admin(User user) : base()
     {
         Id = user.Id;

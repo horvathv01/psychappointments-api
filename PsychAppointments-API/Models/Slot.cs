@@ -48,6 +48,11 @@ public class Slot
         Id = id;
     }
 
+    public Slot()
+    {
+        
+    }
+
     private List<Session> PrepopulateSessions()
     {
         List<Session> sessions = new List<Session>();

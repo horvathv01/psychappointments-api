@@ -20,6 +20,11 @@ public class Location
         Id = id;
     }
 
+    public Location()
+    {
+        
+    }
+
     public override bool Equals(object? obj)
     {
         return obj is Location

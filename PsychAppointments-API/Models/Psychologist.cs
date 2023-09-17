@@ -27,6 +27,11 @@ public class Psychologist : User
         Slots = slots ?? new List<Slot>();
         Sessions = sessions ?? new List<Session>();
     }
+
+    public Psychologist()
+    {
+        
+    }
     
     public Psychologist(User user) : base()
     {
