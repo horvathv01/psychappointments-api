@@ -32,6 +32,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         };
         options.Cookie.Name = "PsychAppointmentsCookie";
         options.Cookie.SameSite = SameSiteMode.None;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
         //works in https only:
         //options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     });
