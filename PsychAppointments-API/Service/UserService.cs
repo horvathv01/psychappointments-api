@@ -67,6 +67,8 @@ public class UserService : IUserService
         }
         DateTime birthDate = DateTime.MinValue;
         DateTime.TryParse(user.DateOfBirth, out birthDate);
+        birthDate = DateTime.SpecifyKind(birthDate, DateTimeKind.Utc);
+
 
         try
         {
@@ -75,26 +77,33 @@ public class UserService : IUserService
                 var newAdmin = new Admin(user.Name, user.Email, user.Phone, birthDate, user.Address, password,
                     registeredBy, id);
                 await _context.Admins.AddAsync(newAdmin);
+                await _context.SaveChangesAsync();
                 return true;
             } else if (user.Type == Enum.GetName(typeof(UserType), UserType.Psychologist))
             {
                 var newPsychologist = new Psychologist(user.Name, user.Email, user.Phone, birthDate, user.Address,
-                    password, null, null, null, registeredBy, id);
+                    password, new List<Session>(), new List<Slot>(), new List<Client>(), registeredBy, id);
                 await _context.Psychologists.AddAsync(newPsychologist);
+                await _context.SaveChangesAsync();
                 return true;
             } else if (user.Type == Enum.GetName(typeof(UserType), UserType.Manager))
             {
-                var newManager = new Manager(user.Name, user.Email, user.Phone, birthDate, user.Address, password, null, registeredBy, id);
+                var newManager = new Manager(user.Name, user.Email, user.Phone, birthDate, user.Address, password, new List<Location>(), registeredBy, id);
                 await _context.Managers.AddAsync(newManager);
+                await _context.SaveChangesAsync();
                 return true;
             }
             else
             {
+                Console.WriteLine("lefutott a client");
                 //meaning: client
-                var newClient = new Client(user.Name, user.Email, user.Phone, birthDate, user.Address, password, null, null, registeredBy, id);
+                var newClient = new Client(user.Name, user.Email, user.Phone, birthDate, user.Address, password, new List<Session>(), new List<Psychologist>(), registeredBy, id);
                 await _context.Clients.AddAsync(newClient);
+                await _context.SaveChangesAsync();
                 return true;
             }
+
+            
         }
         catch (Exception e)
         {
@@ -222,6 +231,7 @@ public class UserService : IUserService
         
         DateTime newBirthDay = user.DateOfBirth;
         DateTime.TryParse(newUser.DateOfBirth, out newBirthDay);
+        newBirthDay = DateTime.SpecifyKind(newBirthDay, DateTimeKind.Utc);
 
         if (Enum.GetName(typeof(UserType), user.Type) != newUser.Type)
         {
@@ -240,27 +250,30 @@ public class UserService : IUserService
                 case "Psychologist":
                     var newPsychologist = new Psychologist(newUser.Name, newUser.Email, newUser.Phone, newBirthDay,
                         newUser.Address,
-                        password, null, null, null, user.RegisteredBy, id);
+                        password, new List<Session>(), new List<Slot>(), new List<Client>(), user.RegisteredBy, id);
                     if (newUser.SessionIds != null)
                     {
-                        newPsychologist.Sessions = await _context.Sessions
+                        var sessionsToAdd = await _context.Sessions
                             .Where(ses => newUser.SessionIds.Contains(ses.Id))
                             .ToListAsync();
+                        newPsychologist.Sessions.AddRange(sessionsToAdd);
                         //_sessionService.GetListOfSessions(newUser.SessionIds);
                     }
 
                     if (newUser.SlotIds != null)
                     {
-                        newPsychologist.Slots = await _context.Slots.Where(slot => newUser.SlotIds.Contains(slot.Id))
+                         var slotsToAdd = await _context.Slots.Where(slot => newUser.SlotIds.Contains(slot.Id))
                             .ToListAsync();
+                         newPsychologist.Slots.AddRange(slotsToAdd);
                         //_slotService.GetListOfSlots(newUser.SlotIds);
                     }
 
                     if (newUser.ClientIds != null)
                     {
-                        newPsychologist.Clients = await _context.Clients
+                         var clientsToAdd = await _context.Clients
                             .Where(cli => newUser.ClientIds.Contains(cli.Id))
                             .ToListAsync();
+                         newPsychologist.Clients.AddRange(clientsToAdd);
                         //_clientService.GetListOfClients(newUser.ClientIds);
                     }
 
@@ -271,13 +284,14 @@ public class UserService : IUserService
                     return true;
                 case "Manager":
                     var newManager = new Manager(newUser.Name, newUser.Email, newUser.Phone, newBirthDay, newUser.Address,
-                        password, null, user.RegisteredBy, id);
+                        password, new List<Location>(), user.RegisteredBy, id);
 
                     if (newUser.LocationIds != null)
                     {
-                        newManager.Locations = await _context.Locations
+                         var locationsToAdd = await _context.Locations
                             .Where(loc => newUser.LocationIds.Contains(loc.Id))
                             .ToListAsync();
+                         newManager.Locations.AddRange(locationsToAdd);
                         //_locationService.GetListOfLocations(newUser.LocationIds);
                     }
 
@@ -288,20 +302,22 @@ public class UserService : IUserService
                     return true;
                 case "Client":
                     var newClient = new Client(newUser.Name, newUser.Email, newUser.Phone, newBirthDay, newUser.Address,
-                        password, null, null, user.RegisteredBy, id);
+                        password, new List<Session>(), new List<Psychologist>(), user.RegisteredBy, id);
 
                     if (newUser.SessionIds != null)
                     {
-                        newClient.Sessions = await _context.Sessions.Where(ses => newUser.SessionIds.Contains(ses.Id))
+                        var sessionsToAdd = await _context.Sessions.Where(ses => newUser.SessionIds.Contains(ses.Id))
                             .ToListAsync();
+                        newClient.Sessions.AddRange(sessionsToAdd);
                         //_sessionService.GetListOfSessions(newUser.SessionIds);
                     }
 
                     if (newUser.PsychologistIds != null)
                     {
-                        newClient.Psychologists = await _context.Psychologists
+                         var psychologistsToAdd = await _context.Psychologists
                             .Where(psy => newUser.PsychologistIds.Contains(psy.Id))
                             .ToListAsync();
+                         newClient.Psychologists.AddRange(psychologistsToAdd);
                         //_psychologistService.GetListOfPsychologists(newUser.PsychologistIds);
                     }
 

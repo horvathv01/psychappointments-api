@@ -36,7 +36,7 @@ public class AccessController : ControllerBase
             return Conflict("This email has already been registered.");
         }
 
-        user.Type = Enum.GetName(typeof(UserType), UserType.Client);
+        //user.Type = Enum.GetName(typeof(UserType), UserType.Client);
         await _userService.AddUser(user);
         
         return Ok($"{user.Type} {user.Name} has been successfully registered.");
