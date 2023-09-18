@@ -335,12 +335,12 @@ public class Prepopulate : IPrepopulate
     {
         string emailEnd = "@psychappointments.com";
         string phone = "+361/123-4567";
-        DateTime birthday = DateTime.MinValue;
+        DateTime birthday = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
         Address adminAddress = new Address("Hungary", "1196", "Budapest", "Petőfi utca", "134/a");
         string adminEmail = "admin1" + emailEnd;
         string adminPassword = "1234";
         //add one admin
-        Admin admin = new Admin("Admin1", adminEmail, phone, birthday, adminAddress, adminPassword, null, 1);
+        Admin admin = new Admin("Admin1", adminEmail, phone, birthday, adminAddress, adminPassword);
         
         //add one psychologist
         List<Session> psychologistSessions = new List<Session>();
@@ -350,14 +350,14 @@ public class Prepopulate : IPrepopulate
         string psychologistEmail = "psychologist1" + emailEnd;
         string psychologistPassword = "1234";
         Psychologist psychologist = new Psychologist("Psychologist1", psychologistEmail, phone, 
-            birthday, psychologistAddress, psychologistPassword, psychologistSessions, slots, clients, admin, 2);
+            birthday, psychologistAddress, psychologistPassword, psychologistSessions, slots, clients, admin);
         
         //add one manager
         List<Location> managerLocations = new List<Location>(); 
         Address managerAddress = new Address("Hungary", "1996", "Petőfi utca", "134/m");
         string managerEmail = "manager1" + emailEnd;
         string managerPassword = "1234";
-        Manager manager = new Manager("Manager1", managerEmail, phone, birthday, managerAddress, managerPassword, managerLocations, admin, 10);
+        Manager manager = new Manager("Manager1", managerEmail, phone, birthday, managerAddress, managerPassword, managerLocations, admin);
         
         //add one client
         List<Session> clientSessions = new List<Session>();
@@ -372,20 +372,20 @@ public class Prepopulate : IPrepopulate
         List<Manager> locationManagers = new List<Manager>();
         List<Psychologist> locationPsychologists = new List<Psychologist>();
         Address locationAddress = new Address("Hungary", "1996", "Petőfi utca", "134/l");
-        Location location = new Location("Location1", locationAddress, locationManagers, locationPsychologists, 1);
+        Location location = new Location("Location1", locationAddress, locationManagers, locationPsychologists);
         
         //add one slot
-        DateTime day = new DateTime(2023,09,04);
-        DateTime slotStart = new DateTime(2023,09, 04, 12, 00, 00);
-        DateTime slotEnd = new DateTime(2023,09, 04, 18, 00, 00);
+        DateTime day = DateTime.SpecifyKind(new DateTime(2023,09,04), DateTimeKind.Utc);
+        DateTime slotStart = DateTime.SpecifyKind(new DateTime(2023,09, 04, 12, 00, 00), DateTimeKind.Utc);
+        DateTime slotEnd = DateTime.SpecifyKind(new DateTime(2023,09, 04, 18, 00, 00), DateTimeKind.Utc);
         List<Session> slotSessions = new List<Session>();
-        Slot slot = new Slot(psychologist, location, day, slotStart, slotEnd, 55, 10, false, slotSessions, 1);
+        Slot slot = new Slot(psychologist, location, day, slotStart, slotEnd, 55, 10, false, slotSessions);
         
         //add one session
-        DateTime sessionStart = new DateTime(2023,09, 04, 13, 00, 00);
-        DateTime sessionEnd = new DateTime(2023,09, 04, 14, 00, 00);
+        DateTime sessionStart = DateTime.SpecifyKind(new DateTime(2023,09, 04, 13, 00, 00), DateTimeKind.Utc);
+        DateTime sessionEnd = DateTime.SpecifyKind(new DateTime(2023,09, 04, 14, 00, 00), DateTimeKind.Utc);
         Session session = new Session(psychologist, location, day, sessionStart, sessionEnd, slot, 10000, false,
-            "trial", SessionFrequency.None, client, id: 1);
+            "trial", SessionFrequency.None, client);
         
         
         //establish connections
@@ -419,9 +419,9 @@ public class Prepopulate : IPrepopulate
     {
         string emailEnd = "@psychappointments.com";
         string phone = "+361/123-4567";
-        DateTime birthday = DateTime.MinValue;
+        DateTime birthday = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
         Address clientAddress = new Address("Hungary", "1996", "Petőfi utca", "134/c");
-        DateTime day = new DateTime(2023,09,04);
+        DateTime day = DateTime.SpecifyKind(new DateTime(2023,09,04), DateTimeKind.Utc);
         var location = await _locationService.GetLocationById(1);
         var admin = await _userService.GetUserByEmail("admin1@psychappointments.com");
         var manager = await _userService.GetUserByEmail("manager1@psychappointments.com");
@@ -435,20 +435,20 @@ public class Prepopulate : IPrepopulate
         string psychologist3Email = "psychologist3" + emailEnd;
         string psychologist3Password = "1234";
         Psychologist psychologist3 = new Psychologist("Psychologist3", psychologist3Email, phone, 
-            birthday, psychologist3Address, psychologist3Password, psychologist3Sessions, slots3, clients3, admin, 6);
+            birthday, psychologist3Address, psychologist3Password, psychologist3Sessions, slots3, clients3, admin);
         
         //add associated slot (association by partnership - psych3 is psych1's partner)
-        DateTime day3 = new DateTime(2023,09,04);
-        DateTime slot3Start = new DateTime(2023,09, 04, 12, 00, 00);
-        DateTime slot3End = new DateTime(2023,09, 04, 18, 00, 00);
+        DateTime day3 = DateTime.SpecifyKind(new DateTime(2023,09,04), DateTimeKind.Utc);
+        DateTime slot3Start = DateTime.SpecifyKind(new DateTime(2023,09, 04, 12, 00, 00), DateTimeKind.Utc);
+        DateTime slot3End = DateTime.SpecifyKind(new DateTime(2023,09, 04, 18, 00, 00), DateTimeKind.Utc);
         List<Session> slot3Sessions = new List<Session>();
-        Slot slot3 = new Slot((Psychologist)psychologist, location, day3, slot3Start, slot3End, 50, 10, false, slot3Sessions, 3);
+        Slot slot3 = new Slot((Psychologist)psychologist, location, day3, slot3Start, slot3End, 50, 10, false, slot3Sessions);
         //add associated slot (association by partnership - psych1 is psych3's partner)
-        DateTime day4 = new DateTime(2023,09,04);
-        DateTime slot4Start = new DateTime(2023,09, 04, 12, 00, 00);
-        DateTime slot4End = new DateTime(2023,09, 04, 18, 00, 00);
+        DateTime day4 = DateTime.SpecifyKind(new DateTime(2023,09,04), DateTimeKind.Utc);
+        DateTime slot4Start = DateTime.SpecifyKind(new DateTime(2023,09, 04, 12, 00, 00), DateTimeKind.Utc);
+        DateTime slot4End = DateTime.SpecifyKind(new DateTime(2023,09, 04, 18, 00, 00), DateTimeKind.Utc);
         List<Session> slot4Sessions = new List<Session>();
-        Slot slot4 = new Slot(psychologist3, location, day4, slot4Start, slot4End, 50, 10, false, slot4Sessions, 4);
+        Slot slot4 = new Slot(psychologist3, location, day4, slot4Start, slot4End, 50, 10, false, slot4Sessions);
         
         //add client3 for session3
         List<Session> client3Sessions = new List<Session>();
@@ -456,7 +456,7 @@ public class Prepopulate : IPrepopulate
         string client3Email = "client3" + emailEnd;
         string client3Password = "1234";
         Client client3 = new Client("Client3", client3Email, phone, birthday, 
-            clientAddress, client3Password, client3Sessions, client3Psychologists, manager, 7);
+            clientAddress, client3Password, client3Sessions, client3Psychologists, manager);
         
         //add client4 for session4
         List<Session> client4Sessions = new List<Session>();
@@ -464,25 +464,25 @@ public class Prepopulate : IPrepopulate
         string client4Email = "client4" + emailEnd;
         string client4Password = "1234";
         Client client4 = new Client("Client4", client4Email, phone, birthday, 
-            clientAddress, client4Password, client4Sessions, client4Psychologists, manager, 8);
+            clientAddress, client4Password, client4Sessions, client4Psychologists, manager);
         
         //add associated session (association by partnership - psych3 is psych1's partner)
-        DateTime session3Start = new DateTime(2023,09, 04, 15, 00, 00);
-        DateTime session3End = new DateTime(2023,09, 04, 16, 00, 00);
+        DateTime session3Start = DateTime.SpecifyKind(new DateTime(2023,09, 04, 15, 00, 00), DateTimeKind.Utc);
+        DateTime session3End = DateTime.SpecifyKind(new DateTime(2023,09, 04, 16, 00, 00), DateTimeKind.Utc);
         Session session3 = new Session((Psychologist)psychologist, location, day3, session3Start, session3End, slot3, 15000, false,
-            "trial", SessionFrequency.None, client3, psychologist3, id: 3);
+            "trial", SessionFrequency.None, client3, psychologist3);
         //add associated session (association by partnership - psych1 is psych3's partner)
-        DateTime session4Start = new DateTime(2023,09, 04, 15, 00, 00);
-        DateTime session4End = new DateTime(2023,09, 04, 16, 00, 00);
+        DateTime session4Start = DateTime.SpecifyKind(new DateTime(2023,09, 04, 15, 00, 00), DateTimeKind.Utc);
+        DateTime session4End = DateTime.SpecifyKind(new DateTime(2023,09, 04, 16, 00, 00), DateTimeKind.Utc);
         Session session4 = new Session(psychologist3, location, day, session4Start, session4End, slot4, 15000, false,
-            "trial", SessionFrequency.None, client4, (Psychologist)psychologist, id: 4);
+            "trial", SessionFrequency.None, client4, (Psychologist)psychologist);
         
         //add associated manager
         List<Location> managerLocations = new List<Location>(); 
         Address managerAddress = new Address("Hungary", "1996", "Petőfi utca", "134/m3");
         string manager3Email = "manager3" + emailEnd;
         string manager3Password = "1234";
-        Manager manager3 = new Manager("Manager3", manager3Email, phone, birthday, managerAddress, manager3Password, managerLocations, admin, 11);
+        Manager manager3 = new Manager("Manager3", manager3Email, phone, birthday, managerAddress, manager3Password, managerLocations, admin);
         
         ((Psychologist)psychologist).Sessions.Add(session3);
         ((Psychologist)psychologist).Slots.Add(slot3);
@@ -514,6 +514,7 @@ public class Prepopulate : IPrepopulate
         client4.Psychologists.Add((Psychologist)psychologist);
         
         slot4.Sessions.Add(session4);
+        
 
         await _context.Sessions.AddAsync(session3);
         await _context.Sessions.AddAsync(session4);
@@ -530,7 +531,7 @@ public class Prepopulate : IPrepopulate
     {
   string emailEnd = "@psychappointments.com";
         string phone = "+361/123-4567";
-        DateTime birthday = DateTime.MinValue;
+        DateTime birthday = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc);
         Address managerAddress = new Address("Hungary", "1996", "Petőfi utca", "134/m");
         Address clientAddress = new Address("Hungary", "1996", "Petőfi utca", "134/c");
         var psychologist = await _userService.GetUserByEmail("psychologist1@psychappointments.com");
@@ -539,7 +540,7 @@ public class Prepopulate : IPrepopulate
         List<Manager> location2Managers = new List<Manager>();
         List<Psychologist> location2Psychologists = new List<Psychologist>();
         Address location2Address = new Address("Hungary", "1996", "Petőfi utca", "134/l2");
-        Location location2 = new Location("Location2", location2Address, location2Managers, location2Psychologists, 2);
+        Location location2 = new Location("Location2", location2Address, location2Managers, location2Psychologists);
         
         //add not associated manager
         List<Location> manager2Locations = new List<Location>();
@@ -554,7 +555,7 @@ public class Prepopulate : IPrepopulate
         string client2Email = "client2" + emailEnd;
         string client2Password = "1234";
         Client client2 = new Client("Client2", client2Email, phone, birthday, 
-            clientAddress, client2Password, client2Sessions, client2Psychologists, manager2, 9);
+            clientAddress, client2Password, client2Sessions, client2Psychologists, manager2);
         
         //add not associated psychologist
         List<Session> psychologist2Sessions = new List<Session>();
@@ -564,20 +565,20 @@ public class Prepopulate : IPrepopulate
         string psychologist2Email = "psychologist2" + emailEnd;
         string psychologist2Password = "1234";
         Psychologist psychologist2 = new Psychologist("Psychologist2", psychologist2Email, phone, 
-            birthday, psychologist2Address, psychologist2Password, psychologist2Sessions, slots2, clients2, manager2, 5);
+            birthday, psychologist2Address, psychologist2Password, psychologist2Sessions, slots2, clients2, manager2);
         
         //add psychologist2 slot (not associated)
-        DateTime day2 = new DateTime(2023,09,04);
-        DateTime slot2Start = new DateTime(2023,09, 04, 12, 00, 00);
-        DateTime slot2End = new DateTime(2023,09, 04, 18, 00, 00);
+        DateTime day2 = DateTime.SpecifyKind(new DateTime(2023,09,04), DateTimeKind.Utc);
+        DateTime slot2Start = DateTime.SpecifyKind(new DateTime(2023,09, 04, 12, 00, 00), DateTimeKind.Utc);
+        DateTime slot2End = DateTime.SpecifyKind(new DateTime(2023,09, 04, 18, 00, 00), DateTimeKind.Utc);
         List<Session> slot2Sessions = new List<Session>();
-        Slot slot2 = new Slot(psychologist2, location2, day2, slot2Start, slot2End, 50, 10, false, slot2Sessions, 2);
+        Slot slot2 = new Slot(psychologist2, location2, day2, slot2Start, slot2End, 50, 10, false, slot2Sessions);
         
         //add not associated session
-        DateTime session2Start = new DateTime(2023,09, 04, 15, 00, 00);
-        DateTime session2End = new DateTime(2023,09, 04, 16, 00, 00);
+        DateTime session2Start = DateTime.SpecifyKind(new DateTime(2023,09, 04, 15, 00, 00), DateTimeKind.Utc);
+        DateTime session2End = DateTime.SpecifyKind(new DateTime(2023,09, 04, 16, 00, 00), DateTimeKind.Utc);
         Session session2 = new Session(psychologist2, location2, day2, session2Start, session2End, slot2, 15000, false,
-            "trial", SessionFrequency.None, client2, id: 2);
+            "trial", SessionFrequency.None, client2);
         
         //not associated
         psychologist2.Sessions.Add(session2);

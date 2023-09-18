@@ -17,5 +17,6 @@ public interface ISessionService
     Task<List<Session>> GetSessionsByDate(DateTime startOfRange, DateTime endOfRange);
     
     Task<bool> UpdateSession(long id, Session session);
+    Task<bool> UpdateSession(long id, SessionDTO session);
     Task<bool> DeleteSession(long id);
 }

@@ -65,4 +65,9 @@ public class PsychologistService : IPsychologistService
     {
         return await _userRepository.Update(id, psychologist);
     }
+
+    public Task<bool> UpdatePsychologist(long id, UserDTO psychologist)
+    {
+        throw new NotImplementedException();
+    }
 }

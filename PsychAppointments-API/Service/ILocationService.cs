@@ -4,7 +4,7 @@ namespace PsychAppointments_API.Service;
 
 public interface ILocationService
 {
-    Task<bool> AddLocation(Location location);
+    Task<bool> AddLocation(LocationDTO location);
     
     Task<Location?> GetLocationById(long id);
     Task<List<Location>> GetAllLocations();
@@ -15,5 +15,6 @@ public interface ILocationService
     Task<Location?> GetLocationByAddress(Address address); 
     
     Task<bool> UpdateLocation(long id, Location location);
+    Task<bool> UpdateLocation(long id, LocationDTO location);
     Task<bool> DeleteLocation(long id);
 }
