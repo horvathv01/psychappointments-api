@@ -13,4 +13,5 @@ public interface IPsychologistService
     Task<List<Psychologist>> GetListOfPsychologists(List<long> ids);
     
     Task<bool> UpdatePsychologist(long id, Psychologist psychologist);
+    Task<bool> UpdatePsychologist(long id, UserDTO psychologist);
 }

@@ -54,8 +54,8 @@ public class UserService : IUserService
     
     public async Task<bool> AddUser(UserDTO user)
     {
-        int userQuantity = _context.Psychologists.Count() + _context.Clients.Count() + _context.Managers.Count() +
-                           _context.Admins.Count();
+        int userQuantity = await _context.Psychologists.CountAsync() + await _context.Clients.CountAsync() + await _context.Managers.CountAsync() +
+                           await _context.Admins.CountAsync();
         //var allUsers = await _userRepository.GetAll();
         long id = userQuantity + 1; //userId should never be 0
         string password = _hasher.HashPassword(user.Password, user.Email);
@@ -95,7 +95,6 @@ public class UserService : IUserService
             }
             else
             {
-                Console.WriteLine("lefutott a client");
                 //meaning: client
                 var newClient = new Client(user.Name, user.Email, user.Phone, birthDate, user.Address, password, new List<Session>(), new List<Psychologist>(), registeredBy, id);
                 await _context.Clients.AddAsync(newClient);

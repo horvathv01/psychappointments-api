@@ -17,5 +17,6 @@ public interface ISlotService
     Task<List<Slot>> GetSlotsByDate(DateTime startOfRange, DateTime endOfRange);
     
     Task<bool> UpdateSlot(long id, Slot slot);
+    Task<bool> UpdateSlot(long id, SlotDTO slot);
     Task<bool> DeleteSlot(long id);
 }

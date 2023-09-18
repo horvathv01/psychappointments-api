@@ -111,6 +111,11 @@ public class SlotService : ISlotService
         }
     }
 
+    public Task<bool> UpdateSlot(long id, SlotDTO slot)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<bool> DeleteSlot(long id)
     {
         return await _slotRepository.Delete(id);

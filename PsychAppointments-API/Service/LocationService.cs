@@ -1,4 +1,4 @@
-using PsychAppointments_API.Auth;
+using Microsoft.EntityFrameworkCore;
 using PsychAppointments_API.DAL;
 using PsychAppointments_API.Models;
 
@@ -6,55 +6,62 @@ namespace PsychAppointments_API.Service;
 
 public class LocationService : ILocationService
 {
-    //private readonly DbContext _context;
-    private readonly IRepository<Location> _locationRepository;
-    //private readonly IPsychologistService _psychologistService;
-    //private readonly IClientService _clientService;
-    //private readonly ISessionService _sessionService;
-    //private readonly ISlotService _slotService;
-    //private readonly IAccessUtilities _hasher;
+    
+    private readonly PsychAppointmentContext _context;
     
     public LocationService(
-        //DbContext context
-        IRepository<Location> locationRepository 
-        //IAccessUtilities hasher, 
-        //IPsychologistService psychologistService, 
-        //IClientService clientService, 
-        //ISessionService sessionService, 
-        //ISlotService slotService
+    PsychAppointmentContext context
     )
     {
-        //_context = context;
-        _locationRepository = locationRepository;
-        //_hasher = hasher;
-
-        //_psychologistService = psychologistService;
-        //_clientService = clientService;
-        //_sessionService = sessionService;
-        //_slotService = slotService;
+        _context = context;
     }
     
     
-    public async Task<bool> AddLocation(Location location)
+    public async Task<bool> AddLocation(LocationDTO location)
     {
-        return await _locationRepository.Add(location);
+        try
+        {
+            location.Id = await _context.Locations.CountAsync();
+            var newLocation = new Location(location.Name, location.Address, new List<Manager>(),
+                new List<Psychologist>(), location.Id);
+            if (location.ManagerIds.Count > 0)
+            {
+                var managers = await _context.Managers.Where(man => location.ManagerIds.Contains(man.Id)).ToListAsync();
+                newLocation.Managers = managers;
+            }
+
+            if (location.PsychologistIds.Count > 0)
+            {
+                var psychologists = await _context.Psychologists.Where(psy => location.PsychologistIds.Contains(psy.Id)).ToListAsync();
+                newLocation.Psychologists = psychologists;
+            }
+            
+            await _context.Locations.AddAsync(newLocation);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
     }
 
     public async Task<Location?> GetLocationById(long id)
     {
-        return await _locationRepository.GetById(id);
+        return await _context.Locations.FirstOrDefaultAsync(loc => loc.Id == id);
     }
 
     public async Task<List<Location>> GetAllLocations()
     {
-        var allLocations = await _locationRepository.GetAll();
-        return allLocations.ToList();
+        return await _context.Locations.ToListAsync();
     }
 
     public async Task<List<Location>> GetListOfLocations(List<long> ids)
     {
-        var result = await _locationRepository.GetList(ids);
-        return result.ToList();
+        return await _context.Locations
+            .Where(loc => ids.Contains(loc.Id))
+            .ToListAsync();
     }
 
     public List<Location> GetLocationsByPsychologist(Psychologist psychologist)
@@ -69,17 +76,66 @@ public class LocationService : ILocationService
 
     public async Task<Location?> GetLocationByAddress(Address address)
     {
-        var allLocations = await _locationRepository.GetAll();
-        return allLocations.FirstOrDefault(loc => loc.Address.Equals(address));
+        return await _context.Locations.FirstOrDefaultAsync(loc => loc.Address.Equals(address));
     }
 
     public async Task<bool> UpdateLocation(long id, Location location)
     {
-        return await _locationRepository.Update(id, location);
+    
+    var originalLocation = await GetLocationById(id);
+    if (originalLocation == null)
+    {
+        return false;
+    }
+    originalLocation.Name = location.Name;
+    originalLocation.Address = location.Address;
+    originalLocation.Managers = location.Managers;
+    originalLocation.Psychologists = location.Psychologists;
+    
+    _context.Update(originalLocation);
+    await _context.SaveChangesAsync();
+    return true;
+    }
+
+    public async Task<bool> UpdateLocation(long id, LocationDTO location)
+    {
+        var originalLocation = await GetLocationById(id);
+        if (originalLocation == null)
+        {
+            return false;
+        }
+        originalLocation.Name = location.Name;
+        originalLocation.Address = location.Address;
+        originalLocation.Managers = await _context.Managers
+            .Where(man => location.ManagerIds.Contains(man.Id))
+            .ToListAsync();
+        originalLocation.Psychologists = await _context.Psychologists
+            .Where(psy => location.PsychologistIds.Contains(psy.Id))
+            .ToListAsync();
+    
+        _context.Update(originalLocation);
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> DeleteLocation(long id)
     {
-        return await _locationRepository.Delete(id);
+        try
+        {
+            var location = await GetLocationById(id);
+            if (location != null)
+            {
+                _context.Remove(location);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
     }
 }

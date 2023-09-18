@@ -14,4 +14,5 @@ public interface IClientService
     List<Client?> GetClientsBySlot(Slot slot);
     
     Task<bool> UpdateClient(long id, Client client);
+    Task<bool> UpdateClient(long id, UserDTO client);
 }

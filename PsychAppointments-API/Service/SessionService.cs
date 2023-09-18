@@ -121,6 +121,11 @@ public class SessionService : ISessionService
         }
     }
 
+    public Task<bool> UpdateSession(long id, SessionDTO session)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<bool> DeleteSession(long id)
     {
         return await _sessionRepository.Delete(id);
