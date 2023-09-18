@@ -21,9 +21,9 @@ public class PrepopulateController : ControllerBase
     {
         try
         {
-            await _prepopulate.PrepopulateInMemory();
-            //await _prepopulate.PrepopulateDB();
-            string message = "InMemory repositories have been prepopulated";
+            //await _prepopulate.PrepopulateInMemory();
+            await _prepopulate.PrepopulateDB();
+            string message = "DB has been prepopulated";
             Console.WriteLine(message);
             return Ok(message);
         }
@@ -33,5 +33,22 @@ public class PrepopulateController : ControllerBase
             return BadRequest("something went wrong");
         }
         
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> ClearDb()
+    {
+        try
+        {
+            await _prepopulate.ClearDb();
+            string message = "DB has been cleared";
+            Console.WriteLine(message);
+            return Ok(message);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return BadRequest("something went wrong");
+        }
     }
 }
