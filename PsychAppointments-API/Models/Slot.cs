@@ -32,7 +32,7 @@ public class Slot
         int sessionLength = 50,
         int rest = 10,
         bool weekly = false,
-        List<Session> sessions = null,
+        List<Session>? sessions = null,
         long id = 0
         )
     {
@@ -44,53 +44,13 @@ public class Slot
         SessionLength = sessionLength;
         Rest = rest;
         Weekly = weekly;
-        Sessions = sessions == null ? PrepopulateSessions() : sessions;
+        Sessions = sessions ?? new List<Session>();
         Id = id;
     }
 
     public Slot()
     {
         
-    }
-
-    private List<Session> PrepopulateSessions()
-    {
-        List<Session> sessions = new List<Session>();
-        double ts = (SlotEnd - SlotStart).TotalMinutes;
-        
-
-        if (ts < SessionLength)
-        {
-            throw new ArgumentException("Slot is too short to fit a session with the provided length.");
-        }
-        //how many (session + rest) fits in the slot?
-        int sessionCount = Convert.ToInt32(Math.Floor(ts / (SessionLength + Rest)));
-        //would giving up the last rest result in an extra session? 
-        int plusOneSessionTotalLength = (sessionCount + 1) * (SessionLength + Rest) - Rest;
-        if (plusOneSessionTotalLength <= ts)
-        {
-            //plus one session fits
-            sessionCount += 1;
-        }
-
-        DateTime start = SlotStart;
-        for (int i = 0; i < sessionCount; i++)
-        {
-            DateTime end = start.AddMinutes(SessionLength);
-            SessionFrequency frequency;
-            if (Weekly == true)
-            {
-                frequency = SessionFrequency.Weekly;
-            }
-            else
-            {
-                frequency = SessionFrequency.None;
-            }
-            Session ses = new Session(Psychologist, Location, Date, start, end, this, 0, true, "", frequency, null, null);
-            start = end.AddMinutes(SessionLength + Rest);
-            sessions.Add(ses);
-        }
-        return sessions;
     }
 
     public override bool Equals(object? obj)

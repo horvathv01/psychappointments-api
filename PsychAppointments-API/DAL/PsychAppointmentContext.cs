@@ -27,12 +27,14 @@ public class PsychAppointmentContext : DbContext
         modelBuilder.Entity<Psychologist>()
             .HasMany(psy => psy.Sessions)
             .WithOne(ses => ses.Psychologist)
-            .HasForeignKey(ses => ses.Id);
+            .HasForeignKey(ses => ses.Id)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Psychologist>()
             .HasMany(psy => psy.Slots)
             .WithOne(slot => slot.Psychologist)
-            .HasForeignKey(slot => slot.Id);
+            .HasForeignKey(slot => slot.Id)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Client>()
             .HasMany<Psychologist>(cli => cli.Psychologists)
@@ -42,7 +44,8 @@ public class PsychAppointmentContext : DbContext
         modelBuilder.Entity<Client>()
             .HasMany<Session>(cli => cli.Sessions)
             .WithOne(ses => ses.Client)
-            .HasForeignKey(ses => ses.Id);
+            .HasForeignKey(ses => ses.Id)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Location>()
             .HasMany(loc => loc.Psychologists)
@@ -63,22 +66,17 @@ public class PsychAppointmentContext : DbContext
             .HasOne(ses => ses.Location)
             .WithMany()
             .HasForeignKey(ses => ses.LocationId);
-        
+
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.Psychologist)
             .WithMany(psy => psy.Sessions)
             .HasForeignKey(ses => ses.PsychologistId);
-        
+
 
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.PartnerPsychologist)
             .WithMany()
             .HasForeignKey(ses => ses.PartnerPsychologistId);
-
-        modelBuilder.Entity<Session>()
-            .HasOne(ses => ses.Location)
-            .WithMany()
-            .HasForeignKey(ses => ses.LocationId);
 
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.Client)
@@ -93,8 +91,9 @@ public class PsychAppointmentContext : DbContext
         modelBuilder.Entity<Slot>()
             .HasOne(slot => slot.Psychologist)
             .WithMany(psy => psy.Slots)
-            .HasForeignKey(slot => slot.PsychologistId);
-        
+            .HasForeignKey(slot => slot.PsychologistId)
+            .OnDelete(DeleteBehavior.Cascade);
+
 
         modelBuilder.Entity<Slot>()
             .HasOne(slot => slot.Location)
@@ -104,7 +103,8 @@ public class PsychAppointmentContext : DbContext
         modelBuilder.Entity<Slot>()
             .HasMany(slot => slot.Sessions)
             .WithOne(ses => ses.Slot)
-            .HasForeignKey(slot => slot.SlotId);
+            .HasForeignKey(slot => slot.SlotId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Address>()
             .HasNoKey();

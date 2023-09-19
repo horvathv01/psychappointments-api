@@ -123,7 +123,7 @@ public class ManagerService : IManagerService
         
             original.Name = manager.Name;
             original.Email = manager.Email;
-            original.Phone = original.Phone;
+            original.Phone = manager.Phone;
             original.DateOfBirth = DateTime.SpecifyKind(birthDay, DateTimeKind.Utc);
             original.Address = manager.Address;
             original.Password = password;
