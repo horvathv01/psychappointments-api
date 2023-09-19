@@ -95,7 +95,10 @@ public class PsychologistService : IPsychologistService
     public async Task<List<Psychologist>> GetListOfPsychologists(List<long> ids)
     {
         return await _context.Psychologists
-            .Where(man => ids.Contains(man.Id))
+            .Where(psy => ids.Contains(psy.Id))
+            .Include(psy => psy.Sessions)
+            .Include(psy => psy.Clients)
+            .Include(psy => psy.Slots)
             .ToListAsync();
     }
 

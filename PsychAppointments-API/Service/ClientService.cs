@@ -93,6 +93,8 @@ public class ClientService : IClientService
     {
         return await _context.Clients
             .Where(cli => ids.Contains(cli.Id))
+            .Include(cli => cli.Psychologists)
+            .Include(cli => cli.Sessions)
             .ToListAsync();
     }
 

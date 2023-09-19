@@ -14,7 +14,9 @@ public abstract class User
     public DateTime DateOfBirth { get; set; }
     public Address Address { get; set; }
     public string Password { get; set; }
-    public User RegisteredBy { get; set; }
+    [ForeignKey("RegisteredById")]
+    public long RegisteredById { get; set; }
+    public User? RegisteredBy { get; set; }
 
     public User(string name, string email, string phone, DateTime dateOfBirth, Address address, string password, User? registeredBy = null, long id = 0)
     {
@@ -24,7 +26,7 @@ public abstract class User
         DateOfBirth = dateOfBirth;
         Address = address;
         Password = password;
-        RegisteredBy = this;
+        RegisteredBy = registeredBy;
         Id = id;
     }
 

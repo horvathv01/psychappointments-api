@@ -69,7 +69,12 @@ public class SlotService : ISlotService
 
     public async Task<Slot?> GetSlotById(long id)
     {
-        return await _context.Slots.FirstOrDefaultAsync(sl => sl.Id == id);
+        return await _context.Slots
+            .Include(sl => sl.Location)
+            .Include(sl => sl.Psychologist)
+            .Include(sl => sl.Sessions)
+                .ThenInclude(ses => ses.Client)
+            .FirstOrDefaultAsync(sl => sl.Id == id);
     }
 
     public async Task<List<Slot>> GetAllSlots()
