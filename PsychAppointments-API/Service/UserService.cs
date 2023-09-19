@@ -59,11 +59,10 @@ public class UserService : IUserService
         //var allUsers = await _userRepository.GetAll();
         long id = userQuantity + 1; //userId should never be 0
         string password = _hasher.HashPassword(user.Password, user.Email);
-        long registeredById = user.RegisteredBy ?? 0;
         User? registeredBy = null;
-        if (user.RegisteredBy != null)
+        if (user.RegisteredBy != null && user.RegisteredBy != 0)
         {
-            registeredBy = await GetUserById(registeredById);    
+            registeredBy = await GetUserById((long)user.RegisteredBy);    
         }
         DateTime birthDate = DateTime.MinValue;
         DateTime.TryParse(user.DateOfBirth, out birthDate);
@@ -76,19 +75,44 @@ public class UserService : IUserService
             {
                 var newAdmin = new Admin(user.Name, user.Email, user.Phone, birthDate, user.Address, password,
                     registeredBy, id);
+                if (registeredBy == null)
+                {
+                    newAdmin.RegisteredBy = newAdmin;    
+                }
+                else
+                {
+                    newAdmin.RegisteredBy = registeredBy;
+                }
                 await _context.Admins.AddAsync(newAdmin);
                 await _context.SaveChangesAsync();
                 return true;
             } else if (user.Type == Enum.GetName(typeof(UserType), UserType.Psychologist))
             {
                 var newPsychologist = new Psychologist(user.Name, user.Email, user.Phone, birthDate, user.Address,
-                    password, new List<Session>(), new List<Slot>(), new List<Client>(), registeredBy, id);
+                    password, new List<Session>(), new List<Slot>(), new List<Client>(), null, id);
+                if (registeredBy == null)
+                {
+                    newPsychologist.RegisteredBy = newPsychologist;    
+                }
+                else
+                {
+                    newPsychologist.RegisteredBy = registeredBy;
+                }
+                
                 await _context.Psychologists.AddAsync(newPsychologist);
                 await _context.SaveChangesAsync();
                 return true;
             } else if (user.Type == Enum.GetName(typeof(UserType), UserType.Manager))
             {
-                var newManager = new Manager(user.Name, user.Email, user.Phone, birthDate, user.Address, password, new List<Location>(), registeredBy, id);
+                var newManager = new Manager(user.Name, user.Email, user.Phone, birthDate, user.Address, password, new List<Location>(), null, id);
+                if (registeredBy == null)
+                {
+                    newManager.RegisteredBy = newManager;    
+                }
+                else
+                {
+                    newManager.RegisteredBy = registeredBy;
+                }
                 await _context.Managers.AddAsync(newManager);
                 await _context.SaveChangesAsync();
                 return true;
@@ -96,7 +120,15 @@ public class UserService : IUserService
             else
             {
                 //meaning: client
-                var newClient = new Client(user.Name, user.Email, user.Phone, birthDate, user.Address, password, new List<Session>(), new List<Psychologist>(), registeredBy, id);
+                var newClient = new Client(user.Name, user.Email, user.Phone, birthDate, user.Address, password, new List<Session>(), new List<Psychologist>(), null, id);
+                if (registeredBy == null)
+                {
+                    newClient.RegisteredBy = newClient;    
+                }
+                else
+                {
+                    newClient.RegisteredBy = registeredBy;
+                }
                 await _context.Clients.AddAsync(newClient);
                 await _context.SaveChangesAsync();
                 return true;
@@ -119,17 +151,26 @@ public class UserService : IUserService
         var client = await _context.Clients.FirstOrDefaultAsync(cli => cli.Id == id);
         if (client != null)
         {
-            return client;
+            return await _context.Clients
+                .Include(cli => cli.Psychologists)
+                .Include(cli => cli.Sessions)
+                .FirstOrDefaultAsync(cli => cli.Id == id);
         }
         var psychologist = await _context.Psychologists.FirstOrDefaultAsync(psy => psy.Id == id);
         if (psychologist != null)
         {
-            return psychologist;
+            return await _context.Psychologists
+                .Include(psy => psy.Sessions)
+                .Include(psy => psy.Clients)
+                .Include(psy => psy.Slots)
+                .FirstOrDefaultAsync(psy => psy.Id == id);
         }
         var manager = await _context.Managers.FirstOrDefaultAsync(man => man.Id == id);
         if (manager != null)
         {
-            return manager;
+            return await _context.Managers
+                .Include(man => man.Locations)
+                .FirstOrDefaultAsync(man => man.Id == id);
         }
         var admin = await _context.Admins.FirstOrDefaultAsync(adm => adm.Id == id);
         if (admin != null)
@@ -146,17 +187,26 @@ public class UserService : IUserService
         var client = await _context.Clients.FirstOrDefaultAsync(cli => cli.Email == email);
         if (client != null)
         {
-            return client;
+            return await _context.Clients
+                .Include(cli => cli.Psychologists)
+                .Include(cli => cli.Sessions)
+                .FirstOrDefaultAsync(cli => cli.Email == email);
         }
         var psychologist = await _context.Psychologists.FirstOrDefaultAsync(psy => psy.Email == email);
         if (psychologist != null)
         {
-            return psychologist;
+            return await _context.Psychologists
+                .Include(psy => psy.Sessions)
+                .Include(psy => psy.Clients)
+                .Include(psy => psy.Slots)
+                .FirstOrDefaultAsync(psy => psy.Email == email);
         }
         var manager = await _context.Managers.FirstOrDefaultAsync(man => man.Email == email);
         if (manager != null)
         {
-            return manager;
+            return await _context.Managers
+                .Include(man => man.Locations)
+                .FirstOrDefaultAsync(man => man.Email == email);
         }
         var admin = await _context.Admins.FirstOrDefaultAsync(adm => adm.Email == email);
         if (admin != null)

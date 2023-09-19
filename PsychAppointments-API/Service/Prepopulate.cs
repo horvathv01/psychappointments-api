@@ -19,6 +19,7 @@ public class Prepopulate : IPrepopulate
     private readonly ILocationService _locationService;
     private readonly ISlotService _slotService;
     private readonly ISessionService _sessionService;
+
     private readonly PsychAppointmentContext _context;
     
     
@@ -35,6 +36,7 @@ public class Prepopulate : IPrepopulate
         ILocationService locationService,
         ISlotService slotService,
         ISessionService sessionService,
+        
         PsychAppointmentContext context
         
         )
@@ -50,6 +52,7 @@ public class Prepopulate : IPrepopulate
         _locationService = locationService;
         _slotService = slotService;
         _sessionService = sessionService;
+
         _context = context;
     }
     
@@ -62,7 +65,7 @@ public class Prepopulate : IPrepopulate
         string adminEmail = "admin1" + emailEnd;
         string adminPassword = _hasher.HashPassword("1234", adminEmail);
         //add one admin
-        Admin admin = new Admin("Admin1", adminEmail, phone, birthday, adminAddress, adminPassword, null, 1);
+        Admin admin = new Admin("Admin1", adminEmail, phone, birthday, adminAddress, adminPassword);
         
         //add one psychologist
         List<Session> psychologistSessions = new List<Session>();
@@ -72,14 +75,14 @@ public class Prepopulate : IPrepopulate
         string psychologistEmail = "psychologist1" + emailEnd;
         string psychologistPassword = _hasher.HashPassword("1234", psychologistEmail);
         Psychologist psychologist = new Psychologist("Psychologist1", psychologistEmail, phone, 
-            birthday, psychologistAddress, psychologistPassword, psychologistSessions, slots, clients, admin, 2);
+            birthday, psychologistAddress, psychologistPassword, psychologistSessions, slots, clients, admin);
         
         //add one manager
         List<Location> managerLocations = new List<Location>(); 
         Address managerAddress = new Address("Hungary", "1996", "Petőfi utca", "134/m");
         string managerEmail = "manager1" + emailEnd;
         string managerPassword = _hasher.HashPassword("1234", managerEmail);
-        Manager manager = new Manager("Manager1", managerEmail, phone, birthday, managerAddress, managerPassword, managerLocations, admin, 10);
+        Manager manager = new Manager("Manager1", managerEmail, phone, birthday, managerAddress, managerPassword, managerLocations, admin);
         
         //add one client
         List<Session> clientSessions = new List<Session>();
@@ -94,14 +97,14 @@ public class Prepopulate : IPrepopulate
         List<Manager> locationManagers = new List<Manager>();
         List<Psychologist> locationPsychologists = new List<Psychologist>();
         Address locationAddress = new Address("Hungary", "1996", "Petőfi utca", "134/l");
-        Location location = new Location("Location1", locationAddress, locationManagers, locationPsychologists, 1);
+        Location location = new Location("Location1", locationAddress, locationManagers, locationPsychologists);
         
         //add one slot
         DateTime day = new DateTime(2023,09,04);
         DateTime slotStart = new DateTime(2023,09, 04, 12, 00, 00);
         DateTime slotEnd = new DateTime(2023,09, 04, 18, 00, 00);
         List<Session> slotSessions = new List<Session>();
-        Slot slot = new Slot(psychologist, location, day, slotStart, slotEnd, 55, 10, false, slotSessions, 1);
+        Slot slot = new Slot(psychologist, location, day, slotStart, slotEnd, 55, 10, false, slotSessions);
         
         //add one session
         DateTime sessionStart = new DateTime(2023,09, 04, 13, 00, 00);
@@ -166,13 +169,13 @@ public class Prepopulate : IPrepopulate
         DateTime slot3Start = new DateTime(2023,09, 04, 12, 00, 00);
         DateTime slot3End = new DateTime(2023,09, 04, 18, 00, 00);
         List<Session> slot3Sessions = new List<Session>();
-        Slot slot3 = new Slot((Psychologist)psychologist, location, day3, slot3Start, slot3End, 50, 10, false, slot3Sessions, 3);
+        Slot slot3 = new Slot((Psychologist)psychologist, location, day3, slot3Start, slot3End, 50, 10, false, slot3Sessions);
         //add associated slot (association by partnership - psych1 is psych3's partner)
         DateTime day4 = new DateTime(2023,09,04);
         DateTime slot4Start = new DateTime(2023,09, 04, 12, 00, 00);
         DateTime slot4End = new DateTime(2023,09, 04, 18, 00, 00);
         List<Session> slot4Sessions = new List<Session>();
-        Slot slot4 = new Slot(psychologist3, location, day4, slot4Start, slot4End, 50, 10, false, slot4Sessions, 4);
+        Slot slot4 = new Slot(psychologist3, location, day4, slot4Start, slot4End, 50, 10, false, slot4Sessions);
         
         //add client3 for session3
         List<Session> client3Sessions = new List<Session>();
@@ -180,7 +183,7 @@ public class Prepopulate : IPrepopulate
         string client3Email = "client3" + emailEnd;
         string client3Password = _hasher.HashPassword("1234", client3Email);
         Client client3 = new Client("Client3", client3Email, phone, birthday, 
-            clientAddress, client3Password, client3Sessions, client3Psychologists, manager, 7);
+            clientAddress, client3Password, client3Sessions, client3Psychologists, manager);
         
         //add client4 for session4
         List<Session> client4Sessions = new List<Session>();
@@ -188,25 +191,25 @@ public class Prepopulate : IPrepopulate
         string client4Email = "client4" + emailEnd;
         string client4Password = _hasher.HashPassword("1234", client4Email);
         Client client4 = new Client("Client4", client4Email, phone, birthday, 
-            clientAddress, client4Password, client4Sessions, client4Psychologists, manager, 8);
+            clientAddress, client4Password, client4Sessions, client4Psychologists, manager);
         
         //add associated session (association by partnership - psych3 is psych1's partner)
         DateTime session3Start = new DateTime(2023,09, 04, 15, 00, 00);
         DateTime session3End = new DateTime(2023,09, 04, 16, 00, 00);
         Session session3 = new Session((Psychologist)psychologist, location, day3, session3Start, session3End, slot3, 15000, false,
-            "trial", SessionFrequency.None, client3, psychologist3, id: 3);
+            "trial", SessionFrequency.None, client3, psychologist3);
         //add associated session (association by partnership - psych1 is psych3's partner)
         DateTime session4Start = new DateTime(2023,09, 04, 15, 00, 00);
         DateTime session4End = new DateTime(2023,09, 04, 16, 00, 00);
         Session session4 = new Session(psychologist3, location, day, session4Start, session4End, slot4, 15000, false,
-            "trial", SessionFrequency.None, client4, (Psychologist)psychologist, id: 4);
+            "trial", SessionFrequency.None, client4, (Psychologist)psychologist);
         
         //add associated manager
         List<Location> managerLocations = new List<Location>(); 
         Address managerAddress = new Address("Hungary", "1996", "Petőfi utca", "134/m3");
         string manager3Email = "manager3" + emailEnd;
         string manager3Password = _hasher.HashPassword("1234", manager3Email);
-        Manager manager3 = new Manager("Manager3", manager3Email, phone, birthday, managerAddress, manager3Password, managerLocations, admin, 11);
+        Manager manager3 = new Manager("Manager3", manager3Email, phone, birthday, managerAddress, manager3Password, managerLocations, admin);
         
         ((Psychologist)psychologist).Sessions.Add(session3);
         ((Psychologist)psychologist).Slots.Add(slot3);
@@ -266,7 +269,7 @@ public class Prepopulate : IPrepopulate
         List<Manager> location2Managers = new List<Manager>();
         List<Psychologist> location2Psychologists = new List<Psychologist>();
         Address location2Address = new Address("Hungary", "1996", "Petőfi utca", "134/l2");
-        Location location2 = new Location("Location2", location2Address, location2Managers, location2Psychologists, 2);
+        Location location2 = new Location("Location2", location2Address, location2Managers, location2Psychologists);
         
         //add not associated manager
         List<Location> manager2Locations = new List<Location>();
@@ -281,7 +284,7 @@ public class Prepopulate : IPrepopulate
         string client2Email = "client2" + emailEnd;
         string client2Password = _hasher.HashPassword("1234", client2Email);
         Client client2 = new Client("Client2", client2Email, phone, birthday, 
-            clientAddress, client2Password, client2Sessions, client2Psychologists, manager2, 9);
+            clientAddress, client2Password, client2Sessions, client2Psychologists, manager2);
         
         //add not associated psychologist
         List<Session> psychologist2Sessions = new List<Session>();
@@ -291,7 +294,7 @@ public class Prepopulate : IPrepopulate
         string psychologist2Email = "psychologist2" + emailEnd;
         string psychologist2Password = _hasher.HashPassword("1234", psychologist2Email);
         Psychologist psychologist2 = new Psychologist("Psychologist2", psychologist2Email, phone, 
-            birthday, psychologist2Address, psychologist2Password, psychologist2Sessions, slots2, clients2, manager2, 5);
+            birthday, psychologist2Address, psychologist2Password, psychologist2Sessions, slots2, clients2, manager2);
         
         //add psychologist2 slot (not associated)
         DateTime day2 = new DateTime(2023,09,04);
@@ -304,7 +307,7 @@ public class Prepopulate : IPrepopulate
         DateTime session2Start = new DateTime(2023,09, 04, 15, 00, 00);
         DateTime session2End = new DateTime(2023,09, 04, 16, 00, 00);
         Session session2 = new Session(psychologist2, location2, day2, session2Start, session2End, slot2, 15000, false,
-            "trial", SessionFrequency.None, client2, id: 2);
+            "trial", SessionFrequency.None, client2);
         
         //not associated
         psychologist2.Sessions.Add(session2);
@@ -389,6 +392,7 @@ public class Prepopulate : IPrepopulate
         
         
         //establish connections
+        /*
         psychologist.Sessions.Add(session);
         psychologist.Slots.Add(slot);
         psychologist.Clients.Add(client);
@@ -401,18 +405,19 @@ public class Prepopulate : IPrepopulate
         location.Managers.Add(manager);
         
         slot.Sessions.Add(session);
+        */
 
-        await _context.Admins.AddAsync(admin);
-        await _context.Psychologists.AddAsync(psychologist);
-        await _context.Managers.AddAsync(manager);
-        await _context.Clients.AddAsync(client);
-        await _context.Locations.AddAsync(location);
-        await _context.Slots.AddAsync(slot);
-        await _context.Sessions.AddAsync(session);
-        await _context.SaveChangesAsync();
-        
-        await AddAssociatedDB();
-        await AddNotAssociatedDB();
+        //await _userService.AddUser(new UserDTO(admin));
+        await _userService.AddUser(new UserDTO(psychologist));
+        /*
+        await _userService.AddUser(new UserDTO(manager));
+        await _userService.AddUser(new UserDTO(client));
+        await _locationService.AddLocation(new LocationDTO(location));
+        await _slotService.AddSlot(new SlotDTO(slot));
+        await _sessionService.AddSession(new SessionDTO(session));
+        */
+        //await AddAssociatedDB();
+        //await AddNotAssociatedDB();
     }
 
     private async Task AddAssociatedDB()
@@ -483,7 +488,8 @@ public class Prepopulate : IPrepopulate
         string manager3Email = "manager3" + emailEnd;
         string manager3Password = "1234";
         Manager manager3 = new Manager("Manager3", manager3Email, phone, birthday, managerAddress, manager3Password, managerLocations, admin);
-        
+
+        Console.WriteLine("EZT KERESD " + psychologist == null);
         ((Psychologist)psychologist).Sessions.Add(session3);
         ((Psychologist)psychologist).Slots.Add(slot3);
         ((Psychologist)psychologist).Clients.Add(client3);
@@ -515,16 +521,14 @@ public class Prepopulate : IPrepopulate
         
         slot4.Sessions.Add(session4);
         
-
-        await _context.Sessions.AddAsync(session3);
-        await _context.Sessions.AddAsync(session4);
-        await _context.Psychologists.AddAsync(psychologist3);
-        await _context.Managers.AddAsync(manager3);
-        await _context.Clients.AddAsync(client3);
-        await _context.Clients.AddAsync(client4);
-        await _context.Slots.AddAsync(slot3);
-        await _context.Slots.AddAsync(slot4);
-        await _context.SaveChangesAsync();
+        await _userService.AddUser(new UserDTO(psychologist3));
+        await _userService.AddUser(new UserDTO(manager3));
+        await _userService.AddUser(new UserDTO(client3));
+        await _userService.AddUser(new UserDTO(client4));
+        await _slotService.AddSlot(new SlotDTO(slot3));
+        await _slotService.AddSlot(new SlotDTO(slot4));
+        await _sessionService.AddSession(new SessionDTO(session3));
+        await _sessionService.AddSession(new SessionDTO(session4));
     }
     
     private async Task AddNotAssociatedDB()
@@ -592,15 +596,15 @@ public class Prepopulate : IPrepopulate
         location2.Psychologists.Add(psychologist2);
         location2.Managers.Add(manager2);
         
-        slot2.Sessions.Add(session2);      
+        slot2.Sessions.Add(session2);
+
         
-        await _context.Sessions.AddAsync(session2);
-        await _context.Psychologists.AddAsync(psychologist2);
-        await _context.Managers.AddAsync(manager2);
-        await _context.Locations.AddAsync(location2);
-        await _context.Slots.AddAsync(slot2);
-        await _context.Clients.AddAsync(client2);
-        await _context.SaveChangesAsync();
+        await _userService.AddUser(new UserDTO(psychologist2));
+        await _userService.AddUser(new UserDTO(manager2));
+        await _userService.AddUser(new UserDTO(client2));
+        await _locationService.AddLocation(new LocationDTO(location2));
+        await _slotService.AddSlot(new SlotDTO(slot2));
+        await _sessionService.AddSession(new SessionDTO(session2));
     }
 
     public async Task ClearDb()

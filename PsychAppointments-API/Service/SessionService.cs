@@ -96,7 +96,13 @@ public class SessionService : ISessionService
 
     public async Task<Session?> GetSessionById(long id)
     {
-        return await _context.Sessions.FirstOrDefaultAsync(ses => ses.Id == id);
+        return await _context.Sessions
+            .Include(ses => ses.Psychologist)
+            .Include(ses => ses.PartnerPsychologist)
+            .Include(ses => ses.Location)
+            .Include(ses => ses.Slot)
+            .Include(ses => ses.Client)
+            .FirstOrDefaultAsync(ses => ses.Id == id);
     }
 
     public async Task<List<Session>> GetAllSessions()
@@ -108,6 +114,11 @@ public class SessionService : ISessionService
     {
         return await _context.Sessions
             .Where(ses => ids.Contains(ses.Id))
+            .Include(ses => ses.Psychologist)
+            .Include(ses => ses.PartnerPsychologist)
+            .Include(ses => ses.Location)
+            .Include(ses => ses.Slot)
+            .Include(ses => ses.Client)
             .ToListAsync();
     }
 

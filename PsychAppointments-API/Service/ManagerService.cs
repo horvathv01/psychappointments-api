@@ -91,6 +91,7 @@ public class ManagerService : IManagerService
     {
         return await _context.Managers
             .Where(man => ids.Contains(man.Id))
+            .Include(man => man.Locations)
             .ToListAsync();
     }
 

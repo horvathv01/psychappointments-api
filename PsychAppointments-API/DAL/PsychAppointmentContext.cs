@@ -19,6 +19,11 @@ public class PsychAppointmentContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>()
+            .HasOne(us => us.RegisteredBy)
+            .WithMany()
+            .HasForeignKey(us => us.RegisteredById);
+        
         modelBuilder.Entity<Psychologist>()
             .HasMany(psy => psy.Clients)
             .WithMany(cli => cli.Psychologists)

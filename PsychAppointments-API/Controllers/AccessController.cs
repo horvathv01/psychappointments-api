@@ -29,7 +29,7 @@ public class AccessController : ControllerBase
     {
         //check if user has already registered with this email
         var registeredUser = await _userService.GetUserByEmail(user.Email);
-
+        Console.WriteLine(user);
         if (registeredUser != null)
         {
             Console.WriteLine(registeredUser);
@@ -85,7 +85,7 @@ public class AccessController : ControllerBase
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal,
                 authProperties);
             
-            Console.WriteLine($"Authorization successful, {user.Name} logged in successfully.");
+            Console.WriteLine($"Authorization successful,{user.Type} {user.Name} logged in successfully.");
             UserDTO loggedInUser = new UserDTO(user);
             loggedInUser.Password = "";
             
