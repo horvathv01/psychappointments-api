@@ -4,7 +4,7 @@ namespace PsychAppointments_API.Service;
 
 public interface ISessionService
 {
-    Task<bool> AddSession(Session session);
+    Task<bool> AddSession(SessionDTO session);
     
     Task<Session?> GetSessionById(long id);
     Task<List<Session>> GetAllSessions();
@@ -15,8 +15,8 @@ public interface ISessionService
     List<Session> GetSessionsByClient(Client client, DateTime? startOfRange = null, DateTime? endOfRange = null);
     Task<List<Session>> GetSessionsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null);
     Task<List<Session>> GetSessionsByDate(DateTime startOfRange, DateTime endOfRange);
-    
-    Task<bool> UpdateSession(long id, Session session);
     Task<bool> UpdateSession(long id, SessionDTO session);
     Task<bool> DeleteSession(long id);
+
+    bool Overlap(SessionDTO session1, SessionDTO session2);
 }

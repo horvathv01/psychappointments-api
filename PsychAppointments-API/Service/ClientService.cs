@@ -11,20 +11,17 @@ public class ClientService : IClientService
     private readonly PsychAppointmentContext _context;
     private readonly IUserService _userService;
     private readonly IAccessUtilities _hasher;
-    private readonly IPsychologistService _psychologistService;
     private readonly ISessionService _sessionService;
     
     public ClientService(
     PsychAppointmentContext context,
     IUserService userService,
-    IPsychologistService psychologistService,
     ISessionService sessionService,
     IAccessUtilities hasher
     )
     {
         _context = context;
         _userService = userService;
-        _psychologistService = psychologistService;
         _sessionService = sessionService;
         _hasher = hasher;
     }
@@ -145,12 +142,12 @@ public class ClientService : IClientService
 
             List<Psychologist> psychologists = client.PsychologistIds == null
                 ? new List<Psychologist>()
-                : await _psychologistService.GetListOfPsychologists(client.PsychologistIds);
+                : await _context.Psychologists.Where(psy => client.PsychologistIds.Contains(psy.Id)).ToListAsync();
             
             
             original.Name = client.Name;
             original.Email = client.Email;
-            original.Phone = original.Phone;
+            original.Phone = client.Phone;
             original.DateOfBirth = DateTime.SpecifyKind(birthDay, DateTimeKind.Utc);
             original.Address = client.Address;
             original.Password = password;

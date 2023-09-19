@@ -37,7 +37,7 @@ public class SlotDTO
         SessionLength = sessionLength;
         Rest = rest;
         Weekly = weekly;
-        SessionIds = sessions.Select(ses => ses.Id).ToList();
+        SessionIds = sessions?.Select(ses => ses.Id).ToList();
     }
 
     public SlotDTO(Slot slot)

@@ -139,7 +139,7 @@ namespace PsychAppointments_API.Migrations
                     b.Property<long>("LocationId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("PartnerPsychologistId")
+                    b.Property<long?>("PartnerPsychologistId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("Price")
@@ -347,9 +347,7 @@ namespace PsychAppointments_API.Migrations
 
                     b.HasOne("PsychAppointments_API.Models.Psychologist", "PartnerPsychologist")
                         .WithMany()
-                        .HasForeignKey("PartnerPsychologistId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PartnerPsychologistId");
 
                     b.HasOne("PsychAppointments_API.Models.Psychologist", "Psychologist")
                         .WithMany("Sessions")

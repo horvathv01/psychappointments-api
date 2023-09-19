@@ -14,7 +14,7 @@ public class Session
     public Psychologist Psychologist { get; set; }
     
     [ForeignKey("PartnerPsychologistId")]
-    public long PartnerPsychologistId { get; set; }
+    public long? PartnerPsychologistId { get; set; }
     public Psychologist? PartnerPsychologist { get; set; }
     public bool Blank { get; set; }
     

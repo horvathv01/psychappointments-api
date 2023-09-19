@@ -8,7 +8,7 @@ public class SessionDTO
     public long? PsychologistId { get; set; }
     public long? PartnerPsychologistId { get; set; }
     public bool Blank { get; set; }
-    public long LocationId { get; set; }
+    public long? LocationId { get; set; }
     public DateTime Date { get; set; }
     public DateTime Start { get; set; }
     public DateTime End { get; set; }
