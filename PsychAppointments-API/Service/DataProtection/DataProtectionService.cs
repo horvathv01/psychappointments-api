@@ -70,7 +70,7 @@ public class DataProtectionService : IDataProtectionService<User>
         };
     }
 
-    public async Task<LocationDTO> Filter(User user, Func<Task<Location>> query)
+    public async Task<LocationDTO> Filter(User user, Func<Task<Location?>> query)
     {
         return user.Type switch
         {

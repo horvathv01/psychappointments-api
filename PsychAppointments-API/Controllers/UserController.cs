@@ -45,11 +45,9 @@ public class UserController : ControllerBase
     [Authorize]
     public async Task<List<UserDTO>> GetAllManagers()
     {
-        
         long userId;
         long.TryParse(HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Authentication).Value, out userId);
         var user = await _userService.GetUserById(userId);
-        
         //var user = await GetLoggedInUser();
         
         if (user != null)

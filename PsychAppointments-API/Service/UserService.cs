@@ -236,21 +236,34 @@ public class UserService : IUserService
 
     public async Task<IEnumerable<User>> GetAllPsychologists()
     {
-        return await _context.Psychologists.ToListAsync();
+        return await _context.Psychologists
+            .Include(psy => psy.Clients)
+            .Include(psy => psy.Sessions)
+                .ThenInclude(ses => ses.Location)
+            .Include(psy => psy.Sessions)
+                .ThenInclude(ses => ses.Client)
+            .Include(psy => psy.Slots)
+            .ToListAsync();
         //var allPsychologists = await _psychologistService.GetAllPsychologists();
         //return allPsychologists.Cast<User>();
     }
 
     public async Task<IEnumerable<User>> GetAllClients()
     {
-        return await _context.Clients.ToListAsync();
+        return await _context.Clients
+            .Include(cli => cli.Psychologists)
+            .Include(cli => cli.Sessions)
+            .ThenInclude(ses => ses.Location)
+            .ToListAsync();
         //var allClients = await _clientService.GetAllClients();
         //return allClients.Cast<User>().ToList();
     }
 
     public async Task<IEnumerable<User>> GetAllManagers()
     {
-        return await _context.Managers.ToListAsync();
+        return await _context.Managers
+            .Include(man => man.Locations)
+            .ToListAsync();
         //var allManagers = await _managerService.GetAllManagers();
         //return allManagers.Cast<User>().ToList();
     }

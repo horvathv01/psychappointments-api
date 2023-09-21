@@ -55,7 +55,7 @@ public class LocationService : ILocationService
             .FirstOrDefaultAsync(loc => loc.Id == id);
     }
 
-    public async Task<List<Location>> GetAllLocations()
+    public async Task<IEnumerable<Location>> GetAllLocations()
     {
         return await _context.Locations.ToListAsync();
     }
@@ -69,12 +69,12 @@ public class LocationService : ILocationService
             .ToListAsync();
     }
 
-    public List<Location> GetLocationsByPsychologist(Psychologist psychologist)
+    public IEnumerable<Location> GetLocationsByPsychologist(Psychologist psychologist)
     {
         return psychologist.Sessions.Select(ses => ses.Location).Distinct().ToList();
     }
 
-    public List<Location> GetLocationByClient(Client client)
+    public IEnumerable<Location> GetLocationByClient(Client client)
     {
         return client.Sessions.Select(ses => ses.Location).Distinct().ToList();
     }
