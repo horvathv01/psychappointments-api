@@ -15,7 +15,8 @@ public class UserController : ControllerBase
     
     public UserController(
     IDataProtectionService<User> userDPS,
-    IUserService userService)
+    IUserService userService
+    )
     {
         _userDPS = userDPS;
         _userService = userService;
@@ -43,15 +44,9 @@ public class UserController : ControllerBase
 
     [HttpGet("allmanagers")]
     [Authorize]
-    public async Task<List<UserDTO>> GetAllManagers()
+    public async Task<List<UserDTO>?> GetAllManagers()
     {
-        
-        long userId;
-        long.TryParse(HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Authentication).Value, out userId);
-        var user = await _userService.GetUserById(userId);
-        
-        //var user = await GetLoggedInUser();
-        
+        var user = await GetLoggedInUser();
         if (user != null)
         {
             var query = async () => await _userService.GetAllManagers();
@@ -59,20 +54,43 @@ public class UserController : ControllerBase
             return allManagers.ToList();
         }
         return null;
-        
-        
+    }
+
+    [HttpGet("managers/location/{id}")]
+    [Authorize]
+    public async Task<List<UserDTO>?> GetManagersByLocation(long id)
+    {
+        var user = await GetLoggedInUser();
+        if (user != null)
+        {
+            Console.WriteLine($"{user.Type} {user.Name} accessed Managers by Location id {id}.");
+            var query = async () => await _userService.GetManagersByLocation(id);
+            var allPsychologists = await _userDPS.Filter(user, query);
+            return allPsychologists.ToList();
+        }
+        return null;
+    }
+    
+    [HttpGet("psychologists/location/{id}")]
+    [Authorize]
+    public async Task<List<UserDTO>?> GetPsychologistsByLocation(long id)
+    {
+        var user = await GetLoggedInUser();
+        if (user != null)
+        {
+            Console.WriteLine($"{user.Type} {user.Name} accessed Psychologists by Location id {id}.");
+            var query = async () => await _userService.GetPsychologistsByLocation(id);
+            var allPsychologists = await _userDPS.Filter(user, query);
+            return allPsychologists.ToList();
+        }
+        return null;
     }
 
     [HttpGet("allpsychologists")]
     [Authorize]
     public async Task<List<UserDTO>?> GetAllPsychologists()
     {
-        long userId;
-        long.TryParse(HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Authentication).Value,
-            out userId);
-
-        var user = await _userService.GetUserById(userId);
-        
+        var user = await GetLoggedInUser();
         if (user != null)
         {
             Console.WriteLine($"{user.Type} {user.Name} accessed GetAllPsychologists.");

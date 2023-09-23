@@ -67,13 +67,14 @@ public class UserService : IUserService
         DateTime birthDate = DateTime.MinValue;
         DateTime.TryParse(user.DateOfBirth, out birthDate);
         birthDate = DateTime.SpecifyKind(birthDate, DateTimeKind.Utc);
+        Address address = new Address(user.Address.Country, user.Address.Zip, user.Address.City, user.Address.Street, user.Address.Rest);
 
 
         try
         {
             if (user.Type == Enum.GetName(typeof(UserType), UserType.Admin))
             {
-                var newAdmin = new Admin(user.Name, user.Email, user.Phone, birthDate, user.Address, password,
+                var newAdmin = new Admin(user.Name, user.Email, user.Phone, birthDate, address, password,
                     registeredBy, id);
                 if (registeredBy == null)
                 {
@@ -88,7 +89,7 @@ public class UserService : IUserService
                 return true;
             } else if (user.Type == Enum.GetName(typeof(UserType), UserType.Psychologist))
             {
-                var newPsychologist = new Psychologist(user.Name, user.Email, user.Phone, birthDate, user.Address,
+                var newPsychologist = new Psychologist(user.Name, user.Email, user.Phone, birthDate, address,
                     password, new List<Session>(), new List<Slot>(), new List<Client>(), null, id);
                 if (registeredBy == null)
                 {
@@ -104,7 +105,7 @@ public class UserService : IUserService
                 return true;
             } else if (user.Type == Enum.GetName(typeof(UserType), UserType.Manager))
             {
-                var newManager = new Manager(user.Name, user.Email, user.Phone, birthDate, user.Address, password, new List<Location>(), null, id);
+                var newManager = new Manager(user.Name, user.Email, user.Phone, birthDate, address, password, new List<Location>(), null, id);
                 if (registeredBy == null)
                 {
                     newManager.RegisteredBy = newManager;    
@@ -120,7 +121,7 @@ public class UserService : IUserService
             else
             {
                 //meaning: client
-                var newClient = new Client(user.Name, user.Email, user.Phone, birthDate, user.Address, password, new List<Session>(), new List<Psychologist>(), null, id);
+                var newClient = new Client(user.Name, user.Email, user.Phone, birthDate, address, password, new List<Session>(), new List<Psychologist>(), null, id);
                 if (registeredBy == null)
                 {
                     newClient.RegisteredBy = newClient;    
@@ -172,7 +173,8 @@ public class UserService : IUserService
                 .Include(man => man.Locations)
                 .FirstOrDefaultAsync(man => man.Id == id);
         }
-        var admin = await _context.Admins.FirstOrDefaultAsync(adm => adm.Id == id);
+        var admin = await _context.Admins
+            .FirstOrDefaultAsync(adm => adm.Id == id);
         if (admin != null)
         {
             return admin;
@@ -208,7 +210,8 @@ public class UserService : IUserService
                 .Include(man => man.Locations)
                 .FirstOrDefaultAsync(man => man.Email == email);
         }
-        var admin = await _context.Admins.FirstOrDefaultAsync(adm => adm.Email == email);
+        var admin = await _context.Admins
+            .FirstOrDefaultAsync(adm => adm.Email == email);
         if (admin != null)
         {
             return admin;
@@ -236,21 +239,34 @@ public class UserService : IUserService
 
     public async Task<IEnumerable<User>> GetAllPsychologists()
     {
-        return await _context.Psychologists.ToListAsync();
+        return await _context.Psychologists
+            .Include(psy => psy.Clients)
+            .Include(psy => psy.Sessions)
+                .ThenInclude(ses => ses.Location)
+            .Include(psy => psy.Sessions)
+                .ThenInclude(ses => ses.Client)
+            .Include(psy => psy.Slots)
+            .ToListAsync();
         //var allPsychologists = await _psychologistService.GetAllPsychologists();
         //return allPsychologists.Cast<User>();
     }
 
     public async Task<IEnumerable<User>> GetAllClients()
     {
-        return await _context.Clients.ToListAsync();
+        return await _context.Clients
+            .Include(cli => cli.Psychologists)
+            .Include(cli => cli.Sessions)
+            .ThenInclude(ses => ses.Location)
+            .ToListAsync();
         //var allClients = await _clientService.GetAllClients();
         //return allClients.Cast<User>().ToList();
     }
 
     public async Task<IEnumerable<User>> GetAllManagers()
     {
-        return await _context.Managers.ToListAsync();
+        return await _context.Managers
+            .Include(man => man.Locations)
+            .ToListAsync();
         //var allManagers = await _managerService.GetAllManagers();
         //return allManagers.Cast<User>().ToList();
     }
@@ -267,6 +283,49 @@ public class UserService : IUserService
             .Union(managers)
             .Union(admins)
             .ToList();
+    }
+
+    public async Task<IEnumerable<User>> GetManagersByLocation(long id)
+    {
+        var location = await _context.Locations
+            .Include(loc => loc.Managers)
+            .ThenInclude(man => man.Locations)
+            .FirstOrDefaultAsync(loc => loc.Id == id);
+        
+        if (location != null)
+        {
+            return location.Managers.ToList();    
+        }
+        return new List<User>();
+    }
+    
+    public async Task<IEnumerable<User>> GetPsychologistsByLocation(long id)
+    {
+        var location = await _context.Locations
+            .Include(loc => loc.Psychologists)
+            .FirstOrDefaultAsync(loc => loc.Id == id);
+
+        if (location != null)
+        {
+            var ids = location.Psychologists.Select(psy => psy.Id).ToList();
+            return await GetListOfUsers(ids);    
+        }
+
+        return new List<User>();
+    }
+
+    public async Task<IEnumerable<User>> GetClientsByLocation(long id)
+    {
+        var locationSessions = await _context.Sessions.Where(ses => ses.Location.Id == id)
+            .Include(ses => ses.Client)
+            .ToListAsync();
+        
+        if (locationSessions.Count > 0)
+        {
+            var ids = locationSessions.Select(ses => ses.Client.Id).ToList();
+            return await GetListOfUsers(ids);    
+        }
+        return new List<User>();
     }
 
     public async Task<bool> UpdateUser(long id, UserDTO newUser)

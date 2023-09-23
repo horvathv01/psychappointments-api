@@ -12,6 +12,9 @@ public abstract class User
     public string Email { get; set; }
     public string Phone { get; set; }
     public DateTime DateOfBirth { get; set; }
+    
+    [ForeignKey("AddressId")]
+    public long AddressId { get; set; }
     public Address Address { get; set; }
     public string Password { get; set; }
     [ForeignKey("RegisteredById")]

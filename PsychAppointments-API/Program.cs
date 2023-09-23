@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using PsychAppointments_API.Auth;
@@ -8,6 +9,20 @@ using PsychAppointments_API.Service.DataProtection;
 using PsychAppointments_API.Service.Factories;
 
 var builder = WebApplication.CreateBuilder(args);
+
+/*
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
+    var httpsPort = context.Configuration.GetSection("Kestrel:EndPoints:Https:Port").Get<int>();
+    var certificatePath = context.Configuration.GetSection("Kestrel:EndPoints:Https:Certificate:Path").Get<string>();
+    var certificatePassword = context.Configuration.GetSection("Kestrel:EndPoints:Https:Certificate:Password").Get<string>();
+    
+    options.ListenAnyIP(httpsPort, listenOptions =>
+    {
+        listenOptions.UseHttps(certificatePath, certificatePassword);
+    });
+});
+*/
 
 builder.Services.AddCors(options =>
 {
@@ -25,11 +40,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
+        
         options.Events.OnRedirectToLogin = context =>
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             return Task.CompletedTask;
         };
+        
         options.Cookie.Name = "PsychAppointmentsCookie";
         options.Cookie.SameSite = SameSiteMode.None;
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;

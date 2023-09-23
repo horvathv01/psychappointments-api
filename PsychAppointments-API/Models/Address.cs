@@ -1,14 +1,19 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
 namespace PsychAppointments_API.Models;
 
 public class Address
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public long Id { get; set; }
     public string Country { get; set; }
     public string Zip { get; set; }
     public string City { get; set; }
     public string Street { get; set; }
     public string Rest { get; set; }
 
-    public Address(string country = "", string zip = "", string city = "", string street = "", string rest = "")
+    public Address(string country = "", string zip = "", string city = "", string street = "", string rest = "", long id = 0)
     {
         Country = country;
         Zip = zip;
@@ -24,6 +29,7 @@ public class Address
         City = "";
         Street = "";
         Rest = "";
+        Id = 0;
     }
 
     public override bool Equals(object? obj)

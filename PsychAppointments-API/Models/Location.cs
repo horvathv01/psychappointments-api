@@ -7,6 +7,10 @@ public class Location
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
     public string Name { get; set; }
+    
+    [ForeignKey("AddressId")]
+    
+    public long AddressId { get; set; }
     public Address Address { get; set; }
     public List<Manager> Managers { get; set; }
     public List<Psychologist> Psychologists { get; set; }

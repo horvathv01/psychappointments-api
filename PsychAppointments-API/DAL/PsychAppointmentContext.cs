@@ -12,6 +12,8 @@ public class PsychAppointmentContext : DbContext
     public DbSet<Manager> Managers { get; set; }
     public DbSet<Session> Sessions { get; set; }
     public DbSet<Slot> Slots { get; set; }
+    
+    public DbSet<Address> Addresses { get; set; }
 
     public PsychAppointmentContext(DbContextOptions<PsychAppointmentContext> contextOptions) : base(contextOptions)
     {
@@ -19,10 +21,18 @@ public class PsychAppointmentContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Address>()
+            .HasKey(a => a.Id);
+        
         modelBuilder.Entity<User>()
             .HasOne(us => us.RegisteredBy)
             .WithMany()
             .HasForeignKey(us => us.RegisteredById);
+
+        modelBuilder.Entity<User>()
+            .HasOne(us => us.Address)
+            .WithMany()
+            .HasForeignKey(us => us.AddressId);
         
         modelBuilder.Entity<Psychologist>()
             .HasMany(psy => psy.Clients)
@@ -61,6 +71,11 @@ public class PsychAppointmentContext : DbContext
             .HasMany(loc => loc.Managers)
             .WithMany(man => man.Locations)
             .UsingEntity(join => join.ToTable("LocationManagers"));
+
+        modelBuilder.Entity<Location>()
+            .HasOne(loc => loc.Address)
+            .WithMany()
+            .HasForeignKey(loc => loc.AddressId);
         
         modelBuilder.Entity<Manager>()
             .HasMany(man => man.Locations)
@@ -110,28 +125,6 @@ public class PsychAppointmentContext : DbContext
             .WithOne(ses => ses.Slot)
             .HasForeignKey(slot => slot.SlotId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Address>()
-            .HasNoKey();
-
-        modelBuilder.Entity<Admin>()
-            .Ignore(admin => admin.Address);
         
-        modelBuilder.Entity<Client>()
-            .Ignore(cli => cli.Address);
-        
-        modelBuilder.Entity<Manager>()
-            .Ignore(man => man.Address);
-        
-        modelBuilder.Entity<Psychologist>()
-            .Ignore(psy => psy.Address);
-        
-        modelBuilder.Entity<Location>()
-            .Ignore(loc => loc.Address);
-        
-        modelBuilder.Entity<User>()
-            .Ignore(us => us.Address);
-
-
     }
 }

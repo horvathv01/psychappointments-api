@@ -50,31 +50,37 @@ public class LocationService : ILocationService
     public async Task<Location?> GetLocationById(long id)
     {
         return await _context.Locations
+            .Include(loc => loc.Address)
             .Include(loc => loc.Psychologists)
             .Include(loc => loc.Managers)
             .FirstOrDefaultAsync(loc => loc.Id == id);
     }
 
-    public async Task<List<Location>> GetAllLocations()
+    public async Task<IEnumerable<Location>> GetAllLocations()
     {
-        return await _context.Locations.ToListAsync();
+        return await _context.Locations
+            .Include(loc => loc.Address)
+            .Include(loc => loc.Managers)
+            .Include(loc => loc.Psychologists)
+            .ToListAsync();
     }
 
     public async Task<List<Location>> GetListOfLocations(List<long> ids)
     {
         return await _context.Locations
             .Where(loc => ids.Contains(loc.Id))
+            .Include(loc => loc.Address)
             .Include(loc => loc.Psychologists)
             .Include(loc => loc.Managers)
             .ToListAsync();
     }
 
-    public List<Location> GetLocationsByPsychologist(Psychologist psychologist)
+    public IEnumerable<Location> GetLocationsByPsychologist(Psychologist psychologist)
     {
         return psychologist.Sessions.Select(ses => ses.Location).Distinct().ToList();
     }
 
-    public List<Location> GetLocationByClient(Client client)
+    public IEnumerable<Location> GetLocationByClient(Client client)
     {
         return client.Sessions.Select(ses => ses.Location).Distinct().ToList();
     }
