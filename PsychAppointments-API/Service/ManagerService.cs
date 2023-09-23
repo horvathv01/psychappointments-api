@@ -84,7 +84,9 @@ public class ManagerService : IManagerService
 
     public async Task<List<Manager>> GetAllManagers()
     {
-        return await _context.Managers.ToListAsync();
+        return await _context.Managers
+            .Include(man => man.Locations)
+            .ToListAsync();
     }
 
     public async Task<List<Manager>> GetListOfManagers(List<long> ids)

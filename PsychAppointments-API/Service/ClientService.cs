@@ -86,7 +86,10 @@ public class ClientService : IClientService
 
     public async Task<List<Client>> GetAllClients()
     {
-        return await _context.Clients.ToListAsync();
+        return await _context.Clients
+            .Include(cli => cli.Psychologists)
+            .Include(cli => cli.Sessions)
+            .ToListAsync();
     }
 
     public async Task<List<Client>> GetListOfClients(List<long> ids)

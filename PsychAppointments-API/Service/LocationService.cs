@@ -50,6 +50,7 @@ public class LocationService : ILocationService
     public async Task<Location?> GetLocationById(long id)
     {
         return await _context.Locations
+            .Include(loc => loc.Address)
             .Include(loc => loc.Psychologists)
             .Include(loc => loc.Managers)
             .FirstOrDefaultAsync(loc => loc.Id == id);
@@ -57,13 +58,18 @@ public class LocationService : ILocationService
 
     public async Task<IEnumerable<Location>> GetAllLocations()
     {
-        return await _context.Locations.ToListAsync();
+        return await _context.Locations
+            .Include(loc => loc.Address)
+            .Include(loc => loc.Managers)
+            .Include(loc => loc.Psychologists)
+            .ToListAsync();
     }
 
     public async Task<List<Location>> GetListOfLocations(List<long> ids)
     {
         return await _context.Locations
             .Where(loc => ids.Contains(loc.Id))
+            .Include(loc => loc.Address)
             .Include(loc => loc.Psychologists)
             .Include(loc => loc.Managers)
             .ToListAsync();

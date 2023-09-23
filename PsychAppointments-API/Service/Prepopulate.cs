@@ -616,6 +616,7 @@ public class Prepopulate : IPrepopulate
         _context.Managers.RemoveRange(_context.Managers);
         _context.Locations.RemoveRange(_context.Locations);
         _context.Admins.RemoveRange(_context.Admins);
+        _context.Addresses.RemoveRange(_context.Addresses);
         await _context.SaveChangesAsync();
     }
 }

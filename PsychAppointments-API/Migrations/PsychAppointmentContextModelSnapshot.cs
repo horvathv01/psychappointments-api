@@ -69,6 +69,12 @@ namespace PsychAppointments_API.Migrations
 
             modelBuilder.Entity("PsychAppointments_API.Models.Address", b =>
                 {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
                     b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("text");
@@ -89,7 +95,9 @@ namespace PsychAppointments_API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.ToTable("Address");
+                    b.HasKey("Id");
+
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("PsychAppointments_API.Models.Location", b =>
@@ -100,11 +108,16 @@ namespace PsychAppointments_API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<long>("AddressId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
 
                     b.ToTable("Locations");
                 });
@@ -218,6 +231,9 @@ namespace PsychAppointments_API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
+                    b.Property<long>("AddressId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("timestamp with time zone");
 
@@ -248,6 +264,8 @@ namespace PsychAppointments_API.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
 
                     b.HasIndex("RegisteredById");
 
@@ -331,6 +349,17 @@ namespace PsychAppointments_API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PsychAppointments_API.Models.Location", b =>
+                {
+                    b.HasOne("PsychAppointments_API.Models.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Address");
+                });
+
             modelBuilder.Entity("PsychAppointments_API.Models.Session", b =>
                 {
                     b.HasOne("PsychAppointments_API.Models.Client", "Client")
@@ -393,11 +422,19 @@ namespace PsychAppointments_API.Migrations
 
             modelBuilder.Entity("PsychAppointments_API.Models.User", b =>
                 {
+                    b.HasOne("PsychAppointments_API.Models.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("PsychAppointments_API.Models.User", "RegisteredBy")
                         .WithMany()
                         .HasForeignKey("RegisteredById")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Address");
 
                     b.Navigation("RegisteredBy");
                 });

@@ -16,6 +16,11 @@ public class LocationDTO
         PsychologistIds = psychologists != null ? psychologists.Select(psy => psy.Id).ToList() : new List<long>();
     }
 
+    public LocationDTO()
+    {
+        
+    }
+
     public LocationDTO(Location location)
     {
         Id = location.Id;

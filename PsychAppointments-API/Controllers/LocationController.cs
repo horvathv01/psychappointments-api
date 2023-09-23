@@ -65,11 +65,50 @@ public class LocationController : ControllerBase
     [Authorize]
     public async Task<IActionResult> AddNewLocation([FromBody] LocationDTO location)
     {
+        Console.WriteLine("New location to be added:");
+        Console.WriteLine(location);
         var query = async () => await _locationService.AddLocation(location);
         var result = await query();
         if (result)
         {
-            return Ok($"Location {location.Name} was added successfully");
+            string message = $"Location {location.Name} was added successfully";
+            Console.WriteLine(message);
+            return Ok(message);
+        }
+
+        return BadRequest("Something went wrong");
+    }
+
+    [HttpDelete("{id}")]
+    //[Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteLocation(long id)
+    {
+        Console.WriteLine($"Location with id {id} is to be deleted.");
+        var query = async () => await _locationService.DeleteLocation(id);
+        var result = await query();
+        if (result)
+        {
+            string message = $"Location with id {id} was deleted successfully.";
+            Console.WriteLine(message);
+            return Ok(message);
+        }
+        Console.WriteLine($"Deletion of location with id {id} failed.");
+        return BadRequest("Something went wrong");
+    }
+
+    [HttpPut("{id}")]
+    [Authorize]
+    public async Task<IActionResult> UpdateLocation(long id, LocationDTO location)
+    {
+        Console.WriteLine("Location to be updated:");
+        Console.WriteLine(location);
+        var query = async () => await _locationService.UpdateLocation(id, location);
+        var result = await query();
+        if (result)
+        {
+            string message = $"Location {location.Name} was updated successfully";
+            Console.WriteLine(message);
+            return Ok(message);
         }
 
         return BadRequest("Something went wrong");

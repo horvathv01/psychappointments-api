@@ -69,18 +69,18 @@ public class UserDTO
                 break;
             case UserType.Client:
                 Client client = (Client)user;
-                SessionIds = client.Sessions.Select(ses => ses.Id).ToList();
-                PsychologistIds = client.Psychologists.Select(psy => psy.Id).ToList();
+                SessionIds = client.Sessions != null ? client.Sessions.Select(ses => ses.Id).ToList() : new List<long>();
+                PsychologistIds = client.Psychologists != null ? client.Psychologists.Select(psy => psy.Id).ToList() : new List<long>();
                 break;
             case UserType.Manager:
                 Manager manager = (Manager)user;
-                LocationIds = manager.Locations.Select(loc => loc.Id).ToList();
+                LocationIds = manager.Locations != null ? manager.Locations.Select(loc => loc.Id).ToList() : new List<long>();
                 break;
             case UserType.Psychologist:
                 Psychologist psychologist = (Psychologist)user;
-                SessionIds = psychologist.Sessions.Select(ses => ses.Id).ToList();
-                ClientIds = psychologist.Clients.Select(cli => cli.Id).ToList();
-                SlotIds = psychologist.Slots.Select(slot => slot.Id).ToList();
+                SessionIds = psychologist.Sessions != null ? psychologist.Sessions.Select(ses => ses.Id).ToList() : new List<long>();
+                ClientIds = psychologist.Clients != null ? psychologist.Clients.Select(cli => cli.Id).ToList() : new List<long>();
+                SlotIds = psychologist.Clients != null ? psychologist.Slots.Select(slot => slot.Id).ToList() : new List<long>();
                 break;
         }
 
