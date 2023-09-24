@@ -76,6 +76,7 @@ builder.Services.AddTransient<ISlotService, SlotService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<IManagerService, ManagerService>();
 builder.Services.AddTransient<ILocationService, LocationService>();
+builder.Services.AddTransient<IAddressService, AddressService>();
 
 //prepopulate DB and/or in memory repositories via interface for testing purposes
 builder.Services.AddScoped<IPrepopulate, Prepopulate>();

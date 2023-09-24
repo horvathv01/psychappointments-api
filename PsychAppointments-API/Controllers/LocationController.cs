@@ -62,7 +62,7 @@ public class LocationController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Admin, Manager")]
     public async Task<IActionResult> AddNewLocation([FromBody] LocationDTO location)
     {
         Console.WriteLine("New location to be added:");
@@ -80,7 +80,7 @@ public class LocationController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteLocation(long id)
     {
         Console.WriteLine($"Location with id {id} is to be deleted.");
@@ -95,9 +95,10 @@ public class LocationController : ControllerBase
         Console.WriteLine($"Deletion of location with id {id} failed.");
         return BadRequest("Something went wrong");
     }
+    
 
     [HttpPut("{id}")]
-    [Authorize]
+    [Authorize(Roles = "Admin, Manager")]
     public async Task<IActionResult> UpdateLocation(long id, LocationDTO location)
     {
         Console.WriteLine("Location to be updated:");

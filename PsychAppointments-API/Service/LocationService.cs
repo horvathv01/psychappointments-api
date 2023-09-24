@@ -8,12 +8,15 @@ public class LocationService : ILocationService
 {
     
     private readonly PsychAppointmentContext _context;
+    private readonly IAddressService _addressService;
     
     public LocationService(
-    PsychAppointmentContext context
+    PsychAppointmentContext context,
+    IAddressService addressService
     )
     {
         _context = context;
+        _addressService = addressService;
     }
     
     
@@ -22,7 +25,12 @@ public class LocationService : ILocationService
         try
         {
             location.Id = await _context.Locations.CountAsync();
-            var newLocation = new Location(location.Name, location.Address, new List<Manager>(),
+            var address = await _addressService.GetEquivalent(location.Address);
+            if (address == null)
+            {
+                address = location.Address;
+            }
+            var newLocation = new Location(location.Name, address, new List<Manager>(),
                 new List<Psychologist>(), location.Id);
             if (location.ManagerIds.Count > 0)
             {
@@ -118,8 +126,14 @@ public class LocationService : ILocationService
         {
             return false;
         }
+        var address = await _addressService.GetEquivalent(location.Address);
+        if (address == null)
+        {
+            address = new Address(location.Address);
+        }
+        
         originalLocation.Name = location.Name;
-        originalLocation.Address = location.Address;
+        originalLocation.Address = address;
         originalLocation.Managers = await _context.Managers
             .Where(man => location.ManagerIds.Contains(man.Id))
             .ToListAsync();

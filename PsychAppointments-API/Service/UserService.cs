@@ -11,6 +11,7 @@ public class UserService : IUserService
 {
     private readonly PsychAppointmentContext _context;
     private readonly IAccessUtilities _hasher;
+    private readonly IAddressService _addressService;
     /*
     private readonly IRepository<User> _userRepository;
     private readonly IPsychologistService _psychologistService;
@@ -24,7 +25,8 @@ public class UserService : IUserService
     
     public UserService(
         PsychAppointmentContext context,
-        IAccessUtilities hasher
+        IAccessUtilities hasher,
+        IAddressService addressService
         /*
         IRepository<User> userRepository, 
         
@@ -39,9 +41,10 @@ public class UserService : IUserService
     {
         _context = context;
         _hasher = hasher;
+        _addressService = addressService;
         /*
         _userRepository = userRepository;
-    
+
         _psychologistService = psychologistService;
         _clientService = clientService;
         _sessionService = sessionService;
@@ -67,9 +70,14 @@ public class UserService : IUserService
         DateTime birthDate = DateTime.MinValue;
         DateTime.TryParse(user.DateOfBirth, out birthDate);
         birthDate = DateTime.SpecifyKind(birthDate, DateTimeKind.Utc);
-        Address address = new Address(user.Address.Country, user.Address.Zip, user.Address.City, user.Address.Street, user.Address.Rest);
+        var address = await _addressService.GetEquivalent(user.Address);
 
-
+        if (address == null)
+        {
+            address = user.Address;
+            //new Address(user.Address.Country, user.Address.Zip, user.Address.City, user.Address.Street, user.Address.Rest);
+        }
+        
         try
         {
             if (user.Type == Enum.GetName(typeof(UserType), UserType.Admin))
