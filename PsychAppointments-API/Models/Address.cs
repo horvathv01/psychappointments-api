@@ -32,6 +32,15 @@ public class Address
         Id = 0;
     }
 
+    public Address(Address address)
+    {
+        Country = address.Country;
+        Zip = address.Zip;
+        City = address.City;
+        Street = address.Street;
+        Rest = address.Rest;
+    }
+
     public override bool Equals(object? obj)
     {
         return obj is Address
