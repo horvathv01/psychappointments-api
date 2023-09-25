@@ -143,6 +143,7 @@ public class LocationService : ILocationService
     
         _context.Update(originalLocation);
         await _context.SaveChangesAsync();
+        await _addressService.ClearOrphanedAddresses();
         return true;
     }
 
@@ -155,6 +156,7 @@ public class LocationService : ILocationService
             {
                 _context.Remove(location);
                 await _context.SaveChangesAsync();
+                await _addressService.ClearOrphanedAddresses();
                 return true;
             }
 

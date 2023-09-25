@@ -36,7 +36,7 @@ public class UserDTO
         string dateOfBirth, 
         Address address, 
         string password, 
-        long registeredBy = 0,
+        long? registeredBy = 0,
         List<long>? sessions = null,
         List<long>? psychologists = null,
         List<long>? clients = null,

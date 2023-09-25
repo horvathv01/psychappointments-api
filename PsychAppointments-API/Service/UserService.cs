@@ -161,6 +161,7 @@ public class UserService : IUserService
         if (client != null)
         {
             return await _context.Clients
+                .Include(cli => cli.Address)
                 .Include(cli => cli.Psychologists)
                 .Include(cli => cli.Sessions)
                 .FirstOrDefaultAsync(cli => cli.Id == id);
@@ -169,6 +170,7 @@ public class UserService : IUserService
         if (psychologist != null)
         {
             return await _context.Psychologists
+                .Include(psy => psy.Address)
                 .Include(psy => psy.Sessions)
                 .Include(psy => psy.Clients)
                 .Include(psy => psy.Slots)
@@ -178,10 +180,12 @@ public class UserService : IUserService
         if (manager != null)
         {
             return await _context.Managers
+                .Include(man => man.Address)
                 .Include(man => man.Locations)
                 .FirstOrDefaultAsync(man => man.Id == id);
         }
         var admin = await _context.Admins
+            .Include(adm => adm.Address)
             .FirstOrDefaultAsync(adm => adm.Id == id);
         if (admin != null)
         {
@@ -198,6 +202,7 @@ public class UserService : IUserService
         if (client != null)
         {
             return await _context.Clients
+                .Include(cli => cli.Address)
                 .Include(cli => cli.Psychologists)
                 .Include(cli => cli.Sessions)
                 .FirstOrDefaultAsync(cli => cli.Email == email);
@@ -206,6 +211,7 @@ public class UserService : IUserService
         if (psychologist != null)
         {
             return await _context.Psychologists
+                .Include(psy => psy.Address)
                 .Include(psy => psy.Sessions)
                 .Include(psy => psy.Clients)
                 .Include(psy => psy.Slots)
@@ -215,10 +221,12 @@ public class UserService : IUserService
         if (manager != null)
         {
             return await _context.Managers
+                .Include(man => man.Address)
                 .Include(man => man.Locations)
                 .FirstOrDefaultAsync(man => man.Email == email);
         }
         var admin = await _context.Admins
+            .Include(adm => adm.Address)
             .FirstOrDefaultAsync(adm => adm.Email == email);
         if (admin != null)
         {
@@ -232,10 +240,18 @@ public class UserService : IUserService
 
     public async Task<IEnumerable<User>> GetAllUsers()
     {
-        var clients = await _context.Clients.ToListAsync();
-        var psychologists = await _context.Psychologists.ToListAsync();
-        var managers = await _context.Managers.ToListAsync();
-        var admins = await _context.Admins.ToListAsync();
+        var clients = await _context.Clients
+            .Include(cli => cli.Address)
+            .ToListAsync();
+        var psychologists = await _context.Psychologists
+            .Include(psy => psy.Address)
+            .ToListAsync();
+        var managers = await _context.Managers
+            .Include(man => man.Address)
+            .ToListAsync();
+        var admins = await _context.Admins
+            .Include(man => man.Address)
+            .ToListAsync();
 
         return clients.Cast<User>()
             .Union(psychologists)
@@ -351,106 +367,15 @@ public class UserService : IUserService
 
         if (Enum.GetName(typeof(UserType), user.Type) != newUser.Type)
         {
-            //USER TYPE CONVERSION
-            switch (newUser.Type)
-            {
-                case "Admin":
-                    var newAdmin = new Admin(newUser.Name, newUser.Email, newUser.Phone, newBirthDay, newUser.Address,
-                        password,
-                        user.RegisteredBy, id);
-                    //return await _userRepository.Update(id, newAdmin);
-                    await _context.Admins.AddAsync(newAdmin);
-                    _context.Remove(user);
-                    await _context.SaveChangesAsync();
-                    return true;
-                case "Psychologist":
-                    var newPsychologist = new Psychologist(newUser.Name, newUser.Email, newUser.Phone, newBirthDay,
-                        newUser.Address,
-                        password, new List<Session>(), new List<Slot>(), new List<Client>(), user.RegisteredBy, id);
-                    if (newUser.SessionIds != null)
-                    {
-                        var sessionsToAdd = await _context.Sessions
-                            .Where(ses => newUser.SessionIds.Contains(ses.Id))
-                            .ToListAsync();
-                        newPsychologist.Sessions.AddRange(sessionsToAdd);
-                        //_sessionService.GetListOfSessions(newUser.SessionIds);
-                    }
-
-                    if (newUser.SlotIds != null)
-                    {
-                         var slotsToAdd = await _context.Slots.Where(slot => newUser.SlotIds.Contains(slot.Id))
-                            .ToListAsync();
-                         newPsychologist.Slots.AddRange(slotsToAdd);
-                        //_slotService.GetListOfSlots(newUser.SlotIds);
-                    }
-
-                    if (newUser.ClientIds != null)
-                    {
-                         var clientsToAdd = await _context.Clients
-                            .Where(cli => newUser.ClientIds.Contains(cli.Id))
-                            .ToListAsync();
-                         newPsychologist.Clients.AddRange(clientsToAdd);
-                        //_clientService.GetListOfClients(newUser.ClientIds);
-                    }
-
-                    //return await _psychologistService.UpdatePsychologist(user.Id, newPsychologist);
-                    await _context.Psychologists.AddAsync(newPsychologist);
-                    _context.Remove(user);
-                    await _context.SaveChangesAsync();
-                    return true;
-                case "Manager":
-                    var newManager = new Manager(newUser.Name, newUser.Email, newUser.Phone, newBirthDay, newUser.Address,
-                        password, new List<Location>(), user.RegisteredBy, id);
-
-                    if (newUser.LocationIds != null)
-                    {
-                         var locationsToAdd = await _context.Locations
-                            .Where(loc => newUser.LocationIds.Contains(loc.Id))
-                            .ToListAsync();
-                         newManager.Locations.AddRange(locationsToAdd);
-                        //_locationService.GetListOfLocations(newUser.LocationIds);
-                    }
-
-                    //return await _managerService.UpdateManager(user.Id, newManager);
-                    await _context.Managers.AddAsync(newManager);
-                    _context.Remove(user);
-                    await _context.SaveChangesAsync();
-                    return true;
-                case "Client":
-                    var newClient = new Client(newUser.Name, newUser.Email, newUser.Phone, newBirthDay, newUser.Address,
-                        password, new List<Session>(), new List<Psychologist>(), user.RegisteredBy, id);
-
-                    if (newUser.SessionIds != null)
-                    {
-                        var sessionsToAdd = await _context.Sessions.Where(ses => newUser.SessionIds.Contains(ses.Id))
-                            .ToListAsync();
-                        newClient.Sessions.AddRange(sessionsToAdd);
-                        //_sessionService.GetListOfSessions(newUser.SessionIds);
-                    }
-
-                    if (newUser.PsychologistIds != null)
-                    {
-                         var psychologistsToAdd = await _context.Psychologists
-                            .Where(psy => newUser.PsychologistIds.Contains(psy.Id))
-                            .ToListAsync();
-                         newClient.Psychologists.AddRange(psychologistsToAdd);
-                        //_psychologistService.GetListOfPsychologists(newUser.PsychologistIds);
-                    }
-
-                    await _context.Clients.AddAsync(newClient);
-                    _context.Remove(user);
-                    await _context.SaveChangesAsync();
-                    return true;
-                //return await _clientService.UpdateClient(user.Id, newClient);
-
-                default:
-                    throw new ConstraintException($"UserDTO Type property contains invalid value: {newUser.Type}.");
-            }
+            //USER TYPE CONVERSION, new ID needed
+            newUser.Id = await _context.Psychologists.CountAsync() + await _context.Clients.CountAsync() + await _context.Managers.CountAsync() +
+                 await _context.Admins.CountAsync() + 1;
+            await AddUser(newUser);
+            _context.Remove(user);
+            await _context.SaveChangesAsync();
+            await _addressService.ClearOrphanedAddresses();
+            return true;
         }
-        else
-        {
-            
-            
             user.Name = newUser.Name;
             user.Email = newUser.Email;
             user.Phone = newUser.Phone;
@@ -463,6 +388,7 @@ public class UserService : IUserService
                 case UserType.Admin:
                     _context.Update(user);
                     await _context.SaveChangesAsync();
+                    await _addressService.ClearOrphanedAddresses();
                     return true;
                 case UserType.Client:
                     if (newUser.SessionIds != null)
@@ -478,6 +404,7 @@ public class UserService : IUserService
                     }
                     _context.Update(user);
                     await _context.SaveChangesAsync();
+                    await _addressService.ClearOrphanedAddresses();
                     return true;
                 case UserType.Manager:
                     if (newUser.LocationIds != null)
@@ -488,6 +415,7 @@ public class UserService : IUserService
                     }
                     _context.Update(user);
                     await _context.SaveChangesAsync();
+                    await _addressService.ClearOrphanedAddresses();
                     return true;
                 case UserType.Psychologist:
                     if (newUser.SessionIds != null)
@@ -511,10 +439,10 @@ public class UserService : IUserService
                     }
                     _context.Update(user);
                     await _context.SaveChangesAsync();
+                    await _addressService.ClearOrphanedAddresses();
                     return true;
                 default: return false;
             }
-        }
     }
 
     public async Task<bool> DeleteUser(long id)
@@ -526,6 +454,7 @@ public class UserService : IUserService
             {
                 _context.Remove(user);
                 await _context.SaveChangesAsync();
+                await _addressService.ClearOrphanedAddresses();
                 return true;    
             }
 

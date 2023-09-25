@@ -13,4 +13,6 @@ public interface IAddressService
     Task<bool> DeleteAddress(Address address);
 
     Task<Address?> GetEquivalent(Address address);
+
+    Task<bool> ClearOrphanedAddresses();
 }

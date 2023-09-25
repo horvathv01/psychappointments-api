@@ -34,6 +34,20 @@ public class UserController : ControllerBase
         }
         return null;
     }
+    
+    [HttpGet]
+    [Authorize]
+    public async Task<List<UserDTO>?> GetAllUsers()
+    {
+        var user = await GetLoggedInUser();
+        if (user != null)
+        {
+            var query = async () => await _userService.GetAllUsers();
+            var result = await _userDPS.Filter(user, query);
+            return result.ToList();
+        }
+        return null;
+    }
 
     [HttpGet("test/{id}")]
     public async Task<UserDTO> GetUserTest(long id)
@@ -99,6 +113,46 @@ public class UserController : ControllerBase
             return allPsychologists.ToList();
         }
         return null;
+    }
+
+    [HttpPut("{id}")]
+    [Authorize]
+    public async Task<IActionResult> UpdateUser([FromBody] UserDTO updatedUser, long id)
+    {
+        var user = await GetLoggedInUser();
+        if (user != null)
+        {
+            var query = async () => await _userService.UpdateUser(id, updatedUser);
+            var result = await query();
+            if (result)
+            {
+                return Ok($"User with id {id} has been successfully updated by {user.Type} {user.Name}.");
+            }
+
+            return BadRequest("Something went wrong");
+        }
+
+        return Unauthorized("User could not be retreived.");
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize]
+    public async Task<IActionResult> DeleteUser(long id)
+    {
+        var user = await GetLoggedInUser();
+        if (user != null)
+        {
+            var query = async () => await _userService.DeleteUser(id);
+            var result = await query();
+            if (result)
+            {
+                return Ok($"User with id {id} has been successfully deleted by {user.Type} {user.Name}.");
+            }
+
+            return BadRequest("Something went wrong");
+        }
+
+        return Unauthorized("User could not be retreived.");
     }
 
     private async Task<User?> GetLoggedInUser()
