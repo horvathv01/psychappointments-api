@@ -77,7 +77,7 @@ public class SlotService : ISlotService
             .FirstOrDefaultAsync(sl => sl.Id == id);
     }
 
-    public async Task<List<Slot>> GetAllSlots()
+    public async Task<IEnumerable<Slot>> GetAllSlots()
     {
         return await _context.Slots.ToListAsync();
     }
@@ -89,7 +89,7 @@ public class SlotService : ISlotService
             .ToListAsync();
     }
 
-    public async Task<List<Slot>> GetSlotsByPsychologistAndDates(Psychologist psychologist, DateTime? startOfRange = null,
+    public async Task<IEnumerable<Slot>> GetSlotsByPsychologistAndDates(Psychologist psychologist, DateTime? startOfRange = null,
         DateTime? endOfRange = null)
     {
         if (startOfRange == null || endOfRange == null)
@@ -257,10 +257,12 @@ public class SlotService : ISlotService
         }
 
         DateTime start = slot.SlotStart;
+        DateTime.SpecifyKind(start, DateTimeKind.Utc);
         long sessionId = await _context.Sessions.CountAsync() + 1;
         for (int i = 0; i < sessionCount; i++)
         {
             DateTime end = start.AddMinutes(slot.SessionLength);
+            DateTime.SpecifyKind(end, DateTimeKind.Utc);
             SessionFrequency frequency;
             if (slot.Weekly)
             {

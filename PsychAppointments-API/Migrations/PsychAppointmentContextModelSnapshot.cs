@@ -133,7 +133,7 @@ namespace PsychAppointments_API.Migrations
                     b.Property<bool>("Blank")
                         .HasColumnType("boolean");
 
-                    b.Property<long>("ClientId")
+                    b.Property<long?>("ClientId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("Date")
@@ -365,8 +365,7 @@ namespace PsychAppointments_API.Migrations
                     b.HasOne("PsychAppointments_API.Models.Client", "Client")
                         .WithMany("Sessions")
                         .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("PsychAppointments_API.Models.Location", "Location")
                         .WithMany()

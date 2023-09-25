@@ -53,6 +53,11 @@ public class SlotDTO
         Weekly = slot.Weekly;
         SessionIds = slot.Sessions.Select(ses => ses.Id).ToList();
     }
+
+    public SlotDTO()
+    {
+        
+    }
     
     public override string ToString()
     {

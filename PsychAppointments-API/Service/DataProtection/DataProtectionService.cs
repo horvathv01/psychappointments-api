@@ -106,7 +106,7 @@ public class DataProtectionService : IDataProtectionService<User>
         };
     }
 
-    public async Task<IEnumerable<SlotDTO>> Filter(User user, Func<Task<IEnumerable<Slot>>> query)
+    public async Task<IEnumerable<SlotDTO>> Filter(User user, Func<Task<IEnumerable<Slot>>>? query)
     {
         return user.Type switch
         {

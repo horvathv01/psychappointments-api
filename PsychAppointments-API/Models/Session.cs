@@ -26,7 +26,7 @@ public class Session
     public DateTime End { get; set; }
     
     [ForeignKey("ClientId")]
-    public long ClientId { get; set; }
+    public long? ClientId { get; set; }
     public Client? Client { get; set; }
     public int Price { get; set; }
     public SessionFrequency Frequency { get; set; }
