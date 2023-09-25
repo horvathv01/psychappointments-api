@@ -101,7 +101,8 @@ public class PsychAppointmentContext : DbContext
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.Client)
             .WithMany(cli => cli.Sessions)
-            .HasForeignKey(ses => ses.ClientId);
+            .HasForeignKey(ses => ses.ClientId)
+            .IsRequired(false);
 
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.Slot)

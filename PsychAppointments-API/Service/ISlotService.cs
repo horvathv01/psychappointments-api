@@ -7,11 +7,11 @@ public interface ISlotService
     Task<bool> AddSlot(SlotDTO slot);
     
     Task<Slot?> GetSlotById(long id);
-    Task<List<Slot>> GetAllSlots();
+    Task<IEnumerable<Slot>> GetAllSlots();
     
     Task<List<Slot>> GetListOfSlots(List<long> ids);
     
-    Task<List<Slot>> GetSlotsByPsychologistAndDates(Psychologist psychologist, DateTime? startOfRange = null, DateTime? endOfRange = null);
+    Task<IEnumerable<Slot>> GetSlotsByPsychologistAndDates(Psychologist psychologist, DateTime? startOfRange = null, DateTime? endOfRange = null);
     Task<List<Slot>> GetSlotsByLocationAndDates(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null);
     Task<List<Slot>> GetSlotsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null);
     Task<List<Slot>> GetSlotsByDate(DateTime startOfRange, DateTime endOfRange);

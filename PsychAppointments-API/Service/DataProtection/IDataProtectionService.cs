@@ -57,7 +57,7 @@ public interface IDataProtectionService<T>
     /// <param name="user">The user who is the basis of the association check, filtering is based on user.Type.</param>
     /// <param name="query">Function call of service class that returns query results with data from DB (async).</param>
     /// <returns>List of SlotDTOs, containing filtered information.</returns>
-    Task<IEnumerable<SlotDTO>> Filter(T user, Func<Task<IEnumerable<Slot>>> query);
+    Task<IEnumerable<SlotDTO>> Filter(T user, Func<Task<IEnumerable<Slot>>>? query);
     
     /// <summary>
     /// Filters out data based on user type and identity. If user is not associated with slot, pieces of data are filtered out.  
