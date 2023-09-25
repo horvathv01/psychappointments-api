@@ -58,7 +58,7 @@ public class DataProtectionService : IDataProtectionService<User>
         };
     }
 
-    public async Task<IEnumerable<LocationDTO>> Filter(User user, Func<Task<IEnumerable<Location>>> query)
+    public async Task<IEnumerable<LocationDTO>> Filter(User user, Func<Task<IEnumerable<Location>>?> query)
     {
         return user.Type switch
         {
