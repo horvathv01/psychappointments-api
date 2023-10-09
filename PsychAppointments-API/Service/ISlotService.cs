@@ -13,6 +13,9 @@ public interface ISlotService
     
     Task<IEnumerable<Slot>> GetSlotsByPsychologistAndDates(Psychologist psychologist, DateTime? startOfRange = null, DateTime? endOfRange = null);
     Task<List<Slot>> GetSlotsByLocationAndDates(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null);
+
+    Task<IEnumerable<Slot>> GetSlotsByPsychologistLocationAndDates(Psychologist psychologist, Location location,
+        DateTime? startOfRange = null, DateTime? endOfRange = null);
     Task<List<Slot>> GetSlotsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null);
     Task<List<Slot>> GetSlotsByDate(DateTime startOfRange, DateTime endOfRange);
     Task<bool> UpdateSlot(long id, SlotDTO slot);

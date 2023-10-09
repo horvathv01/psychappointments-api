@@ -118,6 +118,22 @@ public class SlotService : ISlotService
             .ToListAsync();
         
     }
+    
+    public async Task<IEnumerable<Slot>> GetSlotsByPsychologistLocationAndDates(Psychologist psychologist, Location location, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    {
+        if (startOfRange == null || endOfRange == null)
+        {
+            return await _context.Slots
+                .Where(sl => sl.Location.Equals(location) &&  sl.Psychologist.Equals(psychologist))
+                .ToListAsync();
+        }
+        
+        return await _context.Slots
+            .Where(sl => sl.Location.Equals(location) && sl.SlotStart >= startOfRange &&
+                         sl.SlotEnd <= endOfRange)
+            .ToListAsync();
+        
+    }
 
     public async Task<List<Slot>> GetSlotsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {

@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using PsychAppointments_API.Auth;
@@ -9,20 +8,6 @@ using PsychAppointments_API.Service.DataProtection;
 using PsychAppointments_API.Service.Factories;
 
 var builder = WebApplication.CreateBuilder(args);
-
-/*
-builder.WebHost.ConfigureKestrel((context, options) =>
-{
-    var httpsPort = context.Configuration.GetSection("Kestrel:EndPoints:Https:Port").Get<int>();
-    var certificatePath = context.Configuration.GetSection("Kestrel:EndPoints:Https:Certificate:Path").Get<string>();
-    var certificatePassword = context.Configuration.GetSection("Kestrel:EndPoints:Https:Certificate:Password").Get<string>();
-    
-    options.ListenAnyIP(httpsPort, listenOptions =>
-    {
-        listenOptions.UseHttps(certificatePath, certificatePassword);
-    });
-});
-*/
 
 builder.Services.AddCors(options =>
 {
@@ -60,6 +45,7 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 // Add services to the container.
 builder.Services.AddDbContext<PsychAppointmentContext>(options => 
     options.UseNpgsql(builder.Configuration.GetConnectionString("PsychAppointmentsConnection")));
+
 
 builder.Services.AddScoped<IAccessUtilities, AccessUtilities>();
 builder.Services.AddScoped<IHasherFactory, HasherFactory>();
