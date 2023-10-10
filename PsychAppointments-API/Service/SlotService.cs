@@ -125,12 +125,14 @@ public class SlotService : ISlotService
         {
             return await _context.Slots
                 .Where(sl => sl.Location.Equals(location) &&  sl.Psychologist.Equals(psychologist))
+                .Include(sl => sl.Sessions)
                 .ToListAsync();
         }
         
         return await _context.Slots
             .Where(sl => sl.Location.Equals(location) && sl.SlotStart >= startOfRange &&
                          sl.SlotEnd <= endOfRange)
+            .Include(sl => sl.Sessions)
             .ToListAsync();
         
     }
@@ -168,9 +170,11 @@ public class SlotService : ISlotService
                 return false;
             }
             
+            var slotDate = DateTime.SpecifyKind(slot.Date, DateTimeKind.Utc);
+            
             //find slots from same day, location and psychologist to avoid overlaps
             var sameDaysSlots = await _context.Slots
-                .Where(sl => sl.Date == slot.Date && sl.Location.Id == slot.LocationId && sl.Psychologist.Id == slot.PsychologistId)
+                .Where(sl => sl.Date == slotDate && sl.Location.Id == slot.LocationId && sl.Psychologist.Id == slot.PsychologistId)
                 .ToListAsync();
         
             foreach (var sameDaysSlot in sameDaysSlots)
