@@ -53,8 +53,9 @@ public class SlotService : ISlotService
             Slot newSlot = new Slot(psychologist, location, slot.Date, slot.SlotStart, slot.SlotEnd, slot.SessionLength, slot.Rest, slot.Weekly, new List<Session>(), id);
             
             //new slots are prepopulated with empty sessions. 
-            newSlot.Sessions = await PrepopulateSlotWithBlankSessions(newSlot);
+            //newSlot.Sessions = await PrepopulateSlotWithBlankSessions(newSlot);
             
+            await PrepopulateSlotWithBlankSessions(newSlot);
             await _context.Slots.AddAsync(newSlot);
             await _context.SaveChangesAsync();
             return true;
@@ -169,6 +170,14 @@ public class SlotService : ISlotService
                 Console.WriteLine($"Slot {id} not found in DB.");
                 return false;
             }
+
+            bool hasBlankSessionsOnly = original.Sessions.All(ses => ses.Blank);
+
+            if (!hasBlankSessionsOnly)
+            {
+                Console.WriteLine("Slot cannot be updated because it has sessions that are not blank. In this case you should add a new one instead of modifying an existing one.");
+                return false;
+            }
             
             var slotDate = DateTime.SpecifyKind(slot.Date, DateTimeKind.Utc);
             
@@ -208,10 +217,16 @@ public class SlotService : ISlotService
             original.SessionLength = slot.SessionLength;
             original.Rest = slot.Rest;
             original.Weekly = slot.Weekly;
-            original.Sessions = sessions;
+            //original.Sessions = await PrepopulateSlotWithBlankSessions(original);
+            
+            _context.RemoveRange(original.Sessions);
+
+            var newSessions = await PrepopulateSlotWithBlankSessions(original);
+            await _context.Sessions.AddRangeAsync(newSessions);
             
             _context.Update(original);
             await _context.SaveChangesAsync();
+            
             return true;
         }
         catch (Exception e)
@@ -298,6 +313,7 @@ public class SlotService : ISlotService
             sessions.Add(ses);
         }
         
+        slot.Sessions.AddRange(sessions);
         return sessions;
     }
 }
