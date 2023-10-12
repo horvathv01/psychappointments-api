@@ -140,7 +140,7 @@ public class SessionService : ISessionService
             .ToListAsync();
     }
 
-    public async Task<List<Session>> GetSessionsByLocation(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    public async Task<IEnumerable<Session>> GetSessionsByLocation(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
         if (startOfRange == null || endOfRange == null)
         {
@@ -148,9 +148,10 @@ public class SessionService : ISessionService
                 .Where(ses => ses.Location.Equals(location))
                 .ToListAsync();
         }
+
         return await _context.Sessions
             .Where(ses => ses.Location.Equals(location) && ses.Start >= startOfRange &&
-                         ses.End <= endOfRange)
+                          ses.End <= endOfRange)
             .ToListAsync();
     }
 

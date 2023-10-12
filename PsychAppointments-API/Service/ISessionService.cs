@@ -11,7 +11,7 @@ public interface ISessionService
     Task<IEnumerable<Session>> GetNonBlankSessions();
     
     Task<List<Session>> GetListOfSessions(List<long> ids);
-    Task<List<Session>> GetSessionsByLocation(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null);
+    Task<IEnumerable<Session>> GetSessionsByLocation(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null);
     Task<IEnumerable<Session>> GetSessionsByPsychologist(Psychologist psychologist, DateTime? startOfRange = null, DateTime? endOfRange = null);
     Task<IEnumerable<Session>> GetSessionsByPsychologistLocationAndDates(Psychologist psychologist,
         Location location, DateTime? startOfRange = null, DateTime? endOfRange = null);

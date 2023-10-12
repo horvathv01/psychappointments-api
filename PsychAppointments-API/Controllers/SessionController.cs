@@ -138,6 +138,35 @@ public class SessionController : ControllerBase
         return null;
     }
     
+    //get sessions by location
+    [HttpGet("location")]
+    [Authorize]
+    public async Task<List<SessionDTO>?> GetSessionsByLocationWithDates(
+        [FromQuery] long locationId, 
+        [FromQuery] string startDate, 
+        [FromQuery] string endDate
+    )
+    {
+        var user = await GetLoggedInUser();
+        
+        var location = await _locationService.GetLocationById(locationId);
+        
+        DateTime startDateParsed = DateTime.MinValue;
+        DateTime endDateParsed = DateTime.MinValue;
+        DateTime.TryParse(startDate, out startDateParsed);
+        DateTime.TryParse(endDate, out endDateParsed);
+        
+        if (user != null && location != null && startDateParsed != DateTime.MinValue && endDateParsed != DateTime.MinValue)
+        {
+            startDateParsed = DateTime.SpecifyKind(startDateParsed, DateTimeKind.Utc);
+            endDateParsed = DateTime.SpecifyKind(endDateParsed, DateTimeKind.Utc);
+            var query = async () => await _sessionService.GetSessionsByLocation(location, startDateParsed, endDateParsed);
+            var result = await _userDPS.Filter(user, query);
+            return result.ToList();
+        }
+        return null;
+    }
+    
 
     [HttpPost]
     [Authorize]
