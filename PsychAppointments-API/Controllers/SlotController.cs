@@ -13,18 +13,21 @@ public class SlotController : ControllerBase
     private readonly ISlotService _slotService;
     private readonly IUserService _userService;
     private readonly IPsychologistService _psychologistService;
+    private readonly ILocationService _locationService;
     private IDataProtectionService<User> _userDPS;
 
     public SlotController(
         ISlotService slotService, 
         IUserService userService,
         IPsychologistService psychologistService,
+        ILocationService locationService,
         IDataProtectionService<User> userDPS
         )
     {
         _slotService = slotService;
         _userService = userService;
         _psychologistService = psychologistService;
+        _locationService = locationService;
         _userDPS = userDPS;
     }
 
@@ -45,6 +48,36 @@ public class SlotController : ControllerBase
             return BadRequest("Something went wrong.");
         }
         return Unauthorized("User could not be retrieved.");
+    }
+    
+    [HttpGet("psychologist/location")]
+    [Authorize]
+    public async Task<List<SlotDTO>?> GetSlotsByPsychologistAndLocationWithDates(
+        [FromQuery] long psychologistId,
+        [FromQuery] long locationId, 
+        [FromQuery] string startDate, 
+        [FromQuery] string endDate
+    )
+    {
+        var user = await GetLoggedInUser();
+        var psychologist = await _psychologistService.GetPsychologistById(psychologistId);
+        
+        var location = await _locationService.GetLocationById(locationId);
+        
+        DateTime startDateParsed = DateTime.MinValue;
+        DateTime endDateParsed = DateTime.MinValue;
+        DateTime.TryParse(startDate, out startDateParsed);
+        DateTime.TryParse(endDate, out endDateParsed);
+        
+        if (user != null && psychologist != null && location != null && startDateParsed != DateTime.MinValue && endDateParsed != DateTime.MinValue)
+        {
+            startDateParsed = DateTime.SpecifyKind(startDateParsed, DateTimeKind.Utc);
+            endDateParsed = DateTime.SpecifyKind(endDateParsed, DateTimeKind.Utc);
+            var query = async () => await _slotService.GetSlotsByPsychologistLocationAndDates(psychologist, location, startDateParsed, endDateParsed);
+            var result = await _userDPS.Filter(user, query);
+            return result.ToList();
+        }
+        return null;
     }
 
     [HttpGet]
@@ -75,7 +108,7 @@ public class SlotController : ControllerBase
         return null;
     }
     
-    [HttpGet("psychologist/slots/{id}")]
+    [HttpGet("psychologist/{id}")]
     [Authorize]
     public async Task<List<SlotDTO>?> GetSlotsByPsychologist(long id)
     {
@@ -91,9 +124,9 @@ public class SlotController : ControllerBase
         return null;
     }
     
-    [HttpGet("psychologist/slots/date")]
+    [HttpGet("psychologist/{id}/date")]
     [Authorize]
-    public async Task<List<SlotDTO>?> GetSlotsByPsychologistWithDates([FromQuery] long id, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    public async Task<List<SlotDTO>?> GetSlotsByPsychologistWithDates([FromRoute] long id, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
         var user = await GetLoggedInUser();
         var psychologist = await _psychologistService.GetPsychologistById(id);
