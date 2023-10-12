@@ -82,7 +82,7 @@ public class DataProtectionService : IDataProtectionService<User>
         };
     }
 
-    public async Task<IEnumerable<SessionDTO>> Filter(User user, Func<Task<IEnumerable<Session>>> query)
+    public async Task<IEnumerable<SessionDTO>> Filter(User user, Func<Task<IEnumerable<Session>>>? query)
     {
         return user.Type switch
         {
