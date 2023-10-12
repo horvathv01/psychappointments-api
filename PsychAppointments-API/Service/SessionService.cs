@@ -144,14 +144,25 @@ public class SessionService : ISessionService
     {
         if (startOfRange == null || endOfRange == null)
         {
+            
             return await _context.Sessions
                 .Where(ses => ses.Location.Equals(location))
+                .Include(ses => ses.Psychologist)
+                .Include(ses => ses.PartnerPsychologist)
+                .Include(ses => ses.Location)
+                .Include(ses => ses.Slot)
+                .Include(ses => ses.Client)
                 .ToListAsync();
         }
-
+        
         return await _context.Sessions
-            .Where(ses => ses.Location.Equals(location) && ses.Start >= startOfRange &&
-                          ses.End <= endOfRange)
+            .Where(ses => ses.Location.Equals(location) && ses.Date >= startOfRange &&
+                          ses.Date <= endOfRange)
+            .Include(ses => ses.Psychologist)
+            .Include(ses => ses.PartnerPsychologist)
+            .Include(ses => ses.Location)
+            .Include(ses => ses.Slot)
+            .Include(ses => ses.Client)
             .ToListAsync();
     }
 
@@ -170,8 +181,8 @@ public class SessionService : ISessionService
         }
         
         return await _context.Sessions
-            .Where(ses => ses.Psychologist.Equals(psychologist) && ses.Start >= startOfRange &&
-                          ses.End <= endOfRange)
+            .Where(ses => ses.Psychologist.Equals(psychologist) && ses.Date >= startOfRange &&
+                          ses.Date <= endOfRange)
             .Include(ses => ses.Psychologist)
             .Include(ses => ses.PartnerPsychologist)
             .Include(ses => ses.Location)
@@ -195,8 +206,8 @@ public class SessionService : ISessionService
         }
         
         return await _context.Sessions
-            .Where(ses => ses.Location.Equals(location) &&  ses.Psychologist.Equals(psychologist) && ses.Start >= startOfRange &&
-                         ses.End <= endOfRange)
+            .Where(ses => ses.Location.Equals(location) &&  ses.Psychologist.Equals(psychologist) && ses.Date >= startOfRange &&
+                         ses.Date <= endOfRange)
             .Include(ses => ses.Psychologist)
             .Include(ses => ses.PartnerPsychologist)
             .Include(ses => ses.Location)

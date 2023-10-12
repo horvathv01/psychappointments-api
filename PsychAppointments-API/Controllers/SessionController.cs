@@ -156,15 +156,18 @@ public class SessionController : ControllerBase
         DateTime.TryParse(startDate, out startDateParsed);
         DateTime.TryParse(endDate, out endDateParsed);
         
+        
+        
         if (user != null && location != null && startDateParsed != DateTime.MinValue && endDateParsed != DateTime.MinValue)
         {
             startDateParsed = DateTime.SpecifyKind(startDateParsed, DateTimeKind.Utc);
             endDateParsed = DateTime.SpecifyKind(endDateParsed, DateTimeKind.Utc);
             var query = async () => await _sessionService.GetSessionsByLocation(location, startDateParsed, endDateParsed);
             var result = await _userDPS.Filter(user, query);
+            
             return result.ToList();
         }
-        return null;
+        return new List<SessionDTO>();
     }
     
 

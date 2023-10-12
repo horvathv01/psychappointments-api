@@ -58,7 +58,7 @@ public class SessionDTO
         Date = session.Date;
         Start = session.Start;
         End = session.End;
-        ClientId = session.Client.Id;
+        ClientId = session.Client != null ? session.Client.Id : null;
         Price = session.Price;
         Frequency = session.Frequency.ToString();
         SlotId = session.Slot.Id;
