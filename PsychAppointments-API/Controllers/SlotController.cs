@@ -79,6 +79,33 @@ public class SlotController : ControllerBase
         }
         return null;
     }
+    
+    [HttpGet("psychologist")]
+    [Authorize]
+    public async Task<List<SlotDTO>?> GetSlotsByPsychologistWithDates(
+        [FromQuery] long psychologistId,
+        [FromQuery] string startDate, 
+        [FromQuery] string endDate
+    )
+    {
+        var user = await GetLoggedInUser();
+        var psychologist = await _psychologistService.GetPsychologistById(psychologistId);
+        
+        DateTime startDateParsed = DateTime.MinValue;
+        DateTime endDateParsed = DateTime.MinValue;
+        DateTime.TryParse(startDate, out startDateParsed);
+        DateTime.TryParse(endDate, out endDateParsed);
+        
+        if (user != null && psychologist != null && startDateParsed != DateTime.MinValue && endDateParsed != DateTime.MinValue)
+        {
+            startDateParsed = DateTime.SpecifyKind(startDateParsed, DateTimeKind.Utc);
+            endDateParsed = DateTime.SpecifyKind(endDateParsed, DateTimeKind.Utc);
+            var query = async () => await _slotService.GetSlotsByPsychologistAndDates(psychologist, startDateParsed, endDateParsed);
+            var result = await _userDPS.Filter(user, query);
+            return result.ToList();
+        }
+        return null;
+    }
 
     [HttpGet]
     [Authorize]

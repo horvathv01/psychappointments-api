@@ -105,9 +105,27 @@ public class SessionService : ISessionService
             .FirstOrDefaultAsync(ses => ses.Id == id);
     }
 
-    public async Task<List<Session>> GetAllSessions()
+    public async Task<IEnumerable<Session>> GetAllSessions()
     {
-        return await _context.Sessions.ToListAsync();
+        return await _context.Sessions
+            .Include(ses => ses.Psychologist)
+            .Include(ses => ses.PartnerPsychologist)
+            .Include(ses => ses.Location)
+            .Include(ses => ses.Slot)
+            .Include(ses => ses.Client)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Session>> GetNonBlankSessions()
+    {
+        return await _context.Sessions
+            .Include(ses => ses.Psychologist)
+            .Include(ses => ses.PartnerPsychologist)
+            .Include(ses => ses.Location)
+            .Include(ses => ses.Slot)
+            .Include(ses => ses.Client)
+            .Where(ses => !ses.Blank)
+            .ToListAsync();
     }
 
     public async Task<List<Session>> GetListOfSessions(List<long> ids)
@@ -122,26 +140,80 @@ public class SessionService : ISessionService
             .ToListAsync();
     }
 
-    public async Task<List<Session>> GetSessionsByLocation(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    public async Task<IEnumerable<Session>> GetSessionsByLocation(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    {
+        if (startOfRange == null || endOfRange == null)
+        {
+            
+            return await _context.Sessions
+                .Where(ses => ses.Location.Equals(location))
+                .Include(ses => ses.Psychologist)
+                .Include(ses => ses.PartnerPsychologist)
+                .Include(ses => ses.Location)
+                .Include(ses => ses.Slot)
+                .Include(ses => ses.Client)
+                .ToListAsync();
+        }
+        
+        return await _context.Sessions
+            .Where(ses => ses.Location.Equals(location) && ses.Date >= startOfRange &&
+                          ses.Date <= endOfRange)
+            .Include(ses => ses.Psychologist)
+            .Include(ses => ses.PartnerPsychologist)
+            .Include(ses => ses.Location)
+            .Include(ses => ses.Slot)
+            .Include(ses => ses.Client)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Session>> GetSessionsByPsychologist(Psychologist psychologist, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
         if (startOfRange == null || endOfRange == null)
         {
             return await _context.Sessions
-                .Where(ses => ses.Location.Equals(location))
+                .Where(ses => ses.Psychologist.Equals(psychologist))
+                .Include(ses => ses.Psychologist)
+                .Include(ses => ses.PartnerPsychologist)
+                .Include(ses => ses.Location)
+                .Include(ses => ses.Slot)
+                .Include(ses => ses.Client)
                 .ToListAsync();
         }
+        
         return await _context.Sessions
-            .Where(ses => ses.Location.Equals(location) && ses.Start >= startOfRange &&
-                         ses.End <= endOfRange)
+            .Where(ses => ses.Psychologist.Equals(psychologist) && ses.Date >= startOfRange &&
+                          ses.Date <= endOfRange)
+            .Include(ses => ses.Psychologist)
+            .Include(ses => ses.PartnerPsychologist)
+            .Include(ses => ses.Location)
+            .Include(ses => ses.Slot)
+            .Include(ses => ses.Client)
             .ToListAsync();
     }
-
-    public List<Session> GetSessionsByPsychologist(Psychologist psychologist, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    
+    public async Task<IEnumerable<Session>> GetSessionsByPsychologistLocationAndDates(Psychologist psychologist, Location location, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
-        return psychologist.Sessions.Where(ses =>
-        ses.Start >= startOfRange
-        && ses.End <= endOfRange
-        ).ToList();
+        if (startOfRange == null || endOfRange == null)
+        {
+            return await _context.Sessions
+                .Where(ses => ses.Location.Equals(location) &&  ses.Psychologist.Equals(psychologist))
+                .Include(ses => ses.Psychologist)
+                .Include(ses => ses.PartnerPsychologist)
+                .Include(ses => ses.Location)
+                .Include(ses => ses.Slot)
+                .Include(ses => ses.Client)
+                .ToListAsync();
+        }
+        
+        return await _context.Sessions
+            .Where(ses => ses.Location.Equals(location) &&  ses.Psychologist.Equals(psychologist) && ses.Date >= startOfRange &&
+                         ses.Date <= endOfRange)
+            .Include(ses => ses.Psychologist)
+            .Include(ses => ses.PartnerPsychologist)
+            .Include(ses => ses.Location)
+            .Include(ses => ses.Slot)
+            .Include(ses => ses.Client)
+            .ToListAsync();
     }
 
     public List<Session> GetSessionsByClient(Client client, DateTime? startOfRange = null, DateTime? endOfRange = null)
