@@ -291,13 +291,16 @@ public class SlotService : ISlotService
             sessionCount += 1;
         }
 
-        DateTime start = slot.SlotStart;
-        DateTime.SpecifyKind(start, DateTimeKind.Utc);
-        long sessionId = await _context.Sessions.CountAsync() + 1;
+        DateTime start = new DateTime(slot.Date.Year, slot.Date.Month, slot.Date.Day, slot.SlotStart.Hour, slot.SlotStart.Minute, slot.SlotStart.Second);
+        Console.WriteLine("This is start");
+        
+        start = DateTime.SpecifyKind(start, DateTimeKind.Utc);
+        
+        //long sessionId = await _context.Sessions.CountAsync() + 1;
         for (int i = 0; i < sessionCount; i++)
         {
             DateTime end = start.AddMinutes(slot.SessionLength);
-            DateTime.SpecifyKind(end, DateTimeKind.Utc);
+            end = DateTime.SpecifyKind(end, DateTimeKind.Utc);
             SessionFrequency frequency;
             if (slot.Weekly)
             {
@@ -307,10 +310,12 @@ public class SlotService : ISlotService
             {
                 frequency = SessionFrequency.None;
             }
-            Session ses = new Session(slot.Psychologist, slot.Location, slot.Date, start, end, slot, 0, true, "", frequency, null, null, sessionId);
-            sessionId += 1;
-            start = end.AddMinutes(slot.SessionLength + slot.Rest);
+            Session ses = new Session(slot.Psychologist, slot.Location, slot.Date, start, end, slot, 0, true, "", frequency, null, null);
+            //sessionId += 1;
+            //start = end.AddMinutes(slot.SessionLength + slot.Rest);
             sessions.Add(ses);
+            start = end.AddMinutes(slot.Rest);
+            
         }
         
         slot.Sessions.AddRange(sessions);
