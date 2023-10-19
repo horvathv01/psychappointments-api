@@ -38,7 +38,7 @@ public class SlotController : ControllerBase
         var user = await GetLoggedInUser();
         if (user != null)
         {
-            var query = async () => await _slotService.AddSlot(slot);
+            var query = async () => await _slotService.AddSlot(slot, true);
             var result = await query();
             if (result)
             {
