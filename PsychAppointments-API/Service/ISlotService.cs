@@ -4,7 +4,7 @@ namespace PsychAppointments_API.Service;
 
 public interface ISlotService
 {
-    Task<bool> AddSlot(SlotDTO slot);
+    Task<bool> AddSlot(SlotDTO slot, bool prepopulate);
     
     Task<Slot?> GetSlotById(long id);
     Task<IEnumerable<Slot>> GetAllSlots();

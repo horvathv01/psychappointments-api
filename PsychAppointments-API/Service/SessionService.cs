@@ -41,28 +41,63 @@ public class SessionService : ISessionService
             if (Overlap(session, new SessionDTO(sameDaysSession))) return false;
         }
         
-        if (session.PsychologistId == null || session.LocationId == null || session.SlotId == null)
+        if (session.PsychologistId == null || session.LocationId == null)
         {
             Console.WriteLine($"Psychologist id, location id and slot id in a sessionDTO are required for creating a session.");
             return false;
         }
-
+        
         try
         {
             var psychologist = (Psychologist?)await _userService.GetUserById((long)session.PsychologistId);
             var location = await _locationService.GetLocationById((long)session.LocationId);
-            var slot = await _slotService.GetSlotById((long)session.SlotId);
+            
+            if (psychologist == null || location == null)
+            {
+                Console.WriteLine($"Psychologist or location not found when trying to add a session.");
+                return false;
+            }
+            
+            session.Date = DateTime.SpecifyKind(session.Date, DateTimeKind.Utc);
+            session.Start = DateTime.SpecifyKind(session.Start, DateTimeKind.Utc);
+            session.End = DateTime.SpecifyKind(session.End, DateTimeKind.Utc);
+            
+            //if slot id is not provided, we create a slot just for this session
+            if (session.SlotId == null)
+            {
+                //create new slot && calculate slot length
+                int slotLength = (int)(session.End - session.Start).TotalMinutes;
+                var newSlot = new SlotDTO(psychologist, location, session.Date, session.Start, session.End, slotLength, 0);
+                //add new slot to DB
+                await _slotService.AddSlot(newSlot, false);
+            }
+
+            Slot? slot;
+            if (session.SlotId == null)
+            {
+                //gets slot that we just added by start&end
+                slot = (await _slotService.GetSlotsByPsychologistLocationAndDates(psychologist,
+                    location, session.Start, session.End)).FirstOrDefault();
+            }
+            else
+            {
+                slot = await _slotService.GetSlotById((long)session.SlotId);
+            }
+            
+            //if slot is null, something went wrong --> should be handled
+            if (slot == null)
+            {
+                Console.WriteLine($"Slot not found when trying to add a session.");
+                return false;
+            }
+            
             Psychologist? partnerPsychologist = session.PsychologistId == null
                 ? null
                 : (Psychologist?)await _userService.GetUserById((long)session.PsychologistId);
             
             int price = session.Price ?? 0;
-            
-            if (psychologist == null || location == null || slot == null)
-            {
-                Console.WriteLine($"Psychologist, location or slot not found when trying to update a session.");
-                return false;
-            }
+
+
             
             SessionFrequency frequency = SessionFrequency.None; 
             Enum.TryParse(session.Frequency, out frequency);
@@ -76,9 +111,6 @@ public class SessionService : ISessionService
             {
                 session.Blank = true;
             }
-            session.Date = DateTime.SpecifyKind(session.Date, DateTimeKind.Utc);
-            session.Start = DateTime.SpecifyKind(session.Start, DateTimeKind.Utc);
-            session.End = DateTime.SpecifyKind(session.End, DateTimeKind.Utc);
 
             Session newSession = new Session(psychologist, location, session.Date, session.Start, session.End, slot, price, session.Blank,session.Description, frequency, client, partnerPsychologist, id);
             

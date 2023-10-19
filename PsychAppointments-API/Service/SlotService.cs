@@ -23,7 +23,7 @@ public class SlotService : ISlotService
     }
     
     
-    public async Task<bool> AddSlot(SlotDTO slot)
+    public async Task<bool> AddSlot(SlotDTO slot, bool prepopulate)
     {
         long id = await _context.Slots.CountAsync() + 1;
         slot.Id = id;
@@ -54,8 +54,11 @@ public class SlotService : ISlotService
             
             //new slots are prepopulated with empty sessions. 
             //newSlot.Sessions = await PrepopulateSlotWithBlankSessions(newSlot);
-            
-            await PrepopulateSlotWithBlankSessions(newSlot);
+
+            if (prepopulate)
+            {
+                await PrepopulateSlotWithBlankSessions(newSlot);    
+            }
             await _context.Slots.AddAsync(newSlot);
             await _context.SaveChangesAsync();
             return true;

@@ -525,8 +525,8 @@ public class Prepopulate : IPrepopulate
         await _userService.AddUser(new UserDTO(manager3));
         await _userService.AddUser(new UserDTO(client3));
         await _userService.AddUser(new UserDTO(client4));
-        await _slotService.AddSlot(new SlotDTO(slot3));
-        await _slotService.AddSlot(new SlotDTO(slot4));
+        await _slotService.AddSlot(new SlotDTO(slot3), true);
+        await _slotService.AddSlot(new SlotDTO(slot4), true);
         await _sessionService.AddSession(new SessionDTO(session3));
         await _sessionService.AddSession(new SessionDTO(session4));
     }
@@ -603,7 +603,7 @@ public class Prepopulate : IPrepopulate
         await _userService.AddUser(new UserDTO(manager2));
         await _userService.AddUser(new UserDTO(client2));
         await _locationService.AddLocation(new LocationDTO(location2));
-        await _slotService.AddSlot(new SlotDTO(slot2));
+        await _slotService.AddSlot(new SlotDTO(slot2), true);
         await _sessionService.AddSession(new SessionDTO(session2));
     }
 
