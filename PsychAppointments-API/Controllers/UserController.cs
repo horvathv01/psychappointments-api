@@ -49,11 +49,17 @@ public class UserController : ControllerBase
         return null;
     }
 
-    [HttpGet("test/{id}")]
-    public async Task<UserDTO> GetUserTest(long id)
+    [HttpGet("email/{email}")]
+    [Authorize]
+    public async Task<UserDTO?> GetUserByEmail(string email)
     {
-        var user = await _userService.GetUserById(id);
-        return new UserDTO(user);
+        var user = await GetLoggedInUser();
+        if (user != null)
+        {
+            var query = async () => await _userService.GetUserByEmail(email);
+            return await _userDPS.Filter(user, query);    
+        }
+        return null;
     }
 
     [HttpGet("allmanagers")]
@@ -109,6 +115,36 @@ public class UserController : ControllerBase
         {
             Console.WriteLine($"{user.Type} {user.Name} accessed GetAllPsychologists.");
             var query = async () => await _userService.GetAllPsychologists();
+            var allPsychologists = await _userDPS.Filter(user, query);
+            return allPsychologists.ToList();
+        }
+        return null;
+    }
+
+    [HttpGet("allclients")]
+    [Authorize]
+    public async Task<List<UserDTO>?> GetAllClients()
+    {
+        var user = await GetLoggedInUser();
+        if (user != null)
+        {
+            Console.WriteLine($"{user.Type} {user.Name} accessed GetAllClients.");
+            var query = async () => await _userService.GetAllClients();
+            var allPsychologists = await _userDPS.Filter(user, query);
+            return allPsychologists.ToList();
+        }
+        return null;
+    }
+    
+    [HttpGet("clients/location/{id}")]
+    [Authorize]
+    public async Task<List<UserDTO>?> GetClientsByLocation(long id)
+    {
+        var user = await GetLoggedInUser();
+        if (user != null)
+        {
+            Console.WriteLine($"{user.Type} {user.Name} accessed Clients by Location id {id}.");
+            var query = async () => await _userService.GetClientsByLocation(id);
             var allPsychologists = await _userDPS.Filter(user, query);
             return allPsychologists.ToList();
         }
