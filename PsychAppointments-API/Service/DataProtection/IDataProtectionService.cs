@@ -82,7 +82,7 @@ public interface IDataProtectionService<T>
     /// <param name="user">The user who is the basis of the association check, filtering is based on user.Type.</param>
     /// <param name="query">Function call of service class that returns query results with data from DB (async).</param>
     /// <returns>UserDTO, containing filtered information.</returns>
-    Task<UserDTO> Filter(T user, Func<Task<User>> query);
+    Task<UserDTO> Filter(T user, Func<Task<User?>> query);
 
     /// <summary>
     /// Helper method to filter out data from provided session based on user's type and identity.
