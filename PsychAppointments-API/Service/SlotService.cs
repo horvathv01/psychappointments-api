@@ -25,8 +25,8 @@ public class SlotService : ISlotService
     
     public async Task<bool> AddSlot(SlotDTO slot, bool prepopulate)
     {
-        long id = await _context.Slots.CountAsync() + 1;
-        slot.Id = id;
+        //long id = await _context.Slots.CountAsync() + 1;
+        //slot.Id = id;
 
         //find slots from same day, location and psychologist to avoid overlaps
         var sameDaysSlots = await _context.Slots
@@ -48,9 +48,11 @@ public class SlotService : ISlotService
                 return false;
             }
             slot.Date = DateTime.SpecifyKind(slot.Date, DateTimeKind.Utc);
-            slot.SlotStart = DateTime.SpecifyKind(slot.SlotStart, DateTimeKind.Utc);
-            slot.SlotEnd = DateTime.SpecifyKind(slot.SlotEnd, DateTimeKind.Utc);
-            Slot newSlot = new Slot(psychologist, location, slot.Date, slot.SlotStart, slot.SlotEnd, slot.SessionLength, slot.Rest, slot.Weekly, new List<Session>(), id);
+            DateTime start = new DateTime(slot.Date.Year, slot.Date.Month, slot.Date.Day, slot.SlotStart.Hour, slot.SlotStart.Minute, slot.SlotStart.Second);
+            DateTime end =  new DateTime(slot.Date.Year, slot.Date.Month, slot.Date.Day, slot.SlotEnd.Hour, slot.SlotEnd.Minute, slot.SlotEnd.Second);
+            slot.SlotStart = DateTime.SpecifyKind(start, DateTimeKind.Utc);
+            slot.SlotEnd = DateTime.SpecifyKind(end, DateTimeKind.Utc);
+            Slot newSlot = new Slot(psychologist, location, slot.Date, slot.SlotStart, slot.SlotEnd, slot.SessionLength, slot.Rest, slot.Weekly, new List<Session>());
             
             //new slots are prepopulated with empty sessions. 
             //newSlot.Sessions = await PrepopulateSlotWithBlankSessions(newSlot);
@@ -212,11 +214,15 @@ public class SlotService : ISlotService
                 ? new List<Session>()
                 : await _context.Sessions.Where(ses => slot.SessionIds.Contains(ses.Id)).ToListAsync();
             
+
+            
             original.Psychologist = psychologist;
             original.Location = location;
             original.Date = DateTime.SpecifyKind(slot.Date, DateTimeKind.Utc);
-            original.SlotStart = DateTime.SpecifyKind(slot.SlotStart, DateTimeKind.Utc);
-            original.SlotEnd = DateTime.SpecifyKind(slot.SlotEnd, DateTimeKind.Utc);
+            DateTime start = new DateTime(slot.Date.Year, slot.Date.Month, slot.Date.Day, slot.SlotStart.Hour, slot.SlotStart.Minute, slot.SlotStart.Second);
+            DateTime end =  new DateTime(slot.Date.Year, slot.Date.Month, slot.Date.Day, slot.SlotEnd.Hour, slot.SlotEnd.Minute, slot.SlotEnd.Second);
+            slot.SlotStart = DateTime.SpecifyKind(start, DateTimeKind.Utc);
+            slot.SlotEnd = DateTime.SpecifyKind(end, DateTimeKind.Utc);
             original.SessionLength = slot.SessionLength;
             original.Rest = slot.Rest;
             original.Weekly = slot.Weekly;

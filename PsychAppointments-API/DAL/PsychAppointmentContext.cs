@@ -24,6 +24,10 @@ public class PsychAppointmentContext : DbContext
         modelBuilder.Entity<Address>()
             .HasKey(a => a.Id);
         
+        modelBuilder.Entity<Address>()
+            .Property(address => address.Id)
+            .UseIdentityColumn(); 
+        
         modelBuilder.Entity<User>()
             .HasOne(us => us.RegisteredBy)
             .WithMany()
@@ -33,6 +37,10 @@ public class PsychAppointmentContext : DbContext
             .HasOne(us => us.Address)
             .WithMany()
             .HasForeignKey(us => us.AddressId);
+        
+        modelBuilder.Entity<User>()
+            .Property(user => user.Id)
+            .UseIdentityColumn(); 
         
         modelBuilder.Entity<Psychologist>()
             .HasMany(psy => psy.Clients)
@@ -50,6 +58,10 @@ public class PsychAppointmentContext : DbContext
             .WithOne(slot => slot.Psychologist)
             .HasForeignKey(slot => slot.Id)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Psychologist>()
+            .Property(psy => psy.Id)
+            .UseIdentityColumn(); 
 
         modelBuilder.Entity<Client>()
             .HasMany<Psychologist>(cli => cli.Psychologists)
@@ -61,6 +73,10 @@ public class PsychAppointmentContext : DbContext
             .WithOne(ses => ses.Client)
             .HasForeignKey(ses => ses.Id)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Client>()
+            .Property(cli => cli.Id)
+            .UseIdentityColumn(); 
 
         modelBuilder.Entity<Location>()
             .HasMany(loc => loc.Psychologists)
@@ -77,10 +93,18 @@ public class PsychAppointmentContext : DbContext
             .WithMany()
             .HasForeignKey(loc => loc.AddressId);
         
+        modelBuilder.Entity<Location>()
+            .Property(loc => loc.Id)
+            .UseIdentityColumn(); 
+        
         modelBuilder.Entity<Manager>()
             .HasMany(man => man.Locations)
             .WithMany(loc => loc.Managers)
             .UsingEntity(join => join.ToTable("LocationManagers")); //same as location-manager relations
+        
+        modelBuilder.Entity<Manager>()
+            .Property(man => man.Id)
+            .UseIdentityColumn(); 
 
         modelBuilder.Entity<Session>()
             .HasOne(ses => ses.Location)
@@ -109,6 +133,10 @@ public class PsychAppointmentContext : DbContext
             .WithMany(slot => slot.Sessions)
             .HasForeignKey(ses => ses.SlotId);
         
+        modelBuilder.Entity<Session>()
+            .Property(ses => ses.Id)
+            .UseIdentityColumn(); 
+        
         modelBuilder.Entity<Slot>()
             .HasOne(slot => slot.Psychologist)
             .WithMany(psy => psy.Slots)
@@ -126,6 +154,10 @@ public class PsychAppointmentContext : DbContext
             .WithOne(ses => ses.Slot)
             .HasForeignKey(slot => slot.SlotId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Slot>()
+            .Property(slot => slot.Id)
+            .UseIdentityColumn(); 
         
     }
 }
