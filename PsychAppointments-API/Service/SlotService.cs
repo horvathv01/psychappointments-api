@@ -137,7 +137,7 @@ public class SlotService : ISlotService
         
         return await _context.Slots
             .Where(sl => sl.Location.Equals(location) &&  sl.Psychologist.Equals(psychologist) && sl.SlotStart >= startOfRange &&
-                         sl.SlotEnd <= endOfRange)
+                         sl.SlotEnd.AddDays(-1) <= endOfRange)
             .Include(sl => sl.Sessions)
             .ToListAsync();
         

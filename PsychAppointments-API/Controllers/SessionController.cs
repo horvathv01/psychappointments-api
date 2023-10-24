@@ -178,6 +178,7 @@ public class SessionController : ControllerBase
         var user = await GetLoggedInUser();
         if (user != null)
         {
+            
             var query = async () => await _sessionService.AddSession(session);
             var result = await query();
             if (result)

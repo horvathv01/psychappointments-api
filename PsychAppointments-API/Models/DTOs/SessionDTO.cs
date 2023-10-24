@@ -64,6 +64,11 @@ public class SessionDTO
         SlotId = session.Slot.Id;
         Description = session.Description;
     }
+
+    public SessionDTO()
+    {
+        
+    }
     
     public override string ToString()
     {

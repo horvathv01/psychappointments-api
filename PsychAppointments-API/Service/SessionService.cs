@@ -27,8 +27,14 @@ public class SessionService : ISessionService
     
     public async Task<bool> AddSession(SessionDTO session)
     {
-        long id = await _context.Slots.CountAsync() + 1;
-        session.Id = id;
+        //long id = await _context.Slots.CountAsync() + 1;
+        //session.Id = id;
+        session.Date = DateTime.SpecifyKind(session.Date, DateTimeKind.Utc);
+        session.Start = new DateTime(session.Date.Year, session.Date.Month, session.Date.Day, session.Start.Hour, session.Start.Minute, session.Start.Second);
+        session.End = new DateTime(session.Date.Year, session.Date.Month, session.Date.Day, session.End.Hour, session.End.Minute, session.End.Second);
+        
+        session.Start = DateTime.SpecifyKind(session.Start, DateTimeKind.Utc);
+        session.End = DateTime.SpecifyKind(session.End, DateTimeKind.Utc);
 
         //find slots from same day, location and psychologist to avoid overlaps
         var sameDaysSessions = await _context.Sessions
@@ -58,16 +64,12 @@ public class SessionService : ISessionService
                 return false;
             }
             
-            session.Date = DateTime.SpecifyKind(session.Date, DateTimeKind.Utc);
-            session.Start = DateTime.SpecifyKind(session.Start, DateTimeKind.Utc);
-            session.End = DateTime.SpecifyKind(session.End, DateTimeKind.Utc);
-            
             //if slot id is not provided, we create a slot just for this session
             if (session.SlotId == null)
             {
                 //create new slot && calculate slot length
                 int slotLength = (int)(session.End - session.Start).TotalMinutes;
-                var newSlot = new SlotDTO(psychologist, location, session.Date, session.Start, session.End, slotLength, 0);
+                var newSlot = new SlotDTO(psychologist, location, session.Date, session.Start, session.End, slotLength, 0, false, new List<Session>());
                 //add new slot to DB
                 await _slotService.AddSlot(newSlot, false);
             }
@@ -112,7 +114,7 @@ public class SessionService : ISessionService
                 session.Blank = true;
             }
 
-            Session newSession = new Session(psychologist, location, session.Date, session.Start, session.End, slot, price, session.Blank,session.Description, frequency, client, partnerPsychologist, id);
+            Session newSession = new Session(psychologist, location, session.Date, session.Start, session.End, slot, price, session.Blank,session.Description, frequency, client, partnerPsychologist);
             
             await _context.Sessions.AddAsync(newSession);
             await _context.SaveChangesAsync();
