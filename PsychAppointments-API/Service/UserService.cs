@@ -305,8 +305,7 @@ public class UserService : IUserService
         return clients.Cast<User>()
             .Union(psychologists)
             .Union(managers)
-            .Union(admins)
-            .ToList();
+            .Union(admins);
     }
 
     public async Task<IEnumerable<User>> GetManagersByLocation(long id)

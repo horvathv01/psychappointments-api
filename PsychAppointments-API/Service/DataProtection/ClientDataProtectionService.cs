@@ -108,6 +108,7 @@ public class ClientDataProtectionService : IDataProtectionService<Client>
         //hide if NOT related:
         //Client
         result.ClientId = null;
+        result.ClientName = "";
         //Description
         result.Description = "";
         //Price

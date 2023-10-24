@@ -160,7 +160,9 @@ public class PsychologistDataProtectionService : IDataProtectionService<Psycholo
         //hide if not related:
         //return bare minimum
         result.PartnerPsychologistId = null;
+        result.PartnerPsychologistName = "";
         result.ClientId = null;
+        result.ClientName = "";
         result.Price = null;
         result.Frequency = "";
         result.SlotId = null;
