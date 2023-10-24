@@ -141,6 +141,7 @@ public class ManagerDataProtectionService : IDataProtectionService<Manager>
             //hide in BOTH cases:
             //client IF not registered by user
             result.ClientId = session.Client.RegisteredBy.Equals(user) ? session.Client.Id : 0;
+            result.ClientName = "";
             //psychologist's Sessions and Slots that are at other location
             
             return result;
