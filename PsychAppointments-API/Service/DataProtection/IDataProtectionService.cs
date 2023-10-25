@@ -48,7 +48,7 @@ public interface IDataProtectionService<T>
     /// <param name="user">The user who is the basis of the association check, filtering is based on user.Type.</param>
     /// <param name="query">Function call of service class that returns query results with data from DB (async).</param>
     /// <returns>SessionDTO, containing filtered information.</returns>
-    Task<SessionDTO> Filter(T user, Func<Task<Session>> query);
+    Task<SessionDTO> Filter(T user, Func<Task<Session?>> query);
 
     
     /// <summary>

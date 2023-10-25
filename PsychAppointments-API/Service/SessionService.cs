@@ -190,8 +190,8 @@ public class SessionService : ISessionService
         }
         
         return await _context.Sessions
-            .Where(ses => ses.Location.Equals(location) && ses.Date >= startOfRange &&
-                          ses.Date <= endOfRange)
+            .Where(ses => ses.Location.Equals(location) && ses.Start >= startOfRange &&
+                          ses.End.AddDays(-1) <= endOfRange)
             .Include(ses => ses.Psychologist)
             .Include(ses => ses.PartnerPsychologist)
             .Include(ses => ses.Location)
@@ -215,8 +215,8 @@ public class SessionService : ISessionService
         }
         
         return await _context.Sessions
-            .Where(ses => ses.Psychologist.Equals(psychologist) && ses.Date >= startOfRange &&
-                          ses.Date <= endOfRange)
+            .Where(ses => ses.Psychologist.Equals(psychologist) && ses.Start >= startOfRange &&
+                          ses.End.AddDays(-1) <= endOfRange)
             .Include(ses => ses.Psychologist)
             .Include(ses => ses.PartnerPsychologist)
             .Include(ses => ses.Location)
@@ -240,8 +240,8 @@ public class SessionService : ISessionService
         }
         
         return await _context.Sessions
-            .Where(ses => ses.Location.Equals(location) &&  ses.Psychologist.Equals(psychologist) && ses.Date >= startOfRange &&
-                         ses.Date <= endOfRange)
+            .Where(ses => ses.Location.Equals(location) &&  ses.Psychologist.Equals(psychologist) && ses.Start >= startOfRange &&
+                          ses.End.AddDays(-1) <= endOfRange)
             .Include(ses => ses.Psychologist)
             .Include(ses => ses.PartnerPsychologist)
             .Include(ses => ses.Location)
@@ -250,12 +250,19 @@ public class SessionService : ISessionService
             .ToListAsync();
     }
 
-    public List<Session> GetSessionsByClient(Client client, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    public async Task<List<Session>> GetSessionsByClient(Client client, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
-        return client.Sessions.Where(ses =>
-            ses.Start >= startOfRange
-            && ses.End <= endOfRange
-        ).ToList();
+        if (startOfRange == null || endOfRange == null)
+        {
+            return await _context.Sessions
+                .Where(ses => ses.Client.Equals(client))
+                .ToListAsync();
+        }
+
+        return await _context.Sessions
+            .Where(ses => ses.Client.Equals(client) && ses.Start >= startOfRange &&
+                          ses.End.AddDays(-1) <= endOfRange)
+            .ToListAsync();
     }
 
     public async Task<List<Session>> GetSessionsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null)
@@ -269,7 +276,7 @@ public class SessionService : ISessionService
 
         return await _context.Sessions
             .Where(ses => ses.Location.Managers.Contains(manager) && ses.Start >= startOfRange &&
-                         ses.End <= endOfRange)
+                         ses.End.AddDays(-1) <= endOfRange)
             .ToListAsync();
     }
 
@@ -348,9 +355,11 @@ public class SessionService : ISessionService
             original.Blank = session.Blank;
             original.LocationId = location.Id;
             original.Location = location;
+            DateTime start = new DateTime(session.Date.Year, session.Date.Month, session.Date.Day, session.Start.Hour, session.Start.Minute, session.Start.Second);
+            DateTime end =  new DateTime(session.Date.Year, session.Date.Month, session.Date.Day, session.End.Hour, session.End.Minute, session.End.Second);
             original.Date = DateTime.SpecifyKind(session.Date, DateTimeKind.Utc);
-            original.Start = DateTime.SpecifyKind(session.Start, DateTimeKind.Utc);
-            original.End = DateTime.SpecifyKind(session.End, DateTimeKind.Utc);
+            original.Start = DateTime.SpecifyKind(start, DateTimeKind.Utc);
+            original.End = DateTime.SpecifyKind(end, DateTimeKind.Utc);
             original.ClientId = client?.Id ?? 0;
             original.Client = client;
             original.Price = price;

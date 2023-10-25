@@ -61,6 +61,21 @@ public class SessionController : ControllerBase
         }
         return null;
     }
+
+    [HttpGet("{id}")]
+    [Authorize]
+    public async Task<SessionDTO?> GetSessionById(long id)
+    {
+        var user = await GetLoggedInUser();
+
+        if (user != null)
+        {
+            var query = async () => await _sessionService.GetSessionById(id);
+            return await _userDPS.Filter(user, query);
+        }
+        return null;
+    } 
+    
     
     //get sessions by psychologist
     [HttpGet("psychologist/{id}")]
@@ -197,6 +212,9 @@ public class SessionController : ControllerBase
         var user = await GetLoggedInUser();
         if (user != null)
         {
+            //HEAVY security check needs to be done here!
+            //if user is not associated with session, don't let him change anything!
+            //also: price validation should be done in sessionService!
             var query = async () => await _sessionService.UpdateSession(id, newSession);
             var result = await query();
             if (result)
@@ -215,6 +233,7 @@ public class SessionController : ControllerBase
         var user = await GetLoggedInUser();
         if (user != null)
         {
+            //don't let anyone delete a session --> admin or session's psychologist and partner only!
             var query = async () => await _sessionService.DeleteSession(id);
             var result = await query();
             if (result)
