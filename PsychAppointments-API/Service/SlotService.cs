@@ -106,7 +106,7 @@ public class SlotService : ISlotService
         }
         return await _context.Slots
             .Where(sl => sl.Psychologist.Equals(psychologist) && sl.SlotStart >= startOfRange &&
-                         sl.SlotEnd <= endOfRange)
+                         sl.SlotEnd.AddDays(-1) <= endOfRange)
             .ToListAsync();
     }
 
@@ -120,7 +120,7 @@ public class SlotService : ISlotService
         }
         return await _context.Slots
             .Where(sl => sl.Location.Equals(location) && sl.SlotStart >= startOfRange &&
-                         sl.SlotEnd <= endOfRange)
+                         sl.SlotEnd.AddDays(-1) <= endOfRange)
             .ToListAsync();
         
     }
@@ -154,7 +154,7 @@ public class SlotService : ISlotService
 
         return await _context.Slots
             .Where(sl => sl.Location.Managers.Contains(manager) && sl.SlotStart >= startOfRange &&
-                         sl.SlotEnd <= endOfRange)
+                         sl.SlotEnd.AddDays(-1) <= endOfRange)
             .ToListAsync();
     }
 
