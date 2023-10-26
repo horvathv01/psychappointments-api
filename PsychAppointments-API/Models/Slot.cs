@@ -38,9 +38,9 @@ public class Slot
     {
         Psychologist = psychologist;
         Location = location;
-        Date = date;
-        SlotStart = slotStart;
-        SlotEnd = slotEnd;
+        Date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
+        SlotStart = DateTime.SpecifyKind(slotStart, DateTimeKind.Utc);
+        SlotEnd = DateTime.SpecifyKind(slotEnd, DateTimeKind.Utc);
         SessionLength = sessionLength;
         Rest = rest;
         Weekly = weekly;

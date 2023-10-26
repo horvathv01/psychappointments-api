@@ -31,6 +31,9 @@ public class SlotService : ISlotService
         //find slots from same day, location and psychologist to avoid overlaps
         var sameDaysSlots = await _context.Slots
             .Where(sl => sl.Date == slot.Date && sl.Location.Id == slot.LocationId && sl.Psychologist.Id == slot.PsychologistId)
+            .Include(sl => sl.Location)
+            .Include(sl => sl.Psychologist)
+            .Include(sl => sl.Sessions)
             .ToListAsync();
         
         foreach (var sameDaysSlot in sameDaysSlots)
@@ -75,94 +78,118 @@ public class SlotService : ISlotService
 
     public async Task<Slot?> GetSlotById(long id)
     {
-        return await _context.Slots
+        var result = await _context.Slots
             .Include(sl => sl.Location)
             .Include(sl => sl.Psychologist)
             .Include(sl => sl.Sessions)
                 .ThenInclude(ses => ses.Client)
             .FirstOrDefaultAsync(sl => sl.Id == id);
+
+        if (result != null)
+        {
+            result.Date = TimeZoneConverter.ConvertToCET(result.Date);
+            result.SlotStart = TimeZoneConverter.ConvertToCET(result.SlotStart);
+            result.SlotEnd = TimeZoneConverter.ConvertToCET(result.SlotEnd);    
+        }
+
+        return result;
     }
 
     public async Task<IEnumerable<Slot>> GetAllSlots()
     {
-        return await _context.Slots.ToListAsync();
+        var result = await _context.Slots.ToListAsync();
+        return ConvertToCET(result);
     }
 
     public async Task<List<Slot>> GetListOfSlots(List<long> ids)
     {
-        return await _context.Slots
+        var result = await _context.Slots
             .Where(sl => ids.Contains(sl.Id))
             .ToListAsync();
+        
+        return ConvertToCET(result);
     }
 
     public async Task<IEnumerable<Slot>> GetSlotsByPsychologistAndDates(Psychologist psychologist, DateTime? startOfRange = null,
         DateTime? endOfRange = null)
     {
+        List<Slot> result;
         if (startOfRange == null || endOfRange == null)
         {
-            return await _context.Slots
+            result = await _context.Slots
                 .Where(sl => sl.Psychologist.Equals(psychologist))
                 .ToListAsync();
         }
-        return await _context.Slots
+        result = await _context.Slots
             .Where(sl => sl.Psychologist.Equals(psychologist) && sl.SlotStart >= startOfRange &&
                          sl.SlotEnd.AddDays(-1) <= endOfRange)
             .ToListAsync();
+        
+        return ConvertToCET(result);
     }
 
     public async Task<List<Slot>> GetSlotsByLocationAndDates(Location location, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
+        List<Slot> result;
         if (startOfRange == null || endOfRange == null)
         {
-            return await _context.Slots
+            result = await _context.Slots
                 .Where(sl => sl.Location.Equals(location))
                 .ToListAsync();
         }
-        return await _context.Slots
+        result = await _context.Slots
             .Where(sl => sl.Location.Equals(location) && sl.SlotStart >= startOfRange &&
                          sl.SlotEnd.AddDays(-1) <= endOfRange)
             .ToListAsync();
         
+        return ConvertToCET(result);
     }
     
     public async Task<IEnumerable<Slot>> GetSlotsByPsychologistLocationAndDates(Psychologist psychologist, Location location, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
+        List<Slot> result;
         if (startOfRange == null || endOfRange == null)
         {
-            return await _context.Slots
+            result = await _context.Slots
                 .Where(sl => sl.Location.Equals(location) &&  sl.Psychologist.Equals(psychologist))
                 .Include(sl => sl.Sessions)
                 .ToListAsync();
         }
         
-        return await _context.Slots
+        result = await _context.Slots
             .Where(sl => sl.Location.Equals(location) &&  sl.Psychologist.Equals(psychologist) && sl.SlotStart >= startOfRange &&
                          sl.SlotEnd.AddDays(-1) <= endOfRange)
             .Include(sl => sl.Sessions)
             .ToListAsync();
         
+        return ConvertToCET(result);
     }
 
     public async Task<List<Slot>> GetSlotsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
+        List<Slot> result;
         if (startOfRange == null || endOfRange == null)
         {
-            return await _context.Slots
+            result = await _context.Slots
                 .Where(sl => sl.Location.Managers.Contains(manager))
                 .ToListAsync();
         }
 
-        return await _context.Slots
+        result = await _context.Slots
             .Where(sl => sl.Location.Managers.Contains(manager) && sl.SlotStart >= startOfRange &&
                          sl.SlotEnd.AddDays(-1) <= endOfRange)
             .ToListAsync();
+        
+        return ConvertToCET(result);
     }
 
     public async Task<List<Slot>> GetSlotsByDate(DateTime startOfRange, DateTime endOfRange)
     {
-        return await _context.Slots
+        var result = await _context.Slots
             .Where(sl => sl.Date >= startOfRange && sl.Date <= endOfRange)
             .ToListAsync();
+
+        return ConvertToCET(result);
     }
 
     public async Task<bool> UpdateSlot(long id, SlotDTO slot)
@@ -189,6 +216,9 @@ public class SlotService : ISlotService
             //find slots from same day, location and psychologist to avoid overlaps
             var sameDaysSlots = await _context.Slots
                 .Where(sl => sl.Date == slotDate && sl.Location.Id == slot.LocationId && sl.Psychologist.Id == slot.PsychologistId)
+                .Include(sl => sl.Location)
+                .Include(sl => sl.Psychologist)
+                .Include(sl => sl.Sessions)
                 .ToListAsync();
         
             foreach (var sameDaysSlot in sameDaysSlots)
@@ -329,5 +359,21 @@ public class SlotService : ISlotService
         
         slot.Sessions.AddRange(sessions);
         return sessions;
+    }
+    
+    private List<Slot> ConvertToCET(List<Slot> queryResult)
+    {
+        if (queryResult.Count > 0)
+        {
+            queryResult = queryResult.Select(slot =>
+                {
+                    slot.Date = TimeZoneConverter.ConvertToCET(slot.Date);
+                    slot.SlotStart = TimeZoneConverter.ConvertToCET(slot.SlotStart);
+                    slot.SlotEnd = TimeZoneConverter.ConvertToCET(slot.SlotEnd);
+                    return slot;
+                })
+                .ToList();
+        }
+        return queryResult;
     }
 }
