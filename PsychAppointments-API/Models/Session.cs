@@ -56,9 +56,9 @@ public class Session
         PartnerPsychologist = partnerPsychologist;
         Blank = blank;
         Location = location;
-        Date = date;
-        Start = start;
-        End = end;
+        Date = DateTime.SpecifyKind(date, DateTimeKind.Utc);
+        Start = DateTime.SpecifyKind(start, DateTimeKind.Utc);
+        End = DateTime.SpecifyKind(end, DateTimeKind.Utc);
         Client = client;
         Price = price;
         Frequency = frequency;

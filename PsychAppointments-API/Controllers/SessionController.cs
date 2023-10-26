@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PsychAppointments_API.Models;
+using PsychAppointments_API.Models.Enums;
 using PsychAppointments_API.Service;
 using PsychAppointments_API.Service.DataProtection;
 
@@ -212,9 +213,29 @@ public class SessionController : ControllerBase
         var user = await GetLoggedInUser();
         if (user != null)
         {
-            //HEAVY security check needs to be done here!
+
+            var session = await _sessionService.GetSessionById(id);
+            bool userIsAssociatedWithSession;
+            if (session != null)
+            {
+                userIsAssociatedWithSession = _userDPS.IsAssociated(user, session);
+            }
+            else
+            {
+                return BadRequest("Something went wrong: session not found.");
+            }
             //if user is not associated with session, don't let him change anything!
-            //also: price validation should be done in sessionService!
+            if(!userIsAssociatedWithSession)
+            {
+                return Unauthorized("Procedure is unauthorized");
+            }
+
+            if (user.Type != UserType.Psychologist && user.Type != UserType.Admin)
+            {
+                //only admins and the session's psychologists can change price
+                newSession.Price = session.Price;
+            }
+            
             var query = async () => await _sessionService.UpdateSession(id, newSession);
             var result = await query();
             if (result)
@@ -233,7 +254,23 @@ public class SessionController : ControllerBase
         var user = await GetLoggedInUser();
         if (user != null)
         {
+            var session = await _sessionService.GetSessionById(id);
+            bool userIsAssociatedWithSession;
+            if (session != null)
+            {
+                userIsAssociatedWithSession = _userDPS.IsAssociated(user, session);
+            }
+            else
+            {
+                return BadRequest("Something went wrong: session not found.");
+            }
             //don't let anyone delete a session --> admin or session's psychologist and partner only!
+            if(!(userIsAssociatedWithSession && (user.Type == UserType.Admin || user.Type == UserType.Psychologist)))
+            {
+                return Unauthorized("Procedure is unauthorized");
+            }
+            
+
             var query = async () => await _sessionService.DeleteSession(id);
             var result = await query();
             if (result)
