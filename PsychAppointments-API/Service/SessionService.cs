@@ -27,39 +27,13 @@ public class SessionService : ISessionService
     
     public async Task<bool> AddSession(SessionDTO session)
     {
-        session.Date = DateTime.SpecifyKind(session.Date, DateTimeKind.Utc);
-        session.Start = new DateTime(session.Date.Year, session.Date.Month, session.Date.Day, session.Start.Hour, session.Start.Minute, session.Start.Second);
-        session.End = new DateTime(session.Date.Year, session.Date.Month, session.Date.Day, session.End.Hour, session.End.Minute, session.End.Second);
-        
-        session.Start = DateTime.SpecifyKind(session.Start, DateTimeKind.Utc);
-        session.End = DateTime.SpecifyKind(session.End, DateTimeKind.Utc);
-        
         if (session.PsychologistId == null || session.LocationId == null)
         {
             Console.WriteLine($"Psychologist id, location id and slot id in a sessionDTO are required for creating a session.");
             return false;
         }
         
-        //find sessions from same day, location and psychologist to avoid overlaps
-        var sameDaysSessions = await _context.Sessions
-            .Where(ses => ses.Date == session.Date && ses.Location.Id == session.LocationId && ses.Psychologist.Id == session.PsychologistId)
-            .Include(ses => ses.Psychologist)
-            .Include(ses => ses.PartnerPsychologist)
-            .Include(ses => ses.Location)
-            .Include(ses => ses.Slot)
-            .Include(ses => ses.Client)
-            .ToListAsync();
-        
-        foreach (var sameDaysSession in sameDaysSessions)
-        {
-            //if slot overlaps with another, it cannot be added
-            if (Overlap(session, new SessionDTO(sameDaysSession)))
-            {
-                Console.WriteLine($"Adding new session not possible because it would overlap with session {sameDaysSession.Id}.");
-                return false;
-            }
-        }
-        
+        session = SpecifyDateKindForSessionDTO(session);
         try
         {
             var psychologist = (Psychologist?)await _userService.GetUserById((long)session.PsychologistId);
@@ -71,33 +45,17 @@ public class SessionService : ISessionService
                 return false;
             }
             
+            //check for overlapping
+            if (!await SessionDoesNotOverlap(session, location, psychologist)) return false;
+            
             //if slot id is not provided, we create a slot just for this session
             if (session.SlotId == null)
             {
-                //create new slot && calculate slot length
-                int slotLength = (int)(session.End - session.Start).TotalMinutes;
-                var newSlot = new SlotDTO(psychologist, location, session.Date, session.Start, session.End, slotLength, 0, false, new List<Session>());
-
-                //add new slot to DB
-                bool addSlotResult = await _slotService.AddSlot(newSlot, false);
-                if (!addSlotResult)
-                {
-                    Console.WriteLine($"Session could not be added because slot could not be added.");
+                if (!await AddSlotForOneSession(session, psychologist, location))
                     return false;
-                }
             }
 
-            Slot? slot;
-            if (session.SlotId == null)
-            {
-                //gets slot that we just added by start&end
-                slot = (await _slotService.GetSlotsByPsychologistLocationAndDates(psychologist,
-                    location, session.Start, session.End)).FirstOrDefault();
-            }
-            else
-            {
-                slot = await _slotService.GetSlotById((long)session.SlotId);
-            }
+            Slot? slot = await GetSlotForSessionAddition(session, psychologist, location);
             
             //if slot is null, something went wrong --> should be handled
             if (slot == null)
@@ -111,12 +69,9 @@ public class SessionService : ISessionService
             {
                 partnerPsychologist = (Psychologist?)await _userService.GetUserById((long)session.PartnerPsychologistId);
             }
-                
             
             int price = session.Price ?? 0;
 
-
-            
             SessionFrequency frequency = SessionFrequency.None; 
             Enum.TryParse(session.Frequency, out frequency);
             Client? client = null;
@@ -340,50 +295,39 @@ public class SessionService : ISessionService
     {
         try
         {
+            session.Id = id;
+            //get original session
             var original = await GetSessionById(id);
+            //null check for updatable session
             if (original == null)
             {
                 Console.WriteLine($"Session {id} not found in DB.");
                 return false;
             }
+            //check for psychologist ID, location ID and slot ID in DTO (crucial parameters)
+            if (!ValidateLocationSlotAndPsychologistInSessionDto(session)) return false;
             
-            //find slots from same day, location and psychologist to avoid overlaps
-            var sameDaysSessions = await _context.Sessions
-                .Where(ses => ses.Date == session.Date && ses.Location.Id == session.LocationId && ses.Psychologist.Id == session.PsychologistId)
-                .ToListAsync();
+            //specify date kind
+            session = SpecifyDateKindForSessionDTO(session);
             
-            foreach (var sameDaysSession in sameDaysSessions)
-            {
-                //if slot overlaps with another, it cannot be added
-                if (id != sameDaysSession.Id && Overlap(session, new SessionDTO(sameDaysSession)))
-                {
-                    Console.WriteLine($"Updating session {id} is not possible because it would overlap with session {sameDaysSession.Id}.");
-                    return false;
-                }
-            }
-
-            if (session.PsychologistId == null || session.LocationId == null || session.SlotId == null)
-            {
-                Console.WriteLine($"Psychologist id, location id and slot id in a sessionDTO are required for updating session.");
-                return false;
-            }
-            //crucial parameters
+            //get crucial parameters
             Psychologist? psychologist = (Psychologist?)await _userService.GetUserById((long)session.PsychologistId);
             Location? location = await _locationService.GetLocationById((long)session.LocationId);
             Slot? slot = await _slotService.GetSlotById((long)session.SlotId);
-            
+
             if (psychologist == null || location == null || slot == null)
             {
-                Console.WriteLine($"Psychologist, location or slot not found when trying to update a session.");
+                Console.WriteLine($"Psychologist or location or slot not found in DB.");
                 return false;
             }
+            
+            //check for overlapping
+            if (!await SessionDoesNotOverlap(session, location, psychologist)) return false;
             
             //non-crucial parameters
             Psychologist? partnerPsychologist = null;
             if (session.PartnerPsychologistId != null)
-            {
-
-                Console.WriteLine(session.PartnerPsychologistId == null);
+            { 
              partnerPsychologist = (Psychologist?)await _userService.GetUserById((long)session.PartnerPsychologistId);
             }
 
@@ -409,11 +353,9 @@ public class SessionService : ISessionService
             original.Blank = session.Blank;
             original.LocationId = location.Id;
             original.Location = location;
-            DateTime start = new DateTime(session.Date.Year, session.Date.Month, session.Date.Day, session.Start.Hour, session.Start.Minute, session.Start.Second);
-            DateTime end =  new DateTime(session.Date.Year, session.Date.Month, session.Date.Day, session.End.Hour, session.End.Minute, session.End.Second);
-            original.Date = DateTime.SpecifyKind(session.Date, DateTimeKind.Utc);
-            original.Start = DateTime.SpecifyKind(start, DateTimeKind.Utc);
-            original.End = DateTime.SpecifyKind(end, DateTimeKind.Utc);
+            original.Date = session.Date;
+            original.Start = session.Start;
+            original.End = session.End;
             original.ClientId = client == null ? null : client.Id;
             original.Client = client;
             original.Price = price;
@@ -490,5 +432,75 @@ public class SessionService : ISessionService
         }
         
         return queryResult;
+    }
+
+    private async Task<bool> SessionDoesNotOverlap(SessionDTO session, Location location, Psychologist psychologist)
+    {
+        
+        var sameDaysSessions = await GetSessionsByPsychologistLocationAndDates(psychologist, location, session.Start, session.End);
+        
+        foreach (var sameDaysSession in sameDaysSessions)
+        {
+            //if slot overlaps with another, it cannot be added
+            if (session.Id != sameDaysSession.Id && Overlap(session, new SessionDTO(sameDaysSession)))
+            {
+                Console.WriteLine($"Adding/updating session is not possible because it would overlap with session {sameDaysSession.Id}.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private bool ValidateLocationSlotAndPsychologistInSessionDto(SessionDTO session)
+    {
+        if (session.PsychologistId == null || session.LocationId == null || session.SlotId == null)
+        {
+            Console.WriteLine($"Psychologist id, location id and slot id in a sessionDTO are required for adding/updating session.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task<bool> AddSlotForOneSession(SessionDTO session, Psychologist psychologist, Location location)
+    {
+        //create new slot && calculate slot length
+        int slotLength = (int)(session.End - session.Start).TotalMinutes;
+        var newSlot = new SlotDTO(psychologist, location, session.Date, session.Start, session.End, slotLength, 0, false, new List<Session>());
+
+        //add new slot to DB
+        bool addSlotResult = await _slotService.AddSlot(newSlot, false);
+        if (!addSlotResult)
+        {
+            Console.WriteLine($"Session could not be added because slot could not be added.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private async Task<Slot?> GetSlotForSessionAddition(SessionDTO session, Psychologist psychologist, Location location)
+    {
+        if (session.SlotId == null)
+        {
+            //gets slot that we just added by start&end
+            var slots = await _slotService.GetSlotsByPsychologistLocationAndDates(psychologist,
+                location, session.Start, session.End);
+            return slots.FirstOrDefault();
+        }
+        
+        return await _slotService.GetSlotById((long)session.SlotId);
+    }
+
+    private SessionDTO SpecifyDateKindForSessionDTO(SessionDTO session)
+    {
+        session.Date = DateTime.SpecifyKind(session.Date, DateTimeKind.Utc);
+        session.Start = new DateTime(session.Date.Year, session.Date.Month, session.Date.Day, session.Start.Hour, session.Start.Minute, session.Start.Second);
+        session.End = new DateTime(session.Date.Year, session.Date.Month, session.Date.Day, session.End.Hour, session.End.Minute, session.End.Second);
+        
+        session.Start = DateTime.SpecifyKind(session.Start, DateTimeKind.Utc);
+        session.End = DateTime.SpecifyKind(session.End, DateTimeKind.Utc);
+
+        return session;
     }
 }
