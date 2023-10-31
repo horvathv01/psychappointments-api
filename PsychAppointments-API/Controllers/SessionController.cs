@@ -194,14 +194,17 @@ public class SessionController : ControllerBase
         var user = await GetLoggedInUser();
         if (user != null)
         {
-            
-            var query = async () => await _sessionService.AddSession(session);
-            var result = await query();
-            if (result)
+            try
             {
+                var query = async () => await _sessionService.AddSession(session);
+                await query();
                 return Ok("Session was added successfully.");
             }
-            return BadRequest("Something went wrong.");
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return BadRequest("Something went wrong.");
+            }
         }
         return Unauthorized();
     }
