@@ -48,16 +48,16 @@ public class Client : User
 
     public override bool Equals(object? obj)
     {
-        return obj is Client
-               && ((Client)obj).Id == Id
-               && ((Client)obj).Name == Name
-               && ((Client)obj).Address.Equals(Address)
-               && ((Client)obj).DateOfBirth == DateOfBirth
-               && ((Client)obj).Email == Email
-               && ((Client)obj).Phone == Phone
-               && ((Client)obj).Password == Password
-               && ((Client)obj).Type == Type
-               && ((Client)obj).RegisteredBy.Id == RegisteredBy.Id;
+        return obj is Client otherClient
+               && otherClient.Id == Id
+               && otherClient.Name == Name
+               && otherClient.Address.Equals(Address)
+               && otherClient.DateOfBirth == DateOfBirth
+               && otherClient.Email == Email
+               && otherClient.Phone == Phone
+               && otherClient.Password == Password
+               && otherClient.Type == Type
+               && (RegisteredBy == null || (otherClient.RegisteredBy != null && otherClient.RegisteredBy.Id == RegisteredBy.Id));
     }
     
     public override string ToString()

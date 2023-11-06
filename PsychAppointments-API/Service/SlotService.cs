@@ -25,54 +25,31 @@ public class SlotService : ISlotService
     
     public async Task<bool> AddSlot(SlotDTO slot, bool prepopulate)
     {
-        //long id = await _context.Slots.CountAsync() + 1;
-        //slot.Id = id;
-
-        //find slots from same day, location and psychologist to avoid overlaps
-        var sameDaysSlots = await _context.Slots
-            .Where(sl => sl.Date == slot.Date && sl.Location.Id == slot.LocationId && sl.Psychologist.Id == slot.PsychologistId)
-            .Include(sl => sl.Location)
-            .Include(sl => sl.Psychologist)
-            .Include(sl => sl.Sessions)
-            .ToListAsync();
-        
-        foreach (var sameDaysSlot in sameDaysSlots)
-        {
-            //if slot overlaps with another, it cannot be added
-            if (Overlap(slot, new SlotDTO(sameDaysSlot))) return false;
-        }
-
         try
         {
+            ValidateLocationAndPsychologistIDsInSlotDto(slot);
+            slot = SpecifyDateKindForSessionDto(slot);
+        
             var psychologist = (Psychologist?)await _userService.GetUserById(slot.PsychologistId);
             var location = await _locationService.GetLocationById(slot.LocationId);
             if (psychologist == null || location == null)
-            {
-                return false;
-            }
-            slot.Date = DateTime.SpecifyKind(slot.Date, DateTimeKind.Utc);
-            DateTime start = new DateTime(slot.Date.Year, slot.Date.Month, slot.Date.Day, slot.SlotStart.Hour, slot.SlotStart.Minute, slot.SlotStart.Second);
-            DateTime end =  new DateTime(slot.Date.Year, slot.Date.Month, slot.Date.Day, slot.SlotEnd.Hour, slot.SlotEnd.Minute, slot.SlotEnd.Second);
-            slot.SlotStart = DateTime.SpecifyKind(start, DateTimeKind.Utc);
-            slot.SlotEnd = DateTime.SpecifyKind(end, DateTimeKind.Utc);
-            Slot newSlot = new Slot(psychologist, location, slot.Date, slot.SlotStart, slot.SlotEnd, slot.SessionLength, slot.Rest, slot.Weekly, new List<Session>());
+                throw new InvalidOperationException("Psychologist or location not found when trying to add a slot.");
+        
+            await SlotDoesNotOverlap(slot, location, psychologist); 
             
-            //new slots are prepopulated with empty sessions. 
-            //newSlot.Sessions = await PrepopulateSlotWithBlankSessions(newSlot);
+            Slot newSlot = new Slot(psychologist, location, slot.Date, slot.SlotStart, slot.SlotEnd, slot.SessionLength, slot.Rest, slot.Weekly, new List<Session>());
 
-            if (prepopulate)
-            {
-                await PrepopulateSlotWithBlankSessions(newSlot);    
-            }
+            if (prepopulate) await PrepopulateSlotWithBlankSessions(newSlot);    
+            
             await _context.Slots.AddAsync(newSlot);
             await _context.SaveChangesAsync();
             return true;
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Slot could not be added.");
+            Console.WriteLine($"Slot could not be added. See inner exception for details.");
             Console.WriteLine(e);
-            return false;
+            throw;
         }
     }
 
@@ -97,7 +74,12 @@ public class SlotService : ISlotService
 
     public async Task<IEnumerable<Slot>> GetAllSlots()
     {
-        var result = await _context.Slots.ToListAsync();
+        var result = await _context.Slots
+            .Include(sl => sl.Location)
+            .Include(sl => sl.Psychologist)
+            .Include(sl => sl.Sessions)
+            .ThenInclude(ses => ses.Client)
+            .ToListAsync();
         return ConvertToCET(result);
     }
 
@@ -105,6 +87,10 @@ public class SlotService : ISlotService
     {
         var result = await _context.Slots
             .Where(sl => ids.Contains(sl.Id))
+            .Include(sl => sl.Location)
+            .Include(sl => sl.Psychologist)
+            .Include(sl => sl.Sessions)
+            .ThenInclude(ses => ses.Client)
             .ToListAsync();
         
         return ConvertToCET(result);
@@ -118,11 +104,19 @@ public class SlotService : ISlotService
         {
             result = await _context.Slots
                 .Where(sl => sl.Psychologist.Equals(psychologist))
+                .Include(sl => sl.Location)
+                .Include(sl => sl.Psychologist)
+                .Include(sl => sl.Sessions)
+                .ThenInclude(ses => ses.Client)
                 .ToListAsync();
         }
         result = await _context.Slots
             .Where(sl => sl.Psychologist.Equals(psychologist) && sl.SlotStart >= startOfRange &&
                          sl.SlotEnd.AddDays(-1) <= endOfRange)
+            .Include(sl => sl.Location)
+            .Include(sl => sl.Psychologist)
+            .Include(sl => sl.Sessions)
+            .ThenInclude(ses => ses.Client)
             .ToListAsync();
         
         return ConvertToCET(result);
@@ -135,11 +129,19 @@ public class SlotService : ISlotService
         {
             result = await _context.Slots
                 .Where(sl => sl.Location.Equals(location))
+                .Include(sl => sl.Location)
+                .Include(sl => sl.Psychologist)
+                .Include(sl => sl.Sessions)
+                .ThenInclude(ses => ses.Client)
                 .ToListAsync();
         }
         result = await _context.Slots
             .Where(sl => sl.Location.Equals(location) && sl.SlotStart >= startOfRange &&
                          sl.SlotEnd.AddDays(-1) <= endOfRange)
+            .Include(sl => sl.Location)
+            .Include(sl => sl.Psychologist)
+            .Include(sl => sl.Sessions)
+            .ThenInclude(ses => ses.Client)
             .ToListAsync();
         
         return ConvertToCET(result);
@@ -152,14 +154,20 @@ public class SlotService : ISlotService
         {
             result = await _context.Slots
                 .Where(sl => sl.Location.Equals(location) &&  sl.Psychologist.Equals(psychologist))
+                .Include(sl => sl.Location)
+                .Include(sl => sl.Psychologist)
                 .Include(sl => sl.Sessions)
+                .ThenInclude(ses => ses.Client)
                 .ToListAsync();
         }
         
         result = await _context.Slots
             .Where(sl => sl.Location.Equals(location) &&  sl.Psychologist.Equals(psychologist) && sl.SlotStart >= startOfRange &&
                          sl.SlotEnd.AddDays(-1) <= endOfRange)
+            .Include(sl => sl.Location)
+            .Include(sl => sl.Psychologist)
             .Include(sl => sl.Sessions)
+            .ThenInclude(ses => ses.Client)
             .ToListAsync();
         
         return ConvertToCET(result);
@@ -172,12 +180,20 @@ public class SlotService : ISlotService
         {
             result = await _context.Slots
                 .Where(sl => sl.Location.Managers.Contains(manager))
+                .Include(sl => sl.Location)
+                .Include(sl => sl.Psychologist)
+                .Include(sl => sl.Sessions)
+                .ThenInclude(ses => ses.Client)
                 .ToListAsync();
         }
 
         result = await _context.Slots
             .Where(sl => sl.Location.Managers.Contains(manager) && sl.SlotStart >= startOfRange &&
                          sl.SlotEnd.AddDays(-1) <= endOfRange)
+            .Include(sl => sl.Location)
+            .Include(sl => sl.Psychologist)
+            .Include(sl => sl.Sessions)
+            .ThenInclude(ses => ses.Client)
             .ToListAsync();
         
         return ConvertToCET(result);
@@ -187,6 +203,10 @@ public class SlotService : ISlotService
     {
         var result = await _context.Slots
             .Where(sl => sl.Date >= startOfRange && sl.Date <= endOfRange)
+            .Include(sl => sl.Location)
+            .Include(sl => sl.Psychologist)
+            .Include(sl => sl.Sessions)
+            .ThenInclude(ses => ses.Client)
             .ToListAsync();
 
         return ConvertToCET(result);
@@ -196,67 +216,31 @@ public class SlotService : ISlotService
     {
         try
         {
+            slot.Id = id;
             var original = await GetSlotById(id);
             if (original == null)
-            {
-                Console.WriteLine($"Slot {id} not found in DB.");
-                return false;
-            }
+                throw new InvalidOperationException($"Slot {id} not found in DB.");
 
             bool hasBlankSessionsOnly = original.Sessions.All(ses => ses.Blank);
-
             if (!hasBlankSessionsOnly)
-            {
-                Console.WriteLine("Slot cannot be updated because it has sessions that are not blank. In this case you should add a new one instead of modifying an existing one.");
-                return false;
-            }
+                throw new InvalidOperationException("Slot cannot be updated because it has sessions that are not blank. In this case you should add a new one instead of modifying an existing one.");
             
-            var slotDate = DateTime.SpecifyKind(slot.Date, DateTimeKind.Utc);
+            slot = SpecifyDateKindForSessionDto(slot);
             
-            //find slots from same day, location and psychologist to avoid overlaps
-            var sameDaysSlots = await _context.Slots
-                .Where(sl => sl.Date == slotDate && sl.Location.Id == slot.LocationId && sl.Psychologist.Id == slot.PsychologistId)
-                .Include(sl => sl.Location)
-                .Include(sl => sl.Psychologist)
-                .Include(sl => sl.Sessions)
-                .ToListAsync();
-        
-            foreach (var sameDaysSlot in sameDaysSlots)
-            {
-                //if slot overlaps with another, it cannot be added
-                if (Overlap(slot, new SlotDTO(sameDaysSlot)))
-                {
-                    Console.WriteLine($"Updating slot {id} is not possible because it would overlap with slot {sameDaysSlot.Id}.");
-                    return false;
-                }
-            }
-            
-            Psychologist? psychologist = (Psychologist?)await _userService.GetUserById(slot.PsychologistId);
-            Location? location = await _locationService.GetLocationById(slot.LocationId);
-            
+            var psychologist = (Psychologist?)await _userService.GetUserById(slot.PsychologistId);
+            var location = await _locationService.GetLocationById(slot.LocationId);
             if (psychologist == null || location == null)
-            {
-                Console.WriteLine($"Psychologist and/or location in slot cannot be null.");
-                return false;
-            }
-            
-            List<Session> sessions = slot.SessionIds == null
-                ? new List<Session>()
-                : await _context.Sessions.Where(ses => slot.SessionIds.Contains(ses.Id)).ToListAsync();
-            
-
+                throw new InvalidOperationException("Psychologist or location not found when trying to add a slot.");
+            await SlotDoesNotOverlap(slot, location, psychologist); 
             
             original.Psychologist = psychologist;
             original.Location = location;
-            original.Date = DateTime.SpecifyKind(slot.Date, DateTimeKind.Utc);
-            DateTime start = new DateTime(slot.Date.Year, slot.Date.Month, slot.Date.Day, slot.SlotStart.Hour, slot.SlotStart.Minute, slot.SlotStart.Second);
-            DateTime end =  new DateTime(slot.Date.Year, slot.Date.Month, slot.Date.Day, slot.SlotEnd.Hour, slot.SlotEnd.Minute, slot.SlotEnd.Second);
-            slot.SlotStart = DateTime.SpecifyKind(start, DateTimeKind.Utc);
-            slot.SlotEnd = DateTime.SpecifyKind(end, DateTimeKind.Utc);
+            original.Date = slot.Date;
+            original.SlotStart = slot.SlotStart;
+            original.SlotEnd = slot.SlotEnd;
             original.SessionLength = slot.SessionLength;
             original.Rest = slot.Rest;
             original.Weekly = slot.Weekly;
-            //original.Sessions = await PrepopulateSlotWithBlankSessions(original);
             
             _context.RemoveRange(original.Sessions);
 
@@ -270,8 +254,9 @@ public class SlotService : ISlotService
         }
         catch (Exception e)
         {
+            Console.WriteLine($"Slot could not be updated. See inner exception for details.");
             Console.WriteLine(e);
-            return false;
+            throw;
         }
     }
 
@@ -280,15 +265,16 @@ public class SlotService : ISlotService
         try
         {
             var slot = await GetSlotById(id);
-            if (slot == null) return false;
+            if (slot == null) throw new InvalidOperationException($"Slot with id {id} was not found in DB.");
             _context.Remove(slot);
             await _context.SaveChangesAsync();
             return true;
         }
         catch (Exception e)
         {
+            Console.WriteLine($"Slot could not be deleted. See inner exception for details.");
             Console.WriteLine(e);
-            return false;
+            throw;
         }
     }
 
@@ -375,5 +361,40 @@ public class SlotService : ISlotService
                 .ToList();
         }
         return queryResult;
+    }
+    
+    private async Task<bool> SlotDoesNotOverlap(SlotDTO slot, Location location, Psychologist psychologist)
+    {
+        
+        var sameDaysSlots = await GetSlotsByPsychologistLocationAndDates(psychologist, location, slot.SlotStart, slot.SlotEnd);
+        
+        foreach (var sameDaysSlot in sameDaysSlots)
+        {
+            //if slot overlaps with another, it cannot be added
+            if (slot.Id != sameDaysSlot.Id && Overlap(slot, new SlotDTO(sameDaysSlot)))
+            {
+                throw new InvalidOperationException($"Adding/updating slot is not possible because it would overlap with session {sameDaysSlot.Id}.");
+            }
+        }
+        return true;
+    }
+    
+        private void ValidateLocationAndPsychologistIDsInSlotDto(SlotDTO slot)
+    {
+        if (slot.PsychologistId == null || slot.LocationId == null)
+            throw new InvalidOperationException($"Psychologist id and location id a slotDTO are required for adding/updating session.");
+    }
+    
+
+    private SlotDTO SpecifyDateKindForSessionDto(SlotDTO slot)
+    {
+        slot.Date = DateTime.SpecifyKind(slot.Date, DateTimeKind.Utc);
+        slot.SlotStart = new DateTime(slot.Date.Year, slot.Date.Month, slot.Date.Day, slot.SlotStart.Hour, slot.SlotStart.Minute, slot.SlotStart.Second);
+        slot.SlotEnd = new DateTime(slot.Date.Year, slot.Date.Month, slot.Date.Day, slot.SlotEnd.Hour, slot.SlotEnd.Minute, slot.SlotEnd.Second);
+        
+        slot.SlotStart = DateTime.SpecifyKind(slot.SlotStart, DateTimeKind.Utc);
+        slot.SlotEnd = DateTime.SpecifyKind(slot.SlotEnd, DateTimeKind.Utc);
+
+        return slot;
     }
 }

@@ -96,16 +96,16 @@ public class SessionController : ControllerBase
     }
     
     //get sessions by psychologist and dates
-    [HttpGet("psychologist/dates")]
+    [HttpGet("psychologist")]
     [Authorize]
     public async Task<List<SessionDTO>?> GetSessionsByPsychologistWithDates(
-        [FromQuery] long psychologistId,
+        [FromQuery] long id,
         [FromQuery] string startDate, 
         [FromQuery] string endDate
         )
     {
         var user = await GetLoggedInUser();
-        var psychologist = await _psychologistService.GetPsychologistById(psychologistId);
+        var psychologist = await _psychologistService.GetPsychologistById(id);
         
         DateTime startDateParsed = DateTime.MinValue;
         DateTime endDateParsed = DateTime.MinValue;
@@ -154,18 +154,17 @@ public class SessionController : ControllerBase
         return null;
     }
     
-    //get sessions by location
     [HttpGet("location")]
     [Authorize]
     public async Task<List<SessionDTO>?> GetSessionsByLocationWithDates(
-        [FromQuery] long locationId, 
+        [FromQuery] long id, 
         [FromQuery] string startDate, 
         [FromQuery] string endDate
     )
     {
         var user = await GetLoggedInUser();
         
-        var location = await _locationService.GetLocationById(locationId);
+        var location = await _locationService.GetLocationById(id);
         
         DateTime startDateParsed = DateTime.MinValue;
         DateTime endDateParsed = DateTime.MinValue;
@@ -179,6 +178,35 @@ public class SessionController : ControllerBase
             startDateParsed = DateTime.SpecifyKind(startDateParsed, DateTimeKind.Utc);
             endDateParsed = DateTime.SpecifyKind(endDateParsed, DateTimeKind.Utc);
             var query = async () => await _sessionService.GetSessionsByLocation(location, startDateParsed, endDateParsed);
+            var result = await _userDPS.Filter(user, query);
+            
+            return result.ToList();
+        }
+        return new List<SessionDTO>();
+    }
+    
+    [HttpGet("client")]
+    [Authorize]
+    public async Task<List<SessionDTO>?> GetSessionsByClientAndDates(
+        [FromQuery] long id, 
+        [FromQuery] string startDate, 
+        [FromQuery] string endDate
+    )
+    {
+        var user = await GetLoggedInUser();
+        
+        Client? client = (user != null && user.Id == id) ? (Client?)user : (Client?)await _userService.GetUserById(id);
+        
+        DateTime startDateParsed = DateTime.MinValue;
+        DateTime endDateParsed = DateTime.MinValue;
+        DateTime.TryParse(startDate, out startDateParsed);
+        DateTime.TryParse(endDate, out endDateParsed);
+        
+        if (user != null && client != null && client.Type == UserType.Client && startDateParsed != DateTime.MinValue && endDateParsed != DateTime.MinValue)
+        {
+            startDateParsed = DateTime.SpecifyKind(startDateParsed, DateTimeKind.Utc);
+            endDateParsed = DateTime.SpecifyKind(endDateParsed, DateTimeKind.Utc);
+            var query = async () => await _sessionService.GetSessionsByClient(client, startDateParsed, endDateParsed);
             var result = await _userDPS.Filter(user, query);
             
             return result.ToList();
@@ -221,7 +249,7 @@ public class SessionController : ControllerBase
             bool userIsAssociatedWithSession;
             if (session != null)
             {
-                userIsAssociatedWithSession = _userDPS.IsAssociated(user, session);
+                userIsAssociatedWithSession = session.Blank || _userDPS.IsAssociated(user, session);
             }
             else
             {
