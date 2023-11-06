@@ -15,9 +15,9 @@ public interface ISessionService
     Task<IEnumerable<Session>> GetSessionsByPsychologist(Psychologist psychologist, DateTime? startOfRange = null, DateTime? endOfRange = null);
     Task<IEnumerable<Session>> GetSessionsByPsychologistLocationAndDates(Psychologist psychologist,
         Location location, DateTime? startOfRange = null, DateTime? endOfRange = null);
-    Task<List<Session>> GetSessionsByClient(Client client, DateTime? startOfRange = null, DateTime? endOfRange = null);
-    Task<List<Session>> GetSessionsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null);
-    Task<List<Session>> GetSessionsByDate(DateTime startOfRange, DateTime endOfRange);
+    Task<IEnumerable<Session>> GetSessionsByClient(Client client, DateTime? startOfRange = null, DateTime? endOfRange = null);
+    Task<IEnumerable<Session>> GetSessionsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null);
+    Task<IEnumerable<Session>> GetSessionsByDate(DateTime startOfRange, DateTime endOfRange);
     Task<bool> UpdateSession(long id, SessionDTO session);
     Task<bool> DeleteSession(long id);
 

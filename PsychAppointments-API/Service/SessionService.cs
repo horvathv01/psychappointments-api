@@ -79,6 +79,9 @@ public class SessionService : ISessionService
             .Include(ses => ses.Location)
             .Include(ses => ses.Slot)
             .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.Address)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.RegisteredBy)
             .FirstOrDefaultAsync(ses => ses.Id == id);
 
         
@@ -100,6 +103,9 @@ public class SessionService : ISessionService
             .Include(ses => ses.Location)
             .Include(ses => ses.Slot)
             .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.Address)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.RegisteredBy)
             .ToListAsync();
         
         return ConvertToCET(result);
@@ -113,6 +119,9 @@ public class SessionService : ISessionService
             .Include(ses => ses.Location)
             .Include(ses => ses.Slot)
             .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.Address)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.RegisteredBy)
             .Where(ses => !ses.Blank)
             .ToListAsync();
         
@@ -128,6 +137,9 @@ public class SessionService : ISessionService
             .Include(ses => ses.Location)
             .Include(ses => ses.Slot)
             .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.Address)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.RegisteredBy)
             .ToListAsync();
         
         return ConvertToCET(result);
@@ -146,6 +158,9 @@ public class SessionService : ISessionService
                 .Include(ses => ses.Location)
                 .Include(ses => ses.Slot)
                 .Include(ses => ses.Client)
+                    .ThenInclude(cli => cli.Address)
+                .Include(ses => ses.Client)
+                    .ThenInclude(cli => cli.RegisteredBy)
                 .ToListAsync();
         }
         
@@ -157,6 +172,9 @@ public class SessionService : ISessionService
             .Include(ses => ses.Location)
             .Include(ses => ses.Slot)
             .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.Address)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.RegisteredBy)
             .ToListAsync();
         
         return ConvertToCET(result);
@@ -174,6 +192,9 @@ public class SessionService : ISessionService
                 .Include(ses => ses.Location)
                 .Include(ses => ses.Slot)
                 .Include(ses => ses.Client)
+                    .ThenInclude(cli => cli.Address)
+                .Include(ses => ses.Client)
+                    .ThenInclude(cli => cli.RegisteredBy)
                 .ToListAsync();
         }
         
@@ -185,6 +206,9 @@ public class SessionService : ISessionService
             .Include(ses => ses.Location)
             .Include(ses => ses.Slot)
             .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.Address)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.RegisteredBy)
             .ToListAsync();
         
         return ConvertToCET(result);
@@ -202,6 +226,9 @@ public class SessionService : ISessionService
                 .Include(ses => ses.Location)
                 .Include(ses => ses.Slot)
                 .Include(ses => ses.Client)
+                    .ThenInclude(cli => cli.Address)
+                .Include(ses => ses.Client)
+                    .ThenInclude(cli => cli.RegisteredBy)
                 .ToListAsync();
         }
         
@@ -213,51 +240,94 @@ public class SessionService : ISessionService
             .Include(ses => ses.Location)
             .Include(ses => ses.Slot)
             .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.Address)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.RegisteredBy)
             .ToListAsync();
         
         return ConvertToCET(result);
     }
 
-    public async Task<List<Session>> GetSessionsByClient(Client client, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    public async Task<IEnumerable<Session>> GetSessionsByClient(Client client, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
         List<Session> result;
         if (startOfRange == null || endOfRange == null)
         {
             result = await _context.Sessions
-                .Where(ses => ses.Client.Equals(client))
+                .Where(ses => ses.Client != null && ses.Client.Equals(client))
+                .Include(ses => ses.Psychologist)
+                .Include(ses => ses.PartnerPsychologist)
+                .Include(ses => ses.Location)
+                .Include(ses => ses.Slot)
+                .Include(ses => ses.Client)
+                    .ThenInclude(cli => cli.Address)
+                .Include(ses => ses.Client)
+                    .ThenInclude(cli => cli.RegisteredBy)
                 .ToListAsync();
         }
 
         result = await _context.Sessions
-            .Where(ses => ses.Client.Equals(client) && ses.Start >= startOfRange &&
+            .Where(ses => ses.Client != null && ses.Client.Equals(client) && ses.Start >= startOfRange &&
                           ses.End.AddDays(-1) <= endOfRange)
+            .Include(ses => ses.Psychologist)
+            .Include(ses => ses.PartnerPsychologist)
+            .Include(ses => ses.Location)
+            .Include(ses => ses.Slot)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.Address)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.RegisteredBy)
             .ToListAsync();
         
         return ConvertToCET(result);
     }
 
-    public async Task<List<Session>> GetSessionsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null)
+    public async Task<IEnumerable<Session>> GetSessionsByManager(Manager manager, DateTime? startOfRange = null, DateTime? endOfRange = null)
     {
         List<Session> result;
         if (startOfRange == null || endOfRange == null)
         {
             result = await _context.Sessions
                 .Where(ses => ses.Location.Managers.Contains(manager))
+                .Include(ses => ses.Psychologist)
+                .Include(ses => ses.PartnerPsychologist)
+                .Include(ses => ses.Location)
+                .Include(ses => ses.Slot)
+                .Include(ses => ses.Client)
+                    .ThenInclude(cli => cli.Address)
+                .Include(ses => ses.Client)
+                    .ThenInclude(cli => cli.RegisteredBy)
                 .ToListAsync();
         }
 
         result = await _context.Sessions
             .Where(ses => ses.Location.Managers.Contains(manager) && ses.Start >= startOfRange &&
                          ses.End.AddDays(-1) <= endOfRange)
+            .Include(ses => ses.Psychologist)
+            .Include(ses => ses.PartnerPsychologist)
+            .Include(ses => ses.Location)
+            .Include(ses => ses.Slot)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.Address)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.RegisteredBy)
             .ToListAsync();
         
         return ConvertToCET(result);
     }
 
-    public async Task<List<Session>> GetSessionsByDate(DateTime startOfRange, DateTime endOfRange)
+    public async Task<IEnumerable<Session>> GetSessionsByDate(DateTime startOfRange, DateTime endOfRange)
     {
         var result = await _context.Sessions
             .Where(ses => ses.Date >= startOfRange && ses.Date <= endOfRange)
+            .Include(ses => ses.Psychologist)
+            .Include(ses => ses.PartnerPsychologist)
+            .Include(ses => ses.Location)
+            .Include(ses => ses.Slot)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.Address)
+            .Include(ses => ses.Client)
+                .ThenInclude(cli => cli.RegisteredBy)
             .ToListAsync();
 
         return ConvertToCET(result);
@@ -273,15 +343,17 @@ public class SessionService : ISessionService
                 throw new InvalidOperationException($"Session {id} not found in DB.");
             
             ValidateLocationAndPsychologistIDsInSessionDto(session);
-            
+            Console.WriteLine("THIS IS THE SESSION");
+            Console.WriteLine(session);
+            /*
             if (session.SlotId == null)
-                throw new InvalidOperationException($"Slot id a sessionDTO is required for adding/updating session.");
-            
+                throw new InvalidOperationException($"Slot id in a sessionDTO is required for adding/updating session.");
+            */  
             session = SpecifyDateKindForSessionDto(session);
             
             Psychologist? psychologist = (Psychologist?)await _userService.GetUserById((long)session.PsychologistId);
             Location? location = await _locationService.GetLocationById((long)session.LocationId);
-            Slot? slot = await _slotService.GetSlotById((long)session.SlotId);
+            Slot? slot = await _slotService.GetSlotById(original.SlotId);
 
             if (psychologist == null || location == null || slot == null) 
                 throw new InvalidOperationException($"Psychologist or location or slot not found in DB.");
@@ -316,9 +388,10 @@ public class SessionService : ISessionService
             original.Client = client;
             original.Price = price;
             original.Frequency = frequency;
+            /*
             original.SlotId = slot.Id;
             original.Slot = slot;
-            original.SlotId = slot.Id;
+            */
             original.Description = session.Description;
 
             _context.Update(original);

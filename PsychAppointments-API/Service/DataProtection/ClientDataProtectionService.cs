@@ -7,14 +7,14 @@ public class ClientDataProtectionService : IDataProtectionService<Client>
 {
     public bool IsAssociated(Client user, Session session)
     {
-        return session.Client.Equals(user);
+        return (session.Client != null && session.Client.Equals(user));
     }
 
     public bool IsAssociated(Client user, Slot slot)
     {
         foreach (var session in slot.Sessions)
         {
-            if (session.Client.Equals(user))
+            if (session.Client != null && session.Client.Equals(user))
             {
                 return true;
             }
