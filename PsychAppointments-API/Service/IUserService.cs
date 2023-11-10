@@ -7,6 +7,7 @@ public interface IUserService
      Task<bool> AddUser(UserDTO user);
      Task<User?> GetUserById(long id);
      Task<User?> GetUserByEmail(string email);
+     Task<UserDTO?> GetFilteredUserDataForBookingByEmail(string email);
      Task<IEnumerable<User>> GetAllUsers();
      Task<IEnumerable<User>> GetAllPsychologists();
      Task<IEnumerable<User>> GetAllClients();
