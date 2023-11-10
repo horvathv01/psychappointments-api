@@ -238,6 +238,12 @@ public class UserService : IUserService
         //return await _userRepository.GetByEmail(email);
     }
 
+    public async Task<UserDTO?> GetFilteredUserDataForBookingByEmail(string email)
+    {
+        var user = await GetUserByEmail(email);
+        return FilterForBooking(user);
+    }
+
     public async Task<IEnumerable<User>> GetAllUsers()
     {
         var clients = await _context.Clients
@@ -466,6 +472,31 @@ public class UserService : IUserService
             Console.WriteLine(e);
             return false;
         }
+    }
+    
+    private UserDTO? FilterForBooking(User? user)
+    {
+        if (user != null || user.Type == UserType.Client)
+        {
+            return new UserDTO(user)
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Type = Enum.GetName(typeof(UserType), user.Type),
+                Email = user.Email,
+                Phone = user.Phone,
+                DateOfBirth = "",
+                Address = new Address(),
+                Password = "",
+                RegisteredBy = 0,
+                SessionIds = null,
+                PsychologistIds = null,
+                ClientIds = null,
+                SlotIds = null,
+                LocationIds = null
+            };
+        }
+        return null;
     }
     
 }

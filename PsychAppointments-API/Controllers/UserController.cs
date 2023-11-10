@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PsychAppointments_API.Models;
+using PsychAppointments_API.Models.Enums;
 using PsychAppointments_API.Service;
 using PsychAppointments_API.Service.DataProtection;
 
@@ -58,6 +59,18 @@ public class UserController : ControllerBase
         {
             var query = async () => await _userService.GetUserByEmail(email);
             return await _userDPS.Filter(user, query);    
+        }
+        return null;
+    }
+
+    [HttpGet("booking/{email}")]
+    [Authorize]
+    public async Task<UserDTO?> GetLimitedInfoOfUserForBooking(string email)
+    {
+        var user = await GetLoggedInUser();
+        if (user != null && user.Type != UserType.Client)
+        {
+            return await _userService.GetFilteredUserDataForBookingByEmail(email);
         }
         return null;
     }
@@ -197,5 +210,5 @@ public class UserController : ControllerBase
         long.TryParse(HttpContext.User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Authentication).Value, out userId);
         return await _userService.GetUserById(userId);
     }
-
+    
 }
